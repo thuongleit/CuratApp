@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CuratApp</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="get_started">Get Started</string>
 </resources>
