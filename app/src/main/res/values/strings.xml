@@ -2,4 +2,21 @@
     <string name="app_name">CuratApp</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="get_started">Get Started</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <array name="list_account">
+        <item>Account 1</item>
+        <item>Account 2</item>
+        <item>Account 3</item>
+        <item>Account 4</item>
+    </array>
+    <array name="tab_titles">
+        <item>UPCOMING</item>
+        <item>POSTED</item>
+    </array>
 </resources>

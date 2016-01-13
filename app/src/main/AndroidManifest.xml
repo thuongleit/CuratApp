@@ -23,7 +23,6 @@
             android:name=".view.activities.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme" />
-
         <activity
             android:name=".view.activities.VerifyActivity"
             android:label="Splash"

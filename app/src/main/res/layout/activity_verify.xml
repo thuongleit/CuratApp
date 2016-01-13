@@ -21,7 +21,7 @@
         android:text="@string/get_started"
         android:textAllCaps="true"
         android:textColor="#404040"
-        android:textSize="35sp" />
+        android:textSize="25sp" />
 
     <TextView
         android:id="@+id/text_description"
@@ -34,9 +34,9 @@
         android:gravity="center"
         android:text="Please insert the Verification Code provided by your CuratApp Manager inside your email inbox."
         android:textColor="#9A9A9A"
-        android:textSize="22sp" />
+        android:textSize="20sp" />
 
-    <EditText
+    <com.avectris.curatapp.view.widgets.CustomBottomLineEditText
         android:id="@+id/input_verify_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,24 +44,27 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:hint="Enter the verification code"
+        android:inputType="number|numberDecimal"
         android:padding="5dp"
         android:textColor="@color/colorPrimary"
         android:textColorHint="#BABABA"
         android:textCursorDrawable="@drawable/color_cursor"
-        android:textSize="24sp" />
+        android:textSize="22sp" />
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/button_verify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/input_verify_code"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:background="#00D685"
+        android:elevation="2dp"
         android:paddingBottom="10dp"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
         android:paddingTop="10dp"
         android:text="Verify"
         android:textColor="@android:color/white"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 </RelativeLayout>
