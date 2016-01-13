@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -89,6 +90,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         };
         mDrawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
+        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        View headerView = getLayoutInflater().inflate(R.layout.nav_header_main, null);
+        mNavView.addView(headerView, layoutParams);
         mNavView.setNavigationItemSelectedListener(this);
     }
 
