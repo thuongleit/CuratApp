@@ -3,6 +3,9 @@ package com.avectris.curatapp.di.module;
 import android.app.Activity;
 import android.content.Context;
 
+import com.avectris.curatapp.di.scope.ActivityScope;
+import com.avectris.curatapp.di.scope.PerActivity;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -18,8 +21,15 @@ public class ActivityModule {
         mActivity = activity;
     }
 
+    @ActivityScope
     @Provides
-    public Context activityContext() {
+    public Context provideContext() {
+        return mActivity;
+    }
+
+    @PerActivity
+    @Provides
+    public Activity provideActivity(){
         return mActivity;
     }
 }

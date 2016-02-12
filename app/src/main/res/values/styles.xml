@@ -8,7 +8,6 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:editTextStyle">@style/EditTextStyle</item>
-        <item name="android:typeface">sans</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

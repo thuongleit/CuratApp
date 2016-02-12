@@ -13,7 +13,7 @@
         android:scaleY="0.8"
         android:src="@drawable/logo" />
 
-    <TextView
+    <com.avectris.curatapp.view.widget.MuliTextView
         android:id="@+id/text_get_started"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -21,9 +21,10 @@
         android:text="@string/get_started"
         android:textAllCaps="true"
         android:textColor="#404040"
+        android:textStyle="bold"
         android:textSize="25sp" />
 
-    <TextView
+    <com.avectris.curatapp.view.widget.MuliTextView
         android:id="@+id/text_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +37,7 @@
         android:textColor="#9A9A9A"
         android:textSize="20sp" />
 
-    <com.avectris.curatapp.view.widgets.CustomBottomLineEditText
+    <com.avectris.curatapp.view.widget.CustomBottomLineEditText
         android:id="@+id/input_verify_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -46,12 +47,13 @@
         android:hint="Enter the verification code"
         android:inputType="number|numberDecimal"
         android:padding="5dp"
+        android:text="sVSFWwUo"
         android:textColor="@color/colorPrimary"
         android:textColorHint="#BABABA"
         android:textCursorDrawable="@drawable/color_cursor"
         android:textSize="22sp" />
 
-    <android.support.v7.widget.AppCompatButton
+    <com.avectris.curatapp.view.widget.MuliAppCompatButton
         android:id="@+id/button_verify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
