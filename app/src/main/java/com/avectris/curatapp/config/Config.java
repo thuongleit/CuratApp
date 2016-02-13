@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.avectris.curatapp.di.scope.ApplicationScope;
+import com.avectris.curatapp.vo.Account;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,50 +14,29 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class Config {
-    private static final String KEY_API_CODE = "api_code";
-    private static final String KEY_NEW_JOB_RETRY_COUNT = "new_post_retry_count";
-    private static final String KEY_API_URL = "api_url";
+    private static final String KEY_CURRENT_CODE = "KEY_CURRENT_CODE";
 
     private final SharedPreferences mSharedPreferences;
-    private String mCurrentCode;
+    private Account mCurrentAccount;
 
     @Inject
     public Config(@ApplicationScope Context context) {
         mSharedPreferences = context.getSharedPreferences("curatapp_cfg", Context.MODE_PRIVATE);
     }
 
-    public String getApiCode() {
-        return mSharedPreferences.getString(KEY_API_CODE, null);
-    }
-
-    public void putApiCode(String apiCode) {
-        mSharedPreferences.edit().putString(KEY_API_CODE, apiCode).apply();
-    }
-
-    public int getNewPostRetryCount() {
-        return mSharedPreferences.getInt(KEY_NEW_JOB_RETRY_COUNT, 20);
-    }
-
-    public void setNewPostRetryCount(int count) {
-        mSharedPreferences.edit().putInt(KEY_NEW_JOB_RETRY_COUNT, count).apply();
-    }
-
-    public String getApiUrl() {
-        return mSharedPreferences.getString(KEY_API_URL, "http://10.0.2.2:3000");
-    }
-
-    public void setApiUrl(String url) {
-        mSharedPreferences.edit().putString(KEY_API_URL, url).apply();
-    }
-
     public String getCurrentCode() {
-        if(mCurrentCode == null){
-            mCurrentCode = getApiCode();
-        }
-        return mCurrentCode;
+        return mSharedPreferences.getString(KEY_CURRENT_CODE, null);
     }
 
-    public void setCurrentCode(String currentCode) {
-        this.mCurrentCode = currentCode;
+    public void putCurrentCode(String code) {
+        mSharedPreferences.edit().putString(KEY_CURRENT_CODE, code).apply();
+    }
+
+    public Account getCurrentAccount() {
+        return mCurrentAccount;
+    }
+
+    public void setCurrentAccount(Account currentAccount) {
+        this.mCurrentAccount = currentAccount;
     }
 }

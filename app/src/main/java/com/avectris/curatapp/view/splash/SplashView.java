@@ -1,15 +1,16 @@
 package com.avectris.curatapp.view.splash;
 
-import com.avectris.curatapp.view.base.MvpView;
+import com.avectris.curatapp.view.base.ErrorView;
+import com.avectris.curatapp.vo.Account;
 
 /**
  * Created by thuongle on 2/13/16.
  */
-interface SplashView extends MvpView {
+interface SplashView extends ErrorView {
 
-    void onRestoreSessionSuccess(String apiCode);
+    void onRestoreSessionSuccess(Account account);
 
     void onNoSessionRecord();
 
-    void onError();
+    void onInvalidCode();
 }

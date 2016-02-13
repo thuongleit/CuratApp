@@ -13,12 +13,10 @@ import com.avectris.curatapp.vo.Account;
 import javax.inject.Inject;
 
 
-public class SplashActivity extends BaseActivity implements SplashView, VerfifyView {
+public class SplashActivity extends BaseActivity implements SplashView {
 
     @Inject
     SplashPresenter mSplashPresenter;
-    @Inject
-    VerifyPresenter mVerifyPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +24,6 @@ public class SplashActivity extends BaseActivity implements SplashView, VerfifyV
 
         getComponent().inject(this);
         mSplashPresenter.attachView(this);
-        mVerifyPresenter.attachView(this);
 
         mSplashPresenter.restoreSession();
     }
@@ -35,30 +32,19 @@ public class SplashActivity extends BaseActivity implements SplashView, VerfifyV
     protected void onDestroy() {
         super.onDestroy();
         mSplashPresenter.detachView();
-        mVerifyPresenter.detachView();
     }
 
     @Override
-    public void onRestoreSessionSuccess(String apiCode) {
-        mVerifyPresenter.verify(apiCode);
-    }
-
-    @Override
-    public void onNoSessionRecord() {
-        Intent intent = new Intent(this, VerifyActivity.class);
+    public void onRestoreSessionSuccess(Account account) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.EXTRA_ACCOUNT, account);
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void onError() {
-        onNoSessionRecord();
-    }
-
-    @Override
-    public void onCodeVerifySuccess(Account account) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.EXTRA_ACCOUNT, account);
+    public void onNoSessionRecord() {
+        Intent intent = new Intent(this, VerifyActivity.class);
         startActivity(intent);
         finish();
     }

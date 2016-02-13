@@ -5,6 +5,7 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/layout_top_header"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
         android:background="@color/colorPrimary"
@@ -12,11 +13,14 @@
 
         <ImageView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:src="@drawable/logo" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:src="@drawable/ic_logo_white" />
 
-        <TextView
+        <com.avectris.curatapp.view.widget.MuliTextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -24,13 +28,20 @@
             android:layout_weight="1"
             android:gravity="right"
             android:text="Accounts"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
     </LinearLayout>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_nav"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button_add_new_account"
+        android:layout_below="@+id/layout_top_header" />
 
-    <android.support.v7.widget.AppCompatButton
+    <com.avectris.curatapp.view.widget.MuliAppCompatButton
+        android:id="@+id/button_add_new_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

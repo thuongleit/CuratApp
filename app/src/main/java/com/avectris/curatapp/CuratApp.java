@@ -9,6 +9,7 @@ import com.avectris.curatapp.di.component.DaggerApplicationComponent;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.raizlabs.android.dbflow.config.FlowManager;
 
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
@@ -23,6 +24,9 @@ public class CuratApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        //initialize database
+        FlowManager.init(this);
 
         //setup crash report
         CrashlyticsCore core = new CrashlyticsCore.Builder()

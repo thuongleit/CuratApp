@@ -36,7 +36,7 @@ public class PostedPresenter extends BasePresenter<PostView> {
         checkViewAttached();
         mView.showProgress(true);
         mSubscription.add(mDataManager
-                .getUpcomingPosts(mPageNumber++)
+                .getPassedPosts(mPageNumber++)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -55,9 +55,7 @@ public class PostedPresenter extends BasePresenter<PostView> {
                                 mView.showGenericFailed();
                             }
                         },
-                        () -> {
-                            mView.showProgress(false);
-                        }));
+                        () -> mView.showProgress(false)));
 
     }
 }
