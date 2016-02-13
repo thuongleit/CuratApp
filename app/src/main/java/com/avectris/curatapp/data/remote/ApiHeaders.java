@@ -10,7 +10,7 @@ public class ApiHeaders implements Interceptor {
 
     private String mApiCode;
 
-    public void setSession(String apiCode) {
+    public void withSession(String apiCode) {
         this.mApiCode = apiCode;
     }
 

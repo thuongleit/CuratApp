@@ -4,9 +4,12 @@ import android.app.Application;
 
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
+import com.avectris.curatapp.data.remote.ApiHeaders;
+import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
+import com.avectris.curatapp.data.remote.vo.AccountPost;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,7 +25,11 @@ public class DataManager {
     @Inject
     SessionService mSessionService;
     @Inject
+    PostService mPostService;
+    @Inject
     Config mConfig;
+    @Inject
+    ApiHeaders mApiHeaders;
 
     @Inject
     public DataManager(Application app) {
@@ -53,8 +60,23 @@ public class DataManager {
         });
     }
 
+    public Observable<AccountPost> getUpcomingPosts(int pageNumber) {
+        return mPostService
+                .getUpcomingPosts(pageNumber)
+                .map(response -> response.getResult());
+
+    }
+
+    public Observable<AccountPost> getPassedPosts(int pageNumber) {
+        return mPostService
+                .getPassedPosts(pageNumber)
+                .map(response -> response.getResult());
+
+    }
+
     private void cacheAccount(String apiCode) {
         mConfig.putApiCode(apiCode);
         mConfig.setCurrentCode(apiCode);
+        mApiHeaders.withSession(apiCode);
     }
 }

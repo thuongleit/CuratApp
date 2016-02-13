@@ -6,6 +6,7 @@ import android.content.Context;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.ApiModule;
+import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.avectris.curatapp.di.scope.ApplicationScope;
@@ -37,11 +38,13 @@ public interface ApplicationComponent {
 
     OkHttpClient okHttpClient();
 
-    SessionService sessionService();
-
     ApiHeaders apiHeaders();
 
     DataManager dataManager();
+
+    SessionService sessionService();
+
+    PostService postService();
 
     void inject(DataManager manager);
 }

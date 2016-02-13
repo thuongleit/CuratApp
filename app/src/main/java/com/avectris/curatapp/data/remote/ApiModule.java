@@ -90,6 +90,12 @@ public class ApiModule {
 
     @Provides
     @Singleton
+    public PostService providePostService(Retrofit retrofit){
+        return retrofit.create(PostService.class);
+    }
+
+    @Provides
+    @Singleton
     public ApiHeaders provideApiHeaders(){
         return new ApiHeaders();
     }

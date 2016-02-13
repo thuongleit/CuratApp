@@ -13,14 +13,18 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.view.base.BaseFragment;
 import com.avectris.curatapp.view.base.ToolbarActivity;
-import com.avectris.curatapp.view.posted.PostedFragmnet;
-import com.avectris.curatapp.view.upcoming.UpcomingFragment;
+import com.avectris.curatapp.view.post.PostedFragment;
+import com.avectris.curatapp.view.post.UpcomingFragment;
 import com.avectris.curatapp.vo.Account;
+
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.Bind;
 
@@ -54,22 +58,49 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
         mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
 
+        setTitle(getString(R.string.title_scheduled_posts));
+
         setupNavigationView();
         setupTabLayout();
-        setTitle("Scheduled Posts");
+        setupSpinnerAccount();
+    }
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.list_account, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void setupSpinnerAccount() {
+        List<String> accountNames = buildAccountList();
+        SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accountNames);
         mSpinner.setAdapter(adapter);
+    }
+
+    private List<String> buildAccountList() {
+        return Arrays.asList(mAccount.getName());
     }
 
     private void setupTabLayout() {
         final CustomPageAdapter adapter = new CustomPageAdapter(getSupportFragmentManager());
         String[] titles = getResources().getStringArray(R.array.tab_titles);
-        Fragment[] fragments = new Fragment[]{new UpcomingFragment(), new PostedFragmnet()};
+        Fragment[] fragments = new Fragment[]{BaseFragment.create(UpcomingFragment.class),
+                BaseFragment.create(PostedFragment.class)};
         adapter.addTabs(titles, fragments);
         mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
+
+        for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+            mTabLayout.getTabAt(i).setCustomView(adapter.getCustomView(i));
+        }
     }
 
     private void setupNavigationView() {
@@ -90,20 +121,6 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         View headerView = getLayoutInflater().inflate(R.layout.nav_header_main, null);
         mNavView.addView(headerView, layoutParams);
         mNavView.setNavigationItemSelectedListener(this);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        return false;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
     }
 
     private class CustomPageAdapter extends FragmentStatePagerAdapter {
@@ -134,14 +151,14 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             return this.titles[position];
         }
 
-//        public View getCustomView(int position) {
-//            TextView textTitle = (TextView) getLayoutInflater().inflate(R.layout.view_tabbar, null);
-//            textTitle.setText(getPageTitle(position));
-//            textTitle.setTextColor(getResources().getColorStateList(R.color.tabbar_text));
-//            if (position == 0) {
-//                textTitle.setSelected(true);
-//            }
-//            return textTitle;
-//        }
+        public View getCustomView(int position) {
+            TextView textTitle = (TextView) getLayoutInflater().inflate(R.layout.view_tabbar, null);
+            textTitle.setText(getPageTitle(position));
+            textTitle.setTextColor(getResources().getColorStateList(R.color.tabbar_text));
+            if (position == 0) {
+                textTitle.setSelected(true);
+            }
+            return textTitle;
+        }
     }
 }
