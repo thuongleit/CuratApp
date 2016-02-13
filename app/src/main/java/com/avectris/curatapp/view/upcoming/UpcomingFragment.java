@@ -1,4 +1,4 @@
-package com.avectris.curatapp.view.fragment;
+package com.avectris.curatapp.view.upcoming;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

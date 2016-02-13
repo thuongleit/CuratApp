@@ -67,22 +67,30 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    public OkHttpClient provideOkHttpClient() {
+    public OkHttpClient provideOkHttpClient(ApiHeaders apiHeaders) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         // set your desired log level
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient httpClient = new OkHttpClient();
         // add your other interceptors …
+        httpClient.interceptors().clear();
+        httpClient.interceptors().add(apiHeaders);
 
         // add logging as last interceptor
         httpClient.interceptors().add(logging);
         return httpClient;
     }
 
-//    @Provides
-//    @Singleton
-//    public JobService provideApiService(Retrofit retrofit) {
-//        return retrofit.create(JobService.class);
-//    }
+    @Provides
+    @Singleton
+    public SessionService provideSessionService(Retrofit retrofit) {
+        return retrofit.create(SessionService.class);
+    }
+
+    @Provides
+    @Singleton
+    public ApiHeaders provideApiHeaders(){
+        return new ApiHeaders();
+    }
 }

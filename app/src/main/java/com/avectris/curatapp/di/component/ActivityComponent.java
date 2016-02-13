@@ -1,10 +1,13 @@
 package com.avectris.curatapp.di.component;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.avectris.curatapp.di.module.ActivityModule;
 import com.avectris.curatapp.di.scope.ActivityScope;
 import com.avectris.curatapp.di.scope.PerActivity;
+import com.avectris.curatapp.view.splash.SplashActivity;
+import com.avectris.curatapp.view.verify.VerifyActivity;
 
 import dagger.Component;
 
@@ -17,4 +20,10 @@ public interface ActivityComponent {
 
     @ActivityScope
     Context context();
+
+    Activity activity();
+
+    void inject(VerifyActivity activity);
+
+    void inject(SplashActivity activity);
 }

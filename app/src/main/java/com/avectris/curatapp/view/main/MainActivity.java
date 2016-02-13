@@ -9,29 +9,27 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.avectris.curatapp.R;
-import com.avectris.curatapp.view.fragment.PostedFragmnet;
-import com.avectris.curatapp.view.fragment.UpcomingFragment;
+import com.avectris.curatapp.view.base.ToolbarActivity;
+import com.avectris.curatapp.view.posted.PostedFragmnet;
+import com.avectris.curatapp.view.upcoming.UpcomingFragment;
+import com.avectris.curatapp.vo.Account;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    @Bind(R.id.toolbar)
-    Toolbar mToolbar;
+    public static final String EXTRA_ACCOUNT =
+            "com.avectris.curatapp.view.main.MainActivity.EXTRA_ACCOUNT";
+
     @Bind(R.id.spinner_list_account)
     Spinner mSpinner;
     @Bind(R.id.nav_view)
@@ -43,17 +41,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Bind(R.id.tab_layout)
     TabLayout mTabLayout;
 
-    private ActionBar mActionBar;
+    private Account mAccount;
 
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_main;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        mToolbar.setNavigationIcon(R.drawable.ic_menu);
-        setSupportActionBar(mToolbar);
-        mActionBar = getSupportActionBar();
+
+        mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+
         setupNavigationView();
         setupTabLayout();
         setTitle("Scheduled Posts");
@@ -70,10 +70,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         adapter.addTabs(titles, fragments);
         mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
-
-        for (int i = 0; i < mTabLayout.getTabCount(); i++) {
-            mTabLayout.getTabAt(i).setCustomView(adapter.getCustomView(i));
-        }
     }
 
     private void setupNavigationView() {
@@ -138,14 +134,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return this.titles[position];
         }
 
-        public View getCustomView(int position) {
-            TextView textTitle = (TextView) getLayoutInflater().inflate(R.layout.view_tabbar, null);
-            textTitle.setText(getPageTitle(position));
-            textTitle.setTextColor(getResources().getColorStateList(R.color.tabbar_text));
-            if (position == 0) {
-                textTitle.setSelected(true);
-            }
-            return textTitle;
-        }
+//        public View getCustomView(int position) {
+//            TextView textTitle = (TextView) getLayoutInflater().inflate(R.layout.view_tabbar, null);
+//            textTitle.setText(getPageTitle(position));
+//            textTitle.setTextColor(getResources().getColorStateList(R.color.tabbar_text));
+//            if (position == 0) {
+//                textTitle.setSelected(true);
+//            }
+//            return textTitle;
+//        }
     }
 }

@@ -1,5 +1,6 @@
 package com.avectris.curatapp.di.module;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.avectris.curatapp.CuratApp;
@@ -20,6 +21,12 @@ public class ApplicationModule {
 
     public ApplicationModule(CuratApp mApp) {
         this.mApp = mApp;
+    }
+
+    @Singleton
+    @Provides
+    Application provideApplication(){
+        return mApp;
     }
 
     @ApplicationScope

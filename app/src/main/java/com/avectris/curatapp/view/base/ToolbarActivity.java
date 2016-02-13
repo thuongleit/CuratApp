@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
 
 import com.avectris.curatapp.R;
 
@@ -17,8 +18,8 @@ public abstract class ToolbarActivity extends BaseActivity {
     protected ActionBar mSupportActionBar;
     @Bind(R.id.toolbar)
     protected Toolbar mToolbar;
-//    @Bind(R.id.text_toolbar_title)
-//    protected TextView mToolbarTitle;
+    @Bind(R.id.text_toolbar_title)
+    protected TextView mToolbarTitle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,11 +36,11 @@ public abstract class ToolbarActivity extends BaseActivity {
 
         mSupportActionBar = getSupportActionBar();
         mSupportActionBar.setDisplayShowHomeEnabled(false);
-//        mSupportActionBar.setIcon(getResources().getDrawable(R.drawable.ic_action_navigation_more_horiz));
+        mToolbar.setNavigationIcon(R.drawable.ic_menu);
         mSupportActionBar.setTitle(null);
     }
 
     protected void setTitle(String title) {
-//        mToolbarTitle.setText(title);
+        mToolbarTitle.setText(title);
     }
 }

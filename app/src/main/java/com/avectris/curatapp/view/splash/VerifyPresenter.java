@@ -1,4 +1,4 @@
-package com.avectris.curatapp.view.verify;
+package com.avectris.curatapp.view.splash;
 
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
@@ -36,12 +36,10 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
 
     void verify(String verifyCode) {
         checkViewAttached();
-        mView.showProgress(true);
-        mView.setButtonVerifyEnable(false);
         mSubscription = mDataManager
                 .verify(verifyCode)
                 .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {
@@ -51,17 +49,12 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
                             }
                         },
                         e -> {
-                            mView.showProgress(false);
-                            mView.setButtonVerifyEnable(true);
                             if (e instanceof UnknownHostException || e instanceof SocketTimeoutException) {
                                 mView.showNetworkFailed();
                             } else {
                                 mView.showGenericFailed();
                             }
-                        },
-                        () -> {
-                            mView.showProgress(false);
-                            mView.setButtonVerifyEnable(true);
-                        });
+                        }
+                );
     }
 }
