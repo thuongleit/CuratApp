@@ -42,6 +42,10 @@ public abstract class BaseActivity extends AppCompatActivity {
                 checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 
+    public void reload(){
+
+    }
+
     public ActivityComponent getComponent() {
         return mComponent;
     }

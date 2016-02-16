@@ -6,4 +6,6 @@ package com.avectris.curatapp.config;
 public interface Constant {
 
     String API_END_POINT = "http://squeezecloud.com/curatapp.master.avectris.com/public/api/v1/";
+    String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+    String REGISTRATION_COMPLETE = "registrationComplete";
 }

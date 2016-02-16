@@ -8,26 +8,50 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class Post implements Parcelable{
+public class Post implements Parcelable {
     @JsonProperty("id")
     String mId;
-    @JsonProperty("exec_datetime")
-    String mExecuteTime;
+
+    @JsonProperty("schedule_id")
+    long mScheduleId;
+
+    @JsonProperty("exec_date")
+    String mExecDate;
+
+    @JsonProperty("exec_time")
+    String mExecTime;
+
+    @JsonProperty("media_id")
+    long mMediaId;
+
     @JsonProperty("status")
     int mStatus;
+
+    @JsonProperty("created_at")
+    Date mCreatedAt;
+
+    @JsonProperty("updated_at")
+    Date mUpdatedAt;
+
     @JsonProperty("media")
     Media mMedia;
+
 
     public Post() {
     }
 
-    private Post(Parcel in) {
+    protected Post(Parcel in) {
         this.mId = in.readString();
-        this.mExecuteTime = in.readString();
+        this.mScheduleId = in.readLong();
+        this.mExecDate = in.readString();
+        this.mExecTime = in.readString();
+        this.mMediaId = in.readLong();
         this.mStatus = in.readInt();
+        this.mCreatedAt = in.readParcelable(Date.class.getClassLoader());
+        this.mUpdatedAt = in.readParcelable(Date.class.getClassLoader());
         this.mMedia = in.readParcelable(Media.class.getClassLoader());
     }
-    
+
     @Override
     public int describeContents() {
         return 0;
@@ -36,8 +60,13 @@ public class Post implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.mId);
-        dest.writeString(this.mExecuteTime);
+        dest.writeLong(this.mScheduleId);
+        dest.writeString(this.mExecDate);
+        dest.writeString(this.mExecTime);
+        dest.writeLong(this.mMediaId);
         dest.writeInt(this.mStatus);
+        dest.writeParcelable(this.mCreatedAt, 0);
+        dest.writeParcelable(this.mUpdatedAt, 0);
         dest.writeParcelable(this.mMedia, 0);
     }
 
@@ -49,12 +78,36 @@ public class Post implements Parcelable{
         this.mId = id;
     }
 
-    public String getExecuteTime() {
-        return mExecuteTime;
+    public long getScheduleId() {
+        return mScheduleId;
     }
 
-    public void setExecuteTime(String executeTime) {
-        this.mExecuteTime = executeTime;
+    public void setScheduleId(long scheduleId) {
+        this.mScheduleId = scheduleId;
+    }
+
+    public String getExecDate() {
+        return mExecDate;
+    }
+
+    public void setExecDate(String execDate) {
+        this.mExecDate = execDate;
+    }
+
+    public String getExecTime() {
+        return mExecTime;
+    }
+
+    public void setExecTime(String execTime) {
+        this.mExecTime = execTime;
+    }
+
+    public long getMediaId() {
+        return mMediaId;
+    }
+
+    public void setMediaId(long mediaId) {
+        this.mMediaId = mediaId;
     }
 
     public int getStatus() {
@@ -63,6 +116,22 @@ public class Post implements Parcelable{
 
     public void setStatus(int status) {
         this.mStatus = status;
+    }
+
+    public Date getCreatedAt() {
+        return mCreatedAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.mCreatedAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return mUpdatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.mUpdatedAt = updatedAt;
     }
 
     public Media getMedia() {

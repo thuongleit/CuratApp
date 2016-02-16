@@ -14,5 +14,5 @@ interface VerfifyView extends ErrorView {
 
     void onCodeVerifySuccess(Account account);
 
-    void onInvalidCode();
+    void onVerifiedFailed(String errorMsg);
 }

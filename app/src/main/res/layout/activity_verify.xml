@@ -9,9 +9,11 @@
         android:layout_above="@+id/text_get_started"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:scaleX="0.8"
         android:scaleY="0.8"
-        android:src="@drawable/logo" />
+        android:src="@drawable/ic_logo" />
 
     <com.avectris.curatapp.view.widget.MuliTextView
         android:id="@+id/text_get_started"
@@ -21,8 +23,8 @@
         android:text="@string/get_started"
         android:textAllCaps="true"
         android:textColor="#404040"
-        android:textStyle="bold"
-        android:textSize="25sp" />
+        android:textSize="25sp"
+        android:textStyle="bold" />
 
     <com.avectris.curatapp.view.widget.MuliTextView
         android:id="@+id/text_description"
@@ -45,7 +47,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:hint="Enter the verification code"
-        android:inputType="number|numberDecimal"
         android:padding="5dp"
         android:text="sVSFWwUo"
         android:textColor="@color/colorPrimary"
@@ -60,8 +61,8 @@
         android:layout_below="@+id/input_verify_code"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:background="#00D685"
         android:elevation="2dp"
+        android:foreground="?android:attr/selectableItemBackground"
         android:paddingBottom="10dp"
         android:paddingLeft="35dp"
         android:paddingRight="35dp"

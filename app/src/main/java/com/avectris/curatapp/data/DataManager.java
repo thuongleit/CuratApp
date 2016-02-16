@@ -9,6 +9,7 @@ import com.avectris.curatapp.data.local.AccountModel;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
+import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
 import com.avectris.curatapp.data.remote.vo.AccountPost;
@@ -91,7 +92,11 @@ public class DataManager {
 
     public Observable<List<? extends BaseModel>> getAccounts() {
         return mAccountModel.getAlls();
+    }
 
+    public Observable<PostDetailResponse> getPostDetail(String postId) {
+        return mPostService
+                .getPostDetail(postId);
     }
 
     private void cacheAccount(Account account) {

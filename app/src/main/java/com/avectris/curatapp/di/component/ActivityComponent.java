@@ -6,6 +6,7 @@ import android.content.Context;
 import com.avectris.curatapp.di.module.ActivityModule;
 import com.avectris.curatapp.di.scope.ActivityScope;
 import com.avectris.curatapp.di.scope.PerActivity;
+import com.avectris.curatapp.view.detail.PostDetailActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.post.PostedFragment;
 import com.avectris.curatapp.view.splash.SplashActivity;
@@ -35,4 +36,6 @@ public interface ActivityComponent {
     void inject(PostedFragment fragment);
 
     void inject(MainActivity activity);
+
+    void inject(PostDetailActivity activity);
 }

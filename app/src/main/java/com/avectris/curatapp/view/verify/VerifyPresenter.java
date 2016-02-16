@@ -47,7 +47,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
                             if (response.isSuccess()) {
                                 mView.onCodeVerifySuccess(response.getAccount());
                             } else {
-                                mView.onInvalidCode();
+                                mView.onVerifiedFailed(response.getErrorMsg());
                             }
                         },
                         e -> {

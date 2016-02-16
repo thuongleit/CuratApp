@@ -1,6 +1,8 @@
 package com.avectris.curatapp.view.post;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -9,11 +11,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.view.OnRecyclerItemClickListener;
+import com.avectris.curatapp.view.detail.PostDetailActivity;
 import com.avectris.curatapp.vo.Post;
-import com.bumptech.glide.Glide;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -23,11 +31,15 @@ import butterknife.ButterKnife;
  */
 public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdapter.ViewHolder> {
 
+    @Inject
+    DisplayImageOptions mDisplayImageOptions;
+
     private final Context mContext;
     private final String mClient;
     private final List<Post> mPosts;
 
-    public PostsRecyclerAdapter(Context context, String client, List<Post> posts) {
+    public PostsRecyclerAdapter(Application application, Context context, String client, List<Post> posts) {
+        ((CuratApp) application).getAppComponent().inject(this);
         this.mContext = context;
         mClient = client;
         this.mPosts = posts;
@@ -57,15 +69,33 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
         @Bind(R.id.text_due_time)
         TextView mTextDueTime;
 
+        private OnRecyclerItemClickListener mItemClickListener = null;
+
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+            view.setOnClickListener(v -> {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onItemClick();
+                }
+            });
         }
 
-        private void bind(Post post) {
-            Glide.with(mContext).load(post.getMedia().getOrginThumb()).into(mImagePicture);
-            mTextCaption.setText(Html.fromHtml("<b>@" + mClient + "</b> " + "This is just a text that comes from nowhere"));
-            mTextDueTime.setText("Due " + post.getExecuteTime());
+        public void setItemClickListener(OnRecyclerItemClickListener itemClickListener) {
+            this.mItemClickListener = itemClickListener;
+        }
+
+        public void bind(Post post) {
+            ImageLoader.getInstance().displayImage(post.getMedia().getOriginMedia(), mImagePicture, mDisplayImageOptions);
+            mTextCaption.setText(Html.fromHtml("<b>@" + mClient + "</b> " + post.getMedia().getCaptionText()));
+            mTextDueTime.setText("Due " + post.getExecDate());
+
+            this.setItemClickListener(() -> {
+                Intent intent = new Intent(mContext, PostDetailActivity.class);
+                intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+                intent.putExtra(PostDetailActivity.EXTRA_CLIENT, mClient);
+                mContext.startActivity(intent);
+            });
         }
     }
 }

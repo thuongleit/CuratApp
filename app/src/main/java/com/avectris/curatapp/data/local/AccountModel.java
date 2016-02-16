@@ -28,7 +28,7 @@ public class AccountModel extends BaseModel {
                 .insert(getModelClazz())
                 .orReplace()
                 .columnValues(
-                        Account_Table.mId.eq(account.getId()),
+                        Account_Table.id.eq(account.getId()),
                         Account_Table.name.eq(account.getName()),
                         Account_Table.active.eq(account.getActive()),
                         Account_Table.apiCode.eq(account.getApiCode()));

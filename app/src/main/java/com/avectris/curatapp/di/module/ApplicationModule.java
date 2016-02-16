@@ -2,10 +2,13 @@ package com.avectris.curatapp.di.module;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.avectris.curatapp.CuratApp;
+import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.di.scope.ApplicationScope;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
 import javax.inject.Singleton;
 
@@ -25,7 +28,7 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    Application provideApplication(){
+    Application provideApplication() {
         return mApp;
     }
 
@@ -39,5 +42,19 @@ public class ApplicationModule {
     @Provides
     public Config config() {
         return new Config(mApp);
+    }
+
+    @Provides
+    @Singleton
+    DisplayImageOptions prodiveDisplayImageOptions() {
+        return new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.bg_fade)
+                .showImageForEmptyUri(R.drawable.bg_error)
+                .showImageOnFail(R.drawable.bg_error)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.ARGB_8888)
+                .build();
     }
 }

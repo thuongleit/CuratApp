@@ -1,33 +1,44 @@
 package com.avectris.curatapp.view.main;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.di.scope.ActivityScope;
+import com.avectris.curatapp.service.RegistrationIntentService;
 import com.avectris.curatapp.view.base.BaseFragment;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostedFragment;
 import com.avectris.curatapp.view.post.UpcomingFragment;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,12 +46,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import timber.log.Timber;
 
 
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountNavView {
 
     public static final String EXTRA_ACCOUNT =
-            "com.avectris.curatapp.view.main.MainActivity.EXTRA_ACCOUNT";
+            "com.avectris.curatapp.view.main.MainActivity.EXTRA_POST";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     @Bind(R.id.spinner_list_account)
     Spinner mSpinner;
@@ -61,6 +74,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
     private RecyclerView mRecyclerViewOnNav;
     private Account mAccount;
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
 
     @Override
     protected int getLayoutId() {
@@ -80,6 +94,45 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         setupNavigationView();
         setupTabLayout();
         mAccountNavPresenter.fetchAccounts();
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences
+                        .getBoolean(Constant.SENT_TOKEN_TO_SERVER, false);
+                if (sentToken) {
+                    Toast.makeText(MainActivity.this, "Sent token success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Sent token failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(Constant.REGISTRATION_COMPLETE));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 
     @Override
@@ -179,6 +232,27 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
         mRecyclerViewOnNav.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerViewOnNav.setHasFixedSize(true);
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Timber.i("This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 
     private class CustomPageAdapter extends FragmentStatePagerAdapter {

@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerAdapter.ViewHolder> {
+class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerAdapter.ViewHolder> {
 
     private final Context mContext;
     private final List<Account> mAccounts;

@@ -7,17 +7,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ErrorableResponse {
 
-    @JsonProperty("mSuccess")
-    boolean mSuccess;
+    @JsonProperty("response")
+    String mResponse;
     @JsonProperty("error")
     String mErrorMsg;
 
     public boolean isSuccess() {
-        return mSuccess;
+        return "Success".equals(mResponse.trim());
     }
 
-    public void setSuccess(boolean success) {
-        this.mSuccess = success;
+    public void setResponse(String response) {
+        this.mResponse = response;
     }
 
     public String getErrorMsg() {

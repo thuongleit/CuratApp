@@ -80,8 +80,8 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
     }
 
     @Override
-    public void onInvalidCode() {
-        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_verify_code_invalid).show();
+    public void onVerifiedFailed(String errorMsg) {
+        DialogFactory.createGenericErrorDialog(this, errorMsg).show();
     }
 
     @Override

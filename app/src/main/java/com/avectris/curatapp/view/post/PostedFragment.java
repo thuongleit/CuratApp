@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.post;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -37,6 +38,8 @@ public class PostedFragment extends BaseFragment implements PostView {
     @Inject
     @ActivityScope
     Context mContext;
+    @Inject
+    Application mApplication;
 
     private RelativeLayout mView;
 
@@ -89,7 +92,7 @@ public class PostedFragment extends BaseFragment implements PostView {
 
     @Override
     public void onPostsShow(AccountPost accountPost) {
-        RecyclerView.Adapter adapter = new PostsRecyclerAdapter(mContext, accountPost.getClient(), accountPost.getPosts());
+        RecyclerView.Adapter adapter = new PostsRecyclerAdapter(mApplication, mContext, accountPost.getClient(), accountPost.getPosts());
         mRecyclerView.setAdapter(adapter);
     }
 

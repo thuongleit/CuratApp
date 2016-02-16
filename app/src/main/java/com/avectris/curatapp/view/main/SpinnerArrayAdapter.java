@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class SpinnerArrayAdapter extends ArrayAdapter<String> {
+class SpinnerArrayAdapter extends ArrayAdapter<String> {
 
     private Context mContext;
 

@@ -37,8 +37,22 @@
         android:id="@+id/recycler_view_nav"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/button_add_new_account"
+        android:layout_above="@+id/switch_on_off_notification"
         android:layout_below="@+id/layout_top_header" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/switch_on_off_notification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button_add_new_account"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="Notification"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@color/black_54" />
 
     <com.avectris.curatapp.view.widget.MuliAppCompatButton
         android:id="@+id/button_add_new_account"

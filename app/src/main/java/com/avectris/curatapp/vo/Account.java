@@ -13,10 +13,10 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 /**
  * Created by thuongle on 2/12/16.
  */
-@Table(database = CuratAppDatabase.class)
+@Table(database = CuratAppDatabase.class, name = "account")
 public class Account extends BaseModel implements Parcelable {
 
-    @Column
+    @Column(name = "id")
     @PrimaryKey
     @JsonProperty("id")
     long mId;
