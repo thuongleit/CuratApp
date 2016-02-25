@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.avectris.curatapp.di.scope.ApplicationScope;
 import com.avectris.curatapp.vo.Account;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -18,6 +20,7 @@ public class Config {
 
     private final SharedPreferences mSharedPreferences;
     private Account mCurrentAccount;
+    private List<Account> mAccounts;
 
     @Inject
     public Config(@ApplicationScope Context context) {
@@ -38,5 +41,13 @@ public class Config {
 
     public void setCurrentAccount(Account currentAccount) {
         this.mCurrentAccount = currentAccount;
+    }
+
+    public void setAccounts(List<Account> accounts) {
+        this.mAccounts = accounts;
+    }
+
+    public List<Account> getAccounts() {
+        return mAccounts;
     }
 }

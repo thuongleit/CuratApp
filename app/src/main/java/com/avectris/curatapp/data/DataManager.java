@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
-import com.avectris.curatapp.data.exception.SessionNotFoundException;
 import com.avectris.curatapp.data.local.AccountModel;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
@@ -57,24 +56,27 @@ public class DataManager {
 
     }
 
-    public Observable<Observable<Account>> restoreSession() {
-        return Observable
-                .create((Observable.OnSubscribe<String>) subscriber -> {
-                    String apiCode = mConfig.getCurrentCode();
-                    if (apiCode == null) {
-                        subscriber.onError(new SessionNotFoundException());
-                    } else {
-                        subscriber.onNext(apiCode);
-                    }
-                    subscriber.onCompleted();
-                })
-                .map(queryCode -> {
-                    VerifyRequest request = new VerifyRequest(queryCode);
-                    return mSessionService
-                            .verify(request)
-                            .doOnNext(response -> cacheAccount(response.getAccount()))
-                            .map(response2 -> response2.getAccount());
-                });
+    public Observable<List<? extends BaseModel>> restoreSession() {
+        return mAccountModel
+                .getAll()
+                .doOnNext(accounts -> mConfig.setAccounts((List<Account>) accounts));
+//        return Observable
+//                .create((Observable.OnSubscribe<String>) subscriber -> {
+//                    String apiCode = mConfig.getCurrentCode();
+//                    if (apiCode == null) {
+//                        subscriber.onError(new SessionNotFoundException());
+//                    } else {
+//                        subscriber.onNext(apiCode);
+//                    }
+//                    subscriber.onCompleted();
+//                })
+//                .map(queryCode -> {
+//                    VerifyRequest request = new VerifyRequest(queryCode);
+//                    return mSessionService
+//                            .verify(request)
+//                            .doOnNext(response -> cacheAccount(response.getAccount()))
+//                            .map(response2 -> response2.getAccount());
+//                });
     }
 
     public Observable<AccountPost> getUpcomingPosts(int pageNumber) {
@@ -91,7 +93,7 @@ public class DataManager {
     }
 
     public Observable<List<? extends BaseModel>> getAccounts() {
-        return mAccountModel.getAlls();
+        return mAccountModel.getAll();
     }
 
     public Observable<PostDetailResponse> getPostDetail(String postId) {

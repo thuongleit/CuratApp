@@ -2,13 +2,12 @@ package com.avectris.curatapp.view.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ViewGroup;
 
-import com.avectris.curatapp.R;
-import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
-import com.avectris.curatapp.vo.Account;
+import com.avectris.curatapp.view.widget.MuliTextView;
 
 import javax.inject.Inject;
 
@@ -35,11 +34,11 @@ public class SplashActivity extends BaseActivity implements SplashView {
     }
 
     @Override
-    public void onRestoreSessionSuccess(Account account) {
+    public void onRestoreSessionSuccess() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.EXTRA_ACCOUNT, account);
         startActivity(intent);
         finish();
+        Snac
     }
 
     @Override
@@ -50,17 +49,11 @@ public class SplashActivity extends BaseActivity implements SplashView {
     }
 
     @Override
-    public void onInvalidCode() {
-        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_verify_code_invalid).show();
-    }
+    public void onError() {
+        MuliTextView textView = new MuliTextView(this);
+        textView.setText("");
 
-    @Override
-    public void showNetworkFailed() {
-        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_no_internet_working).show();
-    }
-
-    @Override
-    public void showGenericFailed() {
-        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_verified_code_failed).show();
+        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().getRootView();
+        rootView.addView(textView);
     }
 }

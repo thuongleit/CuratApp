@@ -16,7 +16,7 @@ public abstract class BaseModel {
     public BaseModel() {
     }
 
-    public Observable<List<? extends com.raizlabs.android.dbflow.structure.BaseModel>> getAlls() {
+    public Observable<List<? extends com.raizlabs.android.dbflow.structure.BaseModel>> getAll() {
         return Observable.just(getAllToList());
     }
 

@@ -45,10 +45,13 @@ public class Account extends BaseModel implements Parcelable {
     @JsonProperty("agency")
     Agency mAgency;
 
+    @Column(name = "current", defaultValue = "false")
+    boolean mCurrent;
+
     public Account() {
     }
 
-    private Account(Parcel in) {
+    protected Account(Parcel in) {
         this.mId = in.readLong();
         this.mName = in.readString();
         this.mApiCode = in.readString();
@@ -57,6 +60,7 @@ public class Account extends BaseModel implements Parcelable {
         this.mUpdatedAt = in.readParcelable(Date.class.getClassLoader());
         this.mClient = in.readParcelable(Client.class.getClassLoader());
         this.mAgency = in.readParcelable(Agency.class.getClassLoader());
+        this.mCurrent = in.readByte() != 0;
     }
 
     @Override
@@ -85,6 +89,7 @@ public class Account extends BaseModel implements Parcelable {
         dest.writeParcelable(this.mUpdatedAt, 0);
         dest.writeParcelable(this.mClient, 0);
         dest.writeParcelable(this.mAgency, 0);
+        dest.writeByte(mCurrent ? (byte) 1 : (byte) 0);
     }
 
     public long getId() {
@@ -153,6 +158,14 @@ public class Account extends BaseModel implements Parcelable {
 
     public void setAgency(Agency agency) {
         this.mAgency = agency;
+    }
+
+    public void setCurrentActive(boolean current) {
+        this.mCurrent = current;
+    }
+
+    public boolean isCurrentAccount() {
+        return mCurrent;
     }
 
     public static final Creator<Account> CREATOR = new Creator<Account>() {

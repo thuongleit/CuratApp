@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Agency implements Parcelable {
 
-    @JsonProperty("mName")
+    @JsonProperty("name")
     String name;
 
     public Agency() {
