@@ -1,6 +1,7 @@
 package com.avectris.curatapp.view.verify;
 
 import com.avectris.curatapp.data.DataManager;
+import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
 
 import java.net.SocketTimeoutException;
@@ -16,6 +17,7 @@ import rx.subscriptions.Subscriptions;
 /**
  * Created by thuongle on 2/12/16.
  */
+@PerActivity
 class VerifyPresenter extends BasePresenter<VerfifyView> {
 
     private final DataManager mDataManager;
@@ -29,7 +31,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null) {
+        if (mSubscription != null && mSubscription.isUnsubscribed()) {
             mSubscription.unsubscribe();
         }
     }
@@ -56,7 +58,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
                             if (e instanceof UnknownHostException || e instanceof SocketTimeoutException) {
                                 mView.showNetworkFailed();
                             } else {
-                                mView.showGenericFailed();
+                                mView.showGenericError();
                             }
                         },
                         () -> {

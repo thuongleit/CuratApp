@@ -1,6 +1,7 @@
 package com.avectris.curatapp.view.main;
 
 import com.avectris.curatapp.data.DataManager;
+import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
 import com.avectris.curatapp.vo.Account;
 
@@ -16,6 +17,7 @@ import rx.subscriptions.Subscriptions;
 /**
  * Created by thuongle on 2/13/16.
  */
+@PerActivity
 class AccountNavPresenter extends BasePresenter<AccountNavView> {
 
     private final DataManager mDataManager;

@@ -19,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +30,7 @@ import android.widget.Toast;
 
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
-import com.avectris.curatapp.di.scope.ActivityScope;
+import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
 import com.avectris.curatapp.view.base.BaseFragment;
 import com.avectris.curatapp.view.base.ToolbarActivity;
@@ -46,13 +47,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
+import rx.Observable;
 import timber.log.Timber;
 
 
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountNavView {
 
-    public static final String EXTRA_ACCOUNT =
-            "com.avectris.curatapp.view.main.MainActivity.EXTRA_POST";
+    public static final String EXTRA_ACCOUNT = "MainActivity.EXTRA_ACCOUNT";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     @Bind(R.id.spinner_list_account)
@@ -69,7 +71,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     @Inject
     AccountNavPresenter mAccountNavPresenter;
     @Inject
-    @ActivityScope
+    DataManager mDataManager;
     Context mContext;
 
     private RecyclerView mRecyclerViewOnNav;
@@ -88,8 +90,8 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
         getComponent().inject(this);
         mAccountNavPresenter.attachView(this);
-
         setTitle(getString(R.string.title_scheduled_posts));
+        mContext = this;
 
         setupNavigationView();
         setupTabLayout();
@@ -138,6 +140,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this);
         mAccountNavPresenter.detachView();
     }
 
@@ -226,6 +229,23 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             Intent intent = new Intent(mContext, VerifyActivity.class);
             startActivity(intent);
             finish();
+        });
+
+        SwitchCompat switchOnOffNotification = (SwitchCompat) headerView.findViewById(R.id.switch_on_off_notification);
+        switchOnOffNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            List<Observable<Boolean>> observables;
+            if (isChecked) {
+                observables = mDataManager.unregisterTokenToGcm();
+            } else {
+                observables = mDataManager.registerTokenToGcm(null);
+            }
+
+            for (Observable<Boolean> observable : observables) {
+                observable
+                        .subscribe(aBoolean -> {}
+                        , e -> {
+                        });
+            }
         });
         mNavView.addView(headerView, layoutParams);
         mNavView.setNavigationItemSelectedListener(this);

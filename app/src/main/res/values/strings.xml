@@ -14,7 +14,7 @@
     <string name="dialog_error_title">Sorry</string>
     <string name="dialog_action_try_again">Try Again</string>
     <string name="dialog_message_verify_code_invalid">Verification code is invalid</string>
-    <string name="error_message_this_field_cannot_be_blank">This field cannot be blank</string>
+    <string name="error_message_this_field_cannot_be_blank">This field cannot be empty</string>
     <string name="dialog_message_verifying">Verifying</string>
     <string name="dialog_message_no_internet_working">Oops, looks like your internet has stopped working</string>
     <string name="dialog_message_verified_code_failed">Verified your code failed</string>

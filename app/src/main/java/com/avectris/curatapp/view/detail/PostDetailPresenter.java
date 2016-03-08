@@ -50,7 +50,7 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                             if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
                                 mView.showNetworkFailed();
                             } else {
-                                mView.showGenericFailed();
+                                mView.showGenericError();
                             }
                         });
     }

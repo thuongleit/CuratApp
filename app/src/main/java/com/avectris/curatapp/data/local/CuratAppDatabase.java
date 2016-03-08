@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 @Database(name = CuratAppDatabase.DATABASE_NAME, version = CuratAppDatabase.DATABASE_VERSION)
 public class CuratAppDatabase {
 
-    public static final String DATABASE_NAME = "curat_db";
+    public static final String DATABASE_NAME = "curatdb";
 
     public static final int DATABASE_VERSION = 1;
 }

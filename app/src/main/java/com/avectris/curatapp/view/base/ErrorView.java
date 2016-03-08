@@ -7,5 +7,5 @@ public interface ErrorView extends MvpView {
 
     void showNetworkFailed();
 
-    void showGenericFailed();
+    void showGenericError();
 }

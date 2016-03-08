@@ -53,7 +53,7 @@ class UpcomingPresenter extends BasePresenter<PostView> {
                             if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
                                 mView.showNetworkFailed();
                             } else {
-                                mView.showGenericFailed();
+                                mView.showGenericError();
                             }
                         },
                         () -> {

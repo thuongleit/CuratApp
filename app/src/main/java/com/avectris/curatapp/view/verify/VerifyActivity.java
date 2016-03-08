@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import com.avectris.curatapp.R;
@@ -46,11 +48,21 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
         getComponent().inject(this);
 
         mVerifyPresenter.attachView(this);
+        mInputCode.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                inputManager.hideSoftInputFromInputMethod(v.getWindowToken(), 0);
+                verify();
+                return true;
+            }
+            return false;
+        });
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this);
         mVerifyPresenter.detachView();
     }
 
@@ -90,7 +102,7 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
     }
 
     @Override
-    public void showGenericFailed() {
+    public void showGenericError() {
         DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_verified_code_failed).show();
     }
 

@@ -15,11 +15,8 @@ public class Post implements Parcelable {
     @JsonProperty("schedule_id")
     long mScheduleId;
 
-    @JsonProperty("exec_date")
+    @JsonProperty("exec_datetime")
     String mExecDate;
-
-    @JsonProperty("exec_time")
-    String mExecTime;
 
     @JsonProperty("media_id")
     long mMediaId;
@@ -44,7 +41,6 @@ public class Post implements Parcelable {
         this.mId = in.readString();
         this.mScheduleId = in.readLong();
         this.mExecDate = in.readString();
-        this.mExecTime = in.readString();
         this.mMediaId = in.readLong();
         this.mStatus = in.readInt();
         this.mCreatedAt = in.readParcelable(Date.class.getClassLoader());
@@ -62,7 +58,6 @@ public class Post implements Parcelable {
         dest.writeString(this.mId);
         dest.writeLong(this.mScheduleId);
         dest.writeString(this.mExecDate);
-        dest.writeString(this.mExecTime);
         dest.writeLong(this.mMediaId);
         dest.writeInt(this.mStatus);
         dest.writeParcelable(this.mCreatedAt, 0);
@@ -92,14 +87,6 @@ public class Post implements Parcelable {
 
     public void setExecDate(String execDate) {
         this.mExecDate = execDate;
-    }
-
-    public String getExecTime() {
-        return mExecTime;
-    }
-
-    public void setExecTime(String execTime) {
-        this.mExecTime = execTime;
     }
 
     public long getMediaId() {

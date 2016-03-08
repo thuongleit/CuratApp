@@ -1,19 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" >
-
-    <item
-        jar="/Volumes/Work/android/work/CuratApp/app/build/intermediates/transforms/instantRunSlicer/debug/jars/1/1a/dependencies.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="a14223711961d29a2d894b4869d67c9507549e22">
-        <dex dex="/Volumes/Work/android/work/CuratApp/app/build/intermediates/transforms/dex/debug/folders/1000/1a/dependencies_59b44fdde804bc1020ae45c5c9317800549f0f72/classes.dex" />
-    </item>
-    <item
-        jar="/Volumes/Work/android/work/CuratApp/app/build/intermediates/transforms/instantRunSlicer/debug/jars/1/5/main_slice.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="9b6e5b8ffbe7b22b81b50809b7aebc0741acd050">
-        <dex dex="/Volumes/Work/android/work/CuratApp/app/build/intermediates/transforms/dex/debug/folders/1000/5/main_slice_d71c93ac1cdb9dd44a3184f0f8164aed63a7dac4/classes.dex" />
-    </item>
-
-</items>
+<items version="2" />

@@ -2,12 +2,13 @@ package com.avectris.curatapp.view.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ViewGroup;
 
+import com.avectris.curatapp.R;
+import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
-import com.avectris.curatapp.view.widget.MuliTextView;
+import com.avectris.curatapp.vo.Account;
 
 import javax.inject.Inject;
 
@@ -34,26 +35,27 @@ public class SplashActivity extends BaseActivity implements SplashView {
     }
 
     @Override
-    public void onRestoreSessionSuccess() {
+    public void onRestoreSessionSuccess(Account account) {
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(MainActivity.EXTRA_ACCOUNT, account);
         startActivity(intent);
         finish();
-        Snac
     }
 
     @Override
-    public void onNoSessionRecord() {
+    public void onNoActiveSession() {
         Intent intent = new Intent(this, VerifyActivity.class);
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void onError() {
-        MuliTextView textView = new MuliTextView(this);
-        textView.setText("");
+    public void showNetworkFailed() {
+        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_no_internet_working).show();
+    }
 
-        ViewGroup rootView = (ViewGroup) getWindow().getDecorView().getRootView();
-        rootView.addView(textView);
+    @Override
+    public void showGenericError() {
+        DialogFactory.createGenericErrorDialog(this, "App couldn't launch now. Please try again later!").show();
     }
 }

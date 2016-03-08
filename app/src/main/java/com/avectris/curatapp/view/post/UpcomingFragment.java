@@ -109,7 +109,7 @@ public class UpcomingFragment extends BaseFragment implements PostView {
     }
 
     @Override
-    public void showGenericFailed() {
+    public void showGenericError() {
         DialogFactory.createGenericErrorDialog(mContext, R.string.dialog_message_verified_code_failed).show();
     }
 }

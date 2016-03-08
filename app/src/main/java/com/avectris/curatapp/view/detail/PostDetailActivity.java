@@ -78,7 +78,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     }
 
     @Override
-    public void showGenericFailed() {
+    public void showGenericError() {
         onRequestFailed(getString(R.string.dialog_error_general_message));
     }
 

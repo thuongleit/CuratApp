@@ -17,9 +17,12 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 public class Account extends BaseModel implements Parcelable {
 
     @Column(name = "id")
-    @PrimaryKey
-    @JsonProperty("id")
+    @PrimaryKey(autoincrement = true)
     long mId;
+
+    @Column(name = "accountId")
+    @JsonProperty("id")
+    long mAccountId;
 
     @Column(name = "name")
     @JsonProperty("name")
@@ -32,27 +35,31 @@ public class Account extends BaseModel implements Parcelable {
     @Column(name = "active")
     @JsonProperty("active")
     int mActive;
-    
+
     @JsonProperty("created_at")
     Date mCreatedAt;
-    
+
     @JsonProperty("updated_at")
     Date mUpdatedAt;
-    
+
     @JsonProperty("client")
     Client mClient;
-    
+
     @JsonProperty("agency")
     Agency mAgency;
 
     @Column(name = "current", defaultValue = "false")
     boolean mCurrent;
 
+    @Column(name = "gcm_token")
+    String mGcmToken;
+
     public Account() {
     }
 
     protected Account(Parcel in) {
         this.mId = in.readLong();
+        this.mAccountId = in.readLong();
         this.mName = in.readString();
         this.mApiCode = in.readString();
         this.mActive = in.readInt();
@@ -61,6 +68,7 @@ public class Account extends BaseModel implements Parcelable {
         this.mClient = in.readParcelable(Client.class.getClassLoader());
         this.mAgency = in.readParcelable(Agency.class.getClassLoader());
         this.mCurrent = in.readByte() != 0;
+        this.mGcmToken = in.readString();
     }
 
     @Override
@@ -70,7 +78,7 @@ public class Account extends BaseModel implements Parcelable {
 
         Account account = (Account) o;
 
-        return mId == account.mId;
+        return mAccountId == account.mAccountId;
 
     }
 
@@ -82,6 +90,7 @@ public class Account extends BaseModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.mId);
+        dest.writeLong(this.mAccountId);
         dest.writeString(this.mName);
         dest.writeString(this.mApiCode);
         dest.writeInt(this.mActive);
@@ -90,6 +99,7 @@ public class Account extends BaseModel implements Parcelable {
         dest.writeParcelable(this.mClient, 0);
         dest.writeParcelable(this.mAgency, 0);
         dest.writeByte(mCurrent ? (byte) 1 : (byte) 0);
+        dest.writeString(mGcmToken);
     }
 
     public long getId() {
@@ -98,6 +108,14 @@ public class Account extends BaseModel implements Parcelable {
 
     public void setId(long id) {
         this.mId = id;
+    }
+
+    public long getAccountId() {
+        return mAccountId;
+    }
+
+    public void setAccountId(long id) {
+        this.mAccountId = id;
     }
 
     public String getName() {
@@ -166,6 +184,14 @@ public class Account extends BaseModel implements Parcelable {
 
     public boolean isCurrentAccount() {
         return mCurrent;
+    }
+
+    public String getGcmToken() {
+        return mGcmToken;
+    }
+
+    public void setGcmToken(String token) {
+        this.mGcmToken = token;
     }
 
     public static final Creator<Account> CREATOR = new Creator<Account>() {
