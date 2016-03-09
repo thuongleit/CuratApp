@@ -1,8 +1,10 @@
 package com.avectris.curatapp.view.detail;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.text.Html;
 import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -13,20 +15,22 @@ import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.vo.Post;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+
+import java.io.FileNotFoundException;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import butterknife.OnClick;
 
 
 /**
  * Created by thuongle on 2/15/16.
  */
 public class PostDetailActivity extends ToolbarActivity implements PostDetailView {
-    public static final String EXTRA_POST_ID =
-            "com.avectris.curatapp.view.detail.PostDetailActivity.EXTRA_POST_ID";
-    public static final String EXTRA_CLIENT =
-            "com.avectris.curatapp.view.detail.PostDetailActivity.EXTRA_CLIENT";
+    public static final String EXTRA_POST_ID = "EXTRA_POST_ID";
+    public static final String EXTRA_API_CODE = "EXTRA_API_CODE";
 
     @Bind(R.id.text_caption)
     TextView mTextCaption;
@@ -39,7 +43,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     PostDetailPresenter mPostDetailPresenter;
     @Inject
     DisplayImageOptions mDisplayImageOptions;
-    private String mClient;
+    private Post mPost;
 
     @Override
     protected int getLayoutId() {
@@ -56,7 +60,6 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         mSupportActionBar.setDisplayHomeAsUpEnabled(true);
 
         String postId = getIntent().getStringExtra(EXTRA_POST_ID);
-        mClient = getIntent().getStringExtra(EXTRA_CLIENT);
         mPostDetailPresenter.getPostDetail(postId);
     }
 
@@ -84,7 +87,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
     @Override
     public void onPostDetailReturn(Post post) {
-        mTextCaption.setText(Html.fromHtml("<b>@" + mClient + "</b>" + post.getMedia().getCaptionText()));
+        mPost = post;
+        mTextCaption.setText(post.getMedia().getCaptionText());
         mTextDueTime.setText("Due " + post.getExecDate());
         ImageLoader.getInstance().displayImage(post.getMedia().getOriginMedia(), mImagePicture, mDisplayImageOptions);
     }
@@ -92,6 +96,32 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     public void onRequestFailed(String errorMsg) {
         Toast.makeText(PostDetailActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+    }
+
+    @OnClick(R.id.button_post_now)
+    public void postToInstagram() {
+        Intent intent = getPackageManager().getLaunchIntentForPackage("com.instagram.android");
+        if (intent != null) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setPackage("com.instagram.android");
+            try {
+                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(), ImageLoader.getInstance().getDiscCache()).getAbsolutePath(), mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            shareIntent.setType("image/jpeg");
+
+            startActivity(shareIntent);
+        } else {
+            // bring user to the market to download the app.
+            // or let them choose an app?
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
+            startActivity(intent);
+        }
     }
 }
 

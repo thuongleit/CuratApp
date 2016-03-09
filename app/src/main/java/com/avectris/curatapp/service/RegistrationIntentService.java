@@ -37,6 +37,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Observable;
+import timber.log.Timber;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -68,7 +69,7 @@ public class RegistrationIntentService extends IntentService {
             Log.i(TAG, "GCM Registration Token: " + token);
 
             // TODO: Implement this method to send any registration to your app's servers.
-            sendRegistrationToServer(token, sharedPreferences);
+            sendRegistrationToServer(token);
 
             // Subscribe to topic channels
             subscribeTopics(token);
@@ -96,15 +97,16 @@ public class RegistrationIntentService extends IntentService {
      * maintained by your application.
      *
      * @param token             The new token.
-     * @param sharedPreferences
      */
-    private void sendRegistrationToServer(String token, SharedPreferences sharedPreferences) {
+    private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
         ///
-        List<Observable<Boolean>> observables = mDataManager.registerTokenToGcm(token);
+        List<Observable<Boolean>> observables = mDataManager.registerGcm(token);
         for (Observable<Boolean> observable : observables) {
             observable.subscribe(aBoolean -> {
+                Timber.d("OK");
             }, throwable -> {
+                Timber.e("Error ");
             });
         }
     }

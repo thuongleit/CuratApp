@@ -16,12 +16,17 @@ import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.widget.CustomBottomLineEditText;
 import com.avectris.curatapp.vo.Account;
+import com.jakewharton.rxbinding.widget.RxTextView;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by thuongle on 1/13/16.
@@ -36,6 +41,7 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
     VerifyPresenter mVerifyPresenter;
 
     private ProgressDialog mProgressDialog;
+    private Subscription mSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +55,22 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
 
         mVerifyPresenter.attachView(this);
         mInputCode.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_GO) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
                 InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromInputMethod(v.getWindowToken(), 0);
+                inputManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 verify();
                 return true;
             }
             return false;
         });
+        mSubscription = RxTextView
+                .textChanges(mInputCode)
+                .delay(200, TimeUnit.MILLISECONDS)
+                .map(charSequence -> charSequence.length() > 0)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(aBoolean -> {
+                    mButtonVerify.setEnabled(aBoolean);
+                });
     }
 
     @Override
@@ -64,6 +78,7 @@ public class VerifyActivity extends BaseActivity implements VerfifyView {
         super.onDestroy();
         ButterKnife.unbind(this);
         mVerifyPresenter.detachView();
+        mSubscription.unsubscribe();
     }
 
     @Override

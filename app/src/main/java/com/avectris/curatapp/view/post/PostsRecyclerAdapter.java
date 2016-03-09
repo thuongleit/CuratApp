@@ -87,13 +87,12 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<PostsRecyclerAdap
 
         public void bind(Post post) {
             ImageLoader.getInstance().displayImage(post.getMedia().getOriginMedia(), mImagePicture, mDisplayImageOptions);
-            mTextCaption.setText(Html.fromHtml("<b>@" + mClient + "</b> " + post.getMedia().getCaptionText()));
+            mTextCaption.setText(Html.fromHtml(post.getMedia().getCaptionText()));
             mTextDueTime.setText("Due " + post.getExecDate());
 
             this.setItemClickListener(() -> {
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
-                intent.putExtra(PostDetailActivity.EXTRA_CLIENT, mClient);
                 mContext.startActivity(intent);
             });
         }

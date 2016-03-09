@@ -54,7 +54,7 @@ public class DataManager {
                 .verify(request)
                 .doOnNext(response -> {
                     cacheAccount(response.getAccount());
-                    mAccountModel.save(response.getAccount());
+                    mAccountModel.saveOrUpdate(response.getAccount());
                 });
 
     }
@@ -106,44 +106,83 @@ public class DataManager {
         String apiCode = account.getApiCode();
         mConfig.putCurrentCode(apiCode);
         mApiHeaders.withSession(apiCode);
+        mAccountModel.updateActiveAccount(account, true);
     }
 
-    public List<Observable<Boolean>> registerTokenToGcm(String token) {
+    public List<Observable<Boolean>> registerGcm(String token) {
         List<Observable<Boolean>> observables = new ArrayList<>();
         for (BaseModel model : mAccountModel.getAllToList()) {
             Account account = (Account) model;
 
-            observables.add(mSessionService
-                    .enablePushNotification(token == null ? account.getGcmToken() : token, account.getAccountId() + "")
-                    .map(response -> {
-                        if (response.isSuccess()) {
-                            //save to database
-                            mAccountModel.updateToken(token);
-                            return true;
-                        }
-                        return false;
-                    }));
+            if(account.isEnableNotification()) {
+                observables.add(mSessionService
+                        .enablePushNotification(token == null ? account.getGcmToken() : token, String.valueOf(account.getAccountId()))
+                        .map(response -> {
+                            if (response.isSuccess()) {
+                                //saveOrUpdate to database
+                                if (token != null) {
+                                    mAccountModel.updateToken(token);
+                                }
+                                return true;
+                            }
+                            return false;
+                        }));
+            }
         }
 
         return observables;
     }
 
-    public List<Observable<Boolean>> unregisterTokenToGcm() {
-        List<Observable<Boolean>> observables = new ArrayList<>();
-        for (BaseModel model : mAccountModel.getAllToList()) {
-            Account account = (Account) model;
-
-            observables.add(mSessionService
-                    .disablePushNotification(account.getGcmToken(), account.getAccountId() + "")
-                    .map(response -> {
-                        if (response.isSuccess()) {
-                            //save to database
-                            return true;
+    public Observable<List<Account>> deleteAccount(List<Account> accounts, int position) {
+        Account account = accounts.get(position);
+        return mAccountModel
+                .delete(account.getAccountId())
+                .map(success -> {
+                    if (success) {
+                        accounts.remove(position);
+                        removeAccount(account);
+                        if (!accounts.isEmpty()) {
+                            //next active account is the first account
+                            Account nextAccount = accounts.get(0);
+                            nextAccount.setCurrentActive(true);
+                            cacheAccount(nextAccount);
                         }
-                        return false;
-                    }));
-        }
+                    }
+                    return accounts;
+                });
 
-        return observables;
+    }
+
+    private void removeAccount(Account account) {
+        mConfig.setCurrentAccount(null);
+        mAccountModel.updateActiveAccount(account, false);
+
+        mConfig.putCurrentCode(null);
+        mApiHeaders.logout();
+    }
+
+    public Observable<Boolean> enablePushNotification(Account account) {
+        return mSessionService
+                .enablePushNotification(account.getGcmToken(), String.valueOf(account.getAccountId()))
+                .map(response -> {
+                    if (response.isSuccess()) {
+                        mAccountModel.updatePushNotification(account, true);
+                        return true;
+                    }
+                    return false;
+                });
+    }
+
+    public Observable<Boolean> disablePushNotification(Account account) {
+        return mSessionService
+                .disablePushNotification(account.getGcmToken(), String.valueOf(account.getAccountId()))
+                .map(response -> {
+                    if (response.isSuccess()) {
+                        mAccountModel.updateActiveAccount(account, false);
+                        //saveOrUpdate to database
+                        return true;
+                    }
+                    return false;
+                });
     }
 }

@@ -14,5 +14,7 @@ interface AccountNavView extends MvpView {
 
     void onNoAccountReturn();
 
-    void onError();
+    void onError(String message);
+
+    void onNoAccountAfterDelete();
 }

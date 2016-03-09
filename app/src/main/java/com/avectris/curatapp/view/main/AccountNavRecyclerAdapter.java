@@ -2,9 +2,11 @@ package com.avectris.curatapp.view.main;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.avectris.curatapp.R;
@@ -22,6 +24,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
 
     private final Context mContext;
     private final List<Account> mAccounts;
+    private OnAccountNavItemClickListener mItemClickListener;
 
     public AccountNavRecyclerAdapter(Context context, List<Account> accounts) {
         mContext = context;
@@ -44,21 +47,49 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
         return (mAccounts == null || mAccounts.isEmpty()) ? 0 : mAccounts.size();
     }
 
+    public void setOnItemClickListener(OnAccountNavItemClickListener listener) {
+        this.mItemClickListener = listener;
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder {
 
+        private final View mView;
         @Bind(R.id.view_account_status)
         View viewAccountStatus;
         @Bind(R.id.text_account_name)
         TextView mTextAccountName;
         @Bind(R.id.text_account_status)
         TextView mTextAccountStatus;
+        @Bind(R.id.switch_on_off_notification)
+        SwitchCompat mSwitchNotification;
+        @Bind(R.id.image_button_delete)
+        ImageButton mButtonDelete;
 
         public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
+            this.mView = view;
+            this.mView.setOnClickListener(v -> {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onViewClick(getAdapterPosition());
+                }
+            });
+            this.mSwitchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onSwitchControlClick(getAdapterPosition(), isChecked);
+                }
+            });
+            this.mButtonDelete.setOnClickListener(v -> {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onDeleteButtonClick(getAdapterPosition());
+                }
+            });
         }
 
         public void bind(Account account) {
+            if (account.isCurrentAccount()) {
+                mView.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
+            }
             mTextAccountName.setText(account.getName());
             if (account.isActive()) {
                 viewAccountStatus.setBackgroundResource(R.drawable.shape_circle_spot_account_active);
@@ -74,5 +105,14 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                 mTextAccountStatus.setText("Inactive");
             }
         }
+    }
+
+    interface OnAccountNavItemClickListener {
+
+        void onViewClick(int position);
+
+        void onSwitchControlClick(int position, boolean isChecked);
+
+        void onDeleteButtonClick(int position);
     }
 }

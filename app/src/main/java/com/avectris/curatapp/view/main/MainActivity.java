@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,9 +18,9 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +49,6 @@ import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import rx.Observable;
 import timber.log.Timber;
 
 
@@ -170,8 +170,13 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
-    public void onError() {
-        // TODO: 2/13/16
+    public void onError(String message) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onNoAccountAfterDelete() {
+        addNewAccount();
     }
 
     private void setupSpinnerAccount(List<Account> accounts) {
@@ -190,7 +195,37 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     private void setupAccountNavView(List<Account> accounts) {
-        RecyclerView.Adapter adapter = new AccountNavRecyclerAdapter(this, accounts);
+        AccountNavRecyclerAdapter adapter = new AccountNavRecyclerAdapter(this, accounts);
+        adapter.setOnItemClickListener(new AccountNavRecyclerAdapter.OnAccountNavItemClickListener() {
+            @Override
+            public void onViewClick(int position) {
+                mAccountNavPresenter.chooseAccount(accounts.get(position));
+            }
+
+            @Override
+            public void onSwitchControlClick(int position, boolean isChecked) {
+                if (isChecked) {
+                    mAccountNavPresenter.enablePushNotification(accounts.get(position));
+                } else {
+                    mAccountNavPresenter.disablePushNotification(accounts.get(position));
+                }
+            }
+
+            @Override
+            public void onDeleteButtonClick(int position) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage("Are you sure to delete this account?")
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            mAccountNavPresenter.deleteAccount(accounts, position);
+                            dialog.dismiss();
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.create().show();
+
+            }
+        });
         mRecyclerViewOnNav.setAdapter(adapter);
     }
 
@@ -226,32 +261,20 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         View headerView = getLayoutInflater().inflate(R.layout.nav_header_main, null);
         mRecyclerViewOnNav = (RecyclerView) headerView.findViewById(R.id.recycler_view_nav);
         headerView.findViewById(R.id.button_add_new_account).setOnClickListener(v -> {
-            Intent intent = new Intent(mContext, VerifyActivity.class);
-            startActivity(intent);
-            finish();
+            addNewAccount();
         });
 
-        SwitchCompat switchOnOffNotification = (SwitchCompat) headerView.findViewById(R.id.switch_on_off_notification);
-        switchOnOffNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            List<Observable<Boolean>> observables;
-            if (isChecked) {
-                observables = mDataManager.unregisterTokenToGcm();
-            } else {
-                observables = mDataManager.registerTokenToGcm(null);
-            }
-
-            for (Observable<Boolean> observable : observables) {
-                observable
-                        .subscribe(aBoolean -> {}
-                        , e -> {
-                        });
-            }
-        });
         mNavView.addView(headerView, layoutParams);
         mNavView.setNavigationItemSelectedListener(this);
 
         mRecyclerViewOnNav.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerViewOnNav.setHasFixedSize(true);
+    }
+
+    private void addNewAccount() {
+        Intent intent = new Intent(mContext, VerifyActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     /**

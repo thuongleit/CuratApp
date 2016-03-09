@@ -16,12 +16,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 @Table(database = CuratAppDatabase.class, name = "account")
 public class Account extends BaseModel implements Parcelable {
 
-    @Column(name = "id")
-    @PrimaryKey(autoincrement = true)
-    long mId;
-
     @Column(name = "accountId")
-    @JsonProperty("id")
+    @PrimaryKey()
     long mAccountId;
 
     @Column(name = "name")
@@ -54,11 +50,13 @@ public class Account extends BaseModel implements Parcelable {
     @Column(name = "gcm_token")
     String mGcmToken;
 
+    @Column(name = "enable_notification", defaultValue = "true")
+    boolean mEnableNotification;
+
     public Account() {
     }
 
     protected Account(Parcel in) {
-        this.mId = in.readLong();
         this.mAccountId = in.readLong();
         this.mName = in.readString();
         this.mApiCode = in.readString();
@@ -69,6 +67,7 @@ public class Account extends BaseModel implements Parcelable {
         this.mAgency = in.readParcelable(Agency.class.getClassLoader());
         this.mCurrent = in.readByte() != 0;
         this.mGcmToken = in.readString();
+        this.mEnableNotification = in.readByte() != 0;
     }
 
     @Override
@@ -89,7 +88,6 @@ public class Account extends BaseModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(this.mId);
         dest.writeLong(this.mAccountId);
         dest.writeString(this.mName);
         dest.writeString(this.mApiCode);
@@ -100,20 +98,14 @@ public class Account extends BaseModel implements Parcelable {
         dest.writeParcelable(this.mAgency, 0);
         dest.writeByte(mCurrent ? (byte) 1 : (byte) 0);
         dest.writeString(mGcmToken);
-    }
-
-    public long getId() {
-        return mId;
-    }
-
-    public void setId(long id) {
-        this.mId = id;
+        dest.writeByte(mEnableNotification ? (byte) 1 : (byte) 0);
     }
 
     public long getAccountId() {
         return mAccountId;
     }
 
+    @JsonProperty("id")
     public void setAccountId(long id) {
         this.mAccountId = id;
     }
@@ -192,6 +184,14 @@ public class Account extends BaseModel implements Parcelable {
 
     public void setGcmToken(String token) {
         this.mGcmToken = token;
+    }
+
+    public boolean isEnableNotification() {
+        return mEnableNotification;
+    }
+
+    public void setEnableNotification(boolean notification) {
+        this.mEnableNotification = notification;
     }
 
     public static final Creator<Account> CREATOR = new Creator<Account>() {
