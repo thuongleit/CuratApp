@@ -38,6 +38,13 @@ public final class DialogFactory {
         return alertDialog.create();
     }
 
+    public static Dialog createGenericErrorDialog(Context context, String message, DialogInterface.OnClickListener onClickListener) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+                .setMessage(message)
+                .setPositiveButton(R.string.dialog_action_ok, onClickListener);
+        return alertDialog.create();
+    }
+
     public static Dialog createGenericErrorDialog(Context context, @StringRes int messageResource) {
         return createGenericErrorDialog(context, context.getString(messageResource));
     }

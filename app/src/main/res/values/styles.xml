@@ -1,6 +1,5 @@
 <resources>
 
-    <style name="AppTheme" parent="AppTheme.Base" />
     <!-- Base application theme. -->
     <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -13,6 +12,8 @@
         <item name="android:buttonStyle">@style/AppTheme.ButtonStyle</item>
         <item name="switchStyle">@style/AppTheme.Switch</item>
     </style>
+
+    <style name="AppTheme" parent="AppTheme.Base" />
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>

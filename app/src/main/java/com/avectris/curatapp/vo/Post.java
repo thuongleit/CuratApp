@@ -12,39 +12,22 @@ public class Post implements Parcelable {
     @JsonProperty("id")
     String mId;
 
-    @JsonProperty("schedule_id")
-    long mScheduleId;
-
     @JsonProperty("exec_datetime")
     String mExecDate;
-
-    @JsonProperty("media_id")
-    long mMediaId;
 
     @JsonProperty("status")
     int mStatus;
 
-    @JsonProperty("created_at")
-    Date mCreatedAt;
-
-    @JsonProperty("updated_at")
-    Date mUpdatedAt;
-
     @JsonProperty("media")
     Media mMedia;
-
 
     public Post() {
     }
 
     protected Post(Parcel in) {
         this.mId = in.readString();
-        this.mScheduleId = in.readLong();
         this.mExecDate = in.readString();
-        this.mMediaId = in.readLong();
         this.mStatus = in.readInt();
-        this.mCreatedAt = in.readParcelable(Date.class.getClassLoader());
-        this.mUpdatedAt = in.readParcelable(Date.class.getClassLoader());
         this.mMedia = in.readParcelable(Media.class.getClassLoader());
     }
 
@@ -56,12 +39,8 @@ public class Post implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.mId);
-        dest.writeLong(this.mScheduleId);
         dest.writeString(this.mExecDate);
-        dest.writeLong(this.mMediaId);
         dest.writeInt(this.mStatus);
-        dest.writeParcelable(this.mCreatedAt, 0);
-        dest.writeParcelable(this.mUpdatedAt, 0);
         dest.writeParcelable(this.mMedia, 0);
     }
 
@@ -73,13 +52,6 @@ public class Post implements Parcelable {
         this.mId = id;
     }
 
-    public long getScheduleId() {
-        return mScheduleId;
-    }
-
-    public void setScheduleId(long scheduleId) {
-        this.mScheduleId = scheduleId;
-    }
 
     public String getExecDate() {
         return mExecDate;
@@ -89,13 +61,6 @@ public class Post implements Parcelable {
         this.mExecDate = execDate;
     }
 
-    public long getMediaId() {
-        return mMediaId;
-    }
-
-    public void setMediaId(long mediaId) {
-        this.mMediaId = mediaId;
-    }
 
     public int getStatus() {
         return mStatus;
@@ -105,21 +70,6 @@ public class Post implements Parcelable {
         this.mStatus = status;
     }
 
-    public Date getCreatedAt() {
-        return mCreatedAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.mCreatedAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return mUpdatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.mUpdatedAt = updatedAt;
-    }
 
     public Media getMedia() {
         return mMedia;
@@ -138,4 +88,19 @@ public class Post implements Parcelable {
             return new Post[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Post post = (Post) o;
+
+        if (mStatus != post.mStatus) return false;
+        if (mId != null ? !mId.equals(post.mId) : post.mId != null) return false;
+        if (mExecDate != null ? !mExecDate.equals(post.mExecDate) : post.mExecDate != null)
+            return false;
+        return mMedia != null ? mMedia.equals(post.mMedia) : post.mMedia == null;
+
+    }
 }

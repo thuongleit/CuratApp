@@ -1,5 +1,7 @@
 package com.avectris.curatapp.view.main;
 
+import android.support.v7.widget.SwitchCompat;
+
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
@@ -46,7 +48,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                                     if (models == null || models.isEmpty()) {
                                         mView.onNoAccountReturn();
                                     } else {
-                                        mView.onAccountsReturn((List<Account>) models);
+                                        mView.onAccountsReturn(models);
                                     }
                                 },
                                 e -> mView.onError("Cannot delete this account right now. Please try again later")));
@@ -62,7 +64,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                             if (results.isEmpty()) {
                                 mView.onNoAccountAfterDelete();
                             } else {
-                                mView.onAccountsReturn(accounts);
+                                mView.onDeleteAccountReturn(accounts.get(0));
                             }
                         }, e -> {
                             Timber.e(e, "Error in delete account");
@@ -73,42 +75,46 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
         );
     }
 
-    public void enablePushNotification(Account account) {
+    public void enablePushNotification(SwitchCompat view, Account account) {
         mSubscriptions.add(
                 mDataManager
                         .enablePushNotification(account)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(result -> {
+                            if (!result) {
+                                mView.onEnableDisableNotificationFailed(view, false);
+                            }
                         }, e -> {
+                            mView.onEnableDisableNotificationFailed(view, false);
                         }));
     }
 
-    public void disablePushNotification(Account account) {
+    public void disablePushNotification(SwitchCompat view, Account account) {
         mSubscriptions.add(
                 mDataManager.
                         disablePushNotification(account)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(result -> {
+                            if (!result) {
+                                mView.onEnableDisableNotificationFailed(view, true);
+                            }
                         }, e -> {
+                            mView.onEnableDisableNotificationFailed(view, true);
                         }));
     }
 
     public void chooseAccount(Account account) {
         mSubscriptions.add(
                 mDataManager
-                        .verify(account.getApiCode())
-                        .map(verifyResponse -> {
-                            if (verifyResponse.isSuccess()) {
-                                fetchAccounts();
-                                return true;
-                            }
-                            return false;
-                        })
+                        .updateActiveAccount(account)
                         .subscribeOn(Schedulers.newThread())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
+                                    if (aBoolean) {
+                                        mView.reloadActivity(account);
+                                    }
                                 }
                                 , e -> {
                                 }));

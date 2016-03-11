@@ -55,6 +55,7 @@ public class DataManager {
                 .doOnNext(response -> {
                     cacheAccount(response.getAccount());
                     mAccountModel.saveOrUpdate(response.getAccount());
+                    mAccountModel.updatePushNotification(response.getAccount(), true);
                 });
 
     }
@@ -91,8 +92,18 @@ public class DataManager {
                 .map(response -> response.getResult());
     }
 
-    public Observable<List<? extends BaseModel>> getAccounts() {
-        return mAccountModel.getAll();
+    public Observable<List<Account>> getAccounts() {
+        return mAccountModel
+                .getAll()
+                .map(baseModels -> {
+                    List<Account> accounts = new ArrayList<>();
+                    for (BaseModel model : baseModels) {
+                        Account account1 = (Account) model;
+                        accounts.add(account1);
+                    }
+
+                    return accounts;
+                });
     }
 
     public Observable<PostDetailResponse> getPostDetail(String postId) {
@@ -106,7 +117,7 @@ public class DataManager {
         String apiCode = account.getApiCode();
         mConfig.putCurrentCode(apiCode);
         mApiHeaders.withSession(apiCode);
-        mAccountModel.updateActiveAccount(account, true);
+        account.setCurrentActive(true);
     }
 
     public List<Observable<Boolean>> registerGcm(String token) {
@@ -114,14 +125,14 @@ public class DataManager {
         for (BaseModel model : mAccountModel.getAllToList()) {
             Account account = (Account) model;
 
-            if(account.isEnableNotification()) {
+            if (account.isEnableNotification()) {
                 observables.add(mSessionService
                         .enablePushNotification(token == null ? account.getGcmToken() : token, String.valueOf(account.getAccountId()))
                         .map(response -> {
                             if (response.isSuccess()) {
                                 //saveOrUpdate to database
                                 if (token != null) {
-                                    mAccountModel.updateToken(token);
+                                    mAccountModel.updateToken(account, token);
                                 }
                                 return true;
                             }
@@ -178,11 +189,17 @@ public class DataManager {
                 .disablePushNotification(account.getGcmToken(), String.valueOf(account.getAccountId()))
                 .map(response -> {
                     if (response.isSuccess()) {
-                        mAccountModel.updateActiveAccount(account, false);
+                        mAccountModel.updatePushNotification(account, false);
                         //saveOrUpdate to database
                         return true;
                     }
                     return false;
                 });
+    }
+
+    public Observable<Boolean> updateActiveAccount(Account account) {
+        cacheAccount(account);
+        mAccountModel.updateActiveAccount(account, true);
+        return Observable.just(true);
     }
 }

@@ -1,6 +1,7 @@
 package com.avectris.curatapp.view.base;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,8 +43,12 @@ public abstract class BaseActivity extends AppCompatActivity {
                 checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public void reload(){
-
+    public Intent getReloadIntent(){
+        overridePendingTransition(0, 0);
+        Intent intent = getIntent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        overridePendingTransition(0, 0);
+        return intent;
     }
 
     public ActivityComponent getComponent() {

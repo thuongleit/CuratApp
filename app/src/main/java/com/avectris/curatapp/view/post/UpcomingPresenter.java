@@ -18,7 +18,6 @@ import rx.subscriptions.CompositeSubscription;
 class UpcomingPresenter extends BasePresenter<PostView> {
 
     private final DataManager mDataManager;
-    private int mPageNumber = 0;
     private CompositeSubscription mSubscription;
 
     @Inject
@@ -33,32 +32,57 @@ class UpcomingPresenter extends BasePresenter<PostView> {
         mSubscription.unsubscribe();
     }
 
-    void getPosts() {
+    void getPosts(int pageNumber) {
         checkViewAttached();
-        mView.showProgress(true);
+        if (pageNumber == 0) {
+            mView.showProgress(true);
+            mView.setNextPageLoaded(true);
+        }
         mSubscription.add(mDataManager
-                .getUpcomingPosts(mPageNumber++)
+                .getUpcomingPosts(pageNumber)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         accountPost -> {
                             if (accountPost == null || accountPost.getPosts() == null
                                     || accountPost.getPosts().isEmpty()) {
-                                mView.onEmptyPosts();
+                                if (pageNumber == 0) {
+                                    mView.onEmptyPosts();
+                                } else {
+                                    mView.onRemoveBottomProgressBar();
+                                }
                             } else {
                                 mView.onPostsShow(accountPost);
                             }
                         },
                         e -> {
-                            if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
-                                mView.showNetworkFailed();
+                            if (pageNumber == 0) {
+                                mView.showProgress(false);
+                                if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                                    mView.showNetworkFailed();
+                                } else {
+                                    mView.showGenericError();
+                                }
                             } else {
-                                mView.showGenericError();
+                                mView.onRemoveBottomProgressBar();
                             }
                         },
-                        () -> {
-                            mView.showProgress(false);
-                        }));
+                        () -> mView.showProgress(false)));
 
+    }
+
+    public void getPostsForRefresh() {
+        mSubscription.add(mDataManager
+                .getUpcomingPosts(0)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        accountPost -> {
+                            mView.removeSwipePullRefresh();
+                            mView.onPostsShowAfterRefresh(accountPost);
+                        },
+                        e -> {
+                            mView.removeSwipePullRefresh();
+                        }));
     }
 }

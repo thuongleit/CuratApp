@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -21,7 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
+import android.support.v7.widget.SwitchCompat;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +78,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private RecyclerView mRecyclerViewOnNav;
     private Account mAccount;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
+    private int mCurrentAccount;
 
     @Override
     protected int getLayoutId() {
@@ -87,7 +89,11 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        if (savedInstanceState == null) {
+            mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+        } else {
+            mAccount = savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+        }
         getComponent().inject(this);
         mAccountNavPresenter.attachView(this);
         setTitle(getString(R.string.title_scheduled_posts));
@@ -104,11 +110,6 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(Constant.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                    Toast.makeText(MainActivity.this, "Sent token success", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "Sent token failed", Toast.LENGTH_SHORT).show();
-                }
             }
         };
         if (checkPlayServices()) {
@@ -119,16 +120,16 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(Constant.REGISTRATION_COMPLETE));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -179,10 +180,46 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         addNewAccount();
     }
 
+    @Override
+    public void reloadActivity(Account account) {
+        Intent reload = getReloadIntent();
+        reload.putExtra(EXTRA_ACCOUNT, account);
+        finish();
+        startActivity(reload);
+    }
+
+    @Override
+    public void onDeleteAccountReturn(Account account) {
+        reloadActivity(account);
+    }
+
+    @Override
+    public void onEnableDisableNotificationFailed(SwitchCompat view, boolean state) {
+        if (view != null) {
+            new Handler().postDelayed(() -> view.setChecked(state), 1000);
+        }
+        Toast.makeText(MainActivity.this, "Request failed", Toast.LENGTH_LONG).show();
+    }
+
     private void setupSpinnerAccount(List<Account> accounts) {
         List<String> accountNames = buildAccountName(accounts);
         SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accountNames);
         mSpinner.setAdapter(adapter);
+        int selected = 0;
+        for (int i = 0, size = accounts.size(); i < size; i++) {
+            if (accounts.get(i).isCurrentAccount()) {
+                selected = i;
+                mCurrentAccount = i;
+                break;
+            }
+        }
+        mSpinner.setSelection(selected);
+        adapter.setOnItemClickListener(position -> {
+            if (mCurrentAccount != position) {
+                mAccountNavPresenter.chooseAccount(accounts.get(position));
+                mCurrentAccount = position;
+            }
+        });
     }
 
     private List<String> buildAccountName(List<Account> accounts) {
@@ -199,15 +236,21 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         adapter.setOnItemClickListener(new AccountNavRecyclerAdapter.OnAccountNavItemClickListener() {
             @Override
             public void onViewClick(int position) {
-                mAccountNavPresenter.chooseAccount(accounts.get(position));
+                if (mCurrentAccount != position) {
+                    mAccountNavPresenter.chooseAccount(accounts.get(position));
+                    mCurrentAccount = position;
+                }
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                }
             }
 
             @Override
-            public void onSwitchControlClick(int position, boolean isChecked) {
+            public void onSwitchControlClick(SwitchCompat view, int position, boolean isChecked) {
                 if (isChecked) {
-                    mAccountNavPresenter.enablePushNotification(accounts.get(position));
+                    mAccountNavPresenter.enablePushNotification(view, accounts.get(position));
                 } else {
-                    mAccountNavPresenter.disablePushNotification(accounts.get(position));
+                    mAccountNavPresenter.disablePushNotification(view, accounts.get(position));
                 }
             }
 
@@ -223,7 +266,9 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
                             dialog.dismiss();
                         });
                 builder.create().show();
-
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                }
             }
         });
         mRecyclerViewOnNav.setAdapter(adapter);

@@ -1,6 +1,7 @@
 package com.avectris.curatapp.view.main;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -74,9 +75,10 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                     mItemClickListener.onViewClick(getAdapterPosition());
                 }
             });
-            this.mSwitchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            this.mSwitchNotification.setOnClickListener(v -> {
                 if (mItemClickListener != null) {
-                    mItemClickListener.onSwitchControlClick(getAdapterPosition(), isChecked);
+                    boolean isChecked = mSwitchNotification.isChecked();
+                    mItemClickListener.onSwitchControlClick(mSwitchNotification, getAdapterPosition(), isChecked);
                 }
             });
             this.mButtonDelete.setOnClickListener(v -> {
@@ -88,7 +90,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
 
         public void bind(Account account) {
             if (account.isCurrentAccount()) {
-                mView.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
+                ((CardView)mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
             }
             mTextAccountName.setText(account.getName());
             if (account.isActive()) {
@@ -111,7 +113,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
 
         void onViewClick(int position);
 
-        void onSwitchControlClick(int position, boolean isChecked);
+        void onSwitchControlClick(SwitchCompat mSwitchNotification, int position, boolean isChecked);
 
         void onDeleteButtonClick(int position);
     }

@@ -2,9 +2,9 @@ package com.avectris.curatapp.view.splash;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 
 import com.avectris.curatapp.R;
-import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
@@ -51,11 +51,27 @@ public class SplashActivity extends BaseActivity implements SplashView {
 
     @Override
     public void showNetworkFailed() {
-        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_no_internet_working).show();
+        showAlertDialog(getResources().getString(R.string.dialog_message_no_internet_working));
     }
 
     @Override
     public void showGenericError() {
-        DialogFactory.createGenericErrorDialog(this, "App couldn't launch now. Please try again later!").show();
+        showAlertDialog("App couldn't launch now. Please try again later!");
+    }
+
+    private void showAlertDialog(String message) {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton(R.string.dialog_action_ok, (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                    startActivity(getReloadIntent());
+                });
+        alertDialog.setOnCancelListener(dialog -> {
+            dialog.dismiss();
+            finish();
+            startActivity(getReloadIntent());
+        });
+        alertDialog.create().show();
     }
 }

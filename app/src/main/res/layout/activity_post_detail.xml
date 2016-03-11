@@ -33,16 +33,6 @@
                 android:layout_above="@+id/text_caption"
                 android:layout_marginTop="20dp">
 
-                <com.avectris.curatapp.view.widget.MuliTextView
-                    android:id="@+id/text_due_time"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/black_54" />
-
                 <com.avectris.curatapp.view.widget.SquareImageView
                     android:id="@+id/image_picture"
                     android:layout_width="match_parent"
@@ -57,18 +47,29 @@
                 android:layout_marginBottom="20dp"
                 android:layout_marginTop="20dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/black_54" />
+                android:textColor="@color/black_54"
+                android:textIsSelectable="true" />
 
-            <com.avectris.curatapp.view.widget.MuliButton
+
+            <com.avectris.curatapp.view.widget.MuliAppCompatButton
                 android:id="@+id/button_post_now"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/input_verify_code"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="10dp"
+                android:layout_marginTop="0dp"
+                android:elevation="2dp"
+                android:enabled="false"
                 android:foreground="?android:attr/selectableItemBackground"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:paddingTop="10dp"
                 android:text="Post Now"
-                android:textAllCaps="true"
-                android:textColor="@color/white" />
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

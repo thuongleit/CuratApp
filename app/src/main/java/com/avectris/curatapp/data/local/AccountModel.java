@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Where;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import rx.Observable;
@@ -27,6 +29,7 @@ public class AccountModel extends BaseModel {
     }
 
     public void saveOrUpdate(Account account) {
+        deactiveAccounts();
         Insert<? extends com.raizlabs.android.dbflow.structure.BaseModel> insertQuery = SQLite
                 .insert(getModelClazz())
                 .orReplace()
@@ -43,11 +46,12 @@ public class AccountModel extends BaseModel {
         insertQuery.execute();
     }
 
-    public void updateToken(String token) {
+    public void updateToken(Account account, String token) {
         SQLite
                 .update(getModelClazz())
                 .orFail()
                 .set(Account_Table.gcm_token.eq(token))
+                .where(Account_Table.accountId.eq(account.getAccountId()))
                 .execute();
     }
 
@@ -73,12 +77,27 @@ public class AccountModel extends BaseModel {
     }
 
     public void updateActiveAccount(Account account, boolean isCurrent) {
+        //if active state, need to deactivate other accounts
+        if (isCurrent) {
+            deactiveAccounts();
+        }
         SQLite
                 .update(getModelClazz())
                 .orIgnore()
                 .set(Account_Table.current.eq(isCurrent))
                 .where(Account_Table.accountId.eq(account.getAccountId()))
                 .execute();
+    }
+
+    private void deactiveAccounts() {
+        List<? extends com.raizlabs.android.dbflow.structure.BaseModel> accounts = getAllToList();
+        for (com.raizlabs.android.dbflow.structure.BaseModel model : accounts) {
+            Account account1 = (Account) model;
+            if (account1.isCurrentAccount()) {
+                updateActiveAccount(account1, false);
+                break;
+            }
+        }
     }
 
     public void updatePushNotification(Account account, boolean notification) {

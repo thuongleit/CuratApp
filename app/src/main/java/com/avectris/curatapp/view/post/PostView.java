@@ -13,4 +13,12 @@ public interface PostView extends ErrorView {
     void onEmptyPosts();
 
     void onPostsShow(AccountPost accountPost);
+
+    void onRemoveBottomProgressBar();
+
+    void onPostsShowAfterRefresh(AccountPost accountPost);
+
+    void setNextPageLoaded(boolean loaded);
+
+    void removeSwipePullRefresh();
 }

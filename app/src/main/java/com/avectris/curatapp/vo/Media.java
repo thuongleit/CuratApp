@@ -12,9 +12,6 @@ public class Media implements Parcelable {
     @JsonProperty("id")
     String mId;
 
-    @JsonProperty("user_id")
-    long mUserId;
-
     @JsonProperty("filename")
     String mFileName;
 
@@ -24,35 +21,22 @@ public class Media implements Parcelable {
     @JsonProperty("origin_link")
     String mOriginLink;
 
-    @JsonProperty("origin_username")
-    String mOriginUsername;
-
     @JsonProperty("origin_media")
     String mOriginMedia;
 
     @JsonProperty("origin_thumb")
     String mOriginThumb;
 
-    @JsonProperty("created_at")
-    Date mCreatedAt;
-
-    @JsonProperty("updated_at")
-    Date mUpdatedAt;
-
     public Media() {
     }
 
     protected Media(Parcel in) {
         this.mId = in.readString();
-        this.mUserId = in.readLong();
         this.mFileName = in.readString();
         this.mCaptionText = in.readString();
         this.mOriginLink = in.readString();
-        this.mOriginUsername = in.readString();
         this.mOriginMedia = in.readString();
         this.mOriginThumb = in.readString();
-        this.mCreatedAt = in.readParcelable(Date.class.getClassLoader());
-        this.mUpdatedAt = in.readParcelable(Date.class.getClassLoader());
     }
 
     @Override
@@ -63,15 +47,11 @@ public class Media implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.mId);
-        dest.writeLong(this.mUserId);
         dest.writeString(this.mFileName);
         dest.writeString(this.mCaptionText);
         dest.writeString(this.mOriginLink);
-        dest.writeString(this.mOriginUsername);
         dest.writeString(this.mOriginMedia);
         dest.writeString(this.mOriginThumb);
-        dest.writeParcelable(this.mCreatedAt, 0);
-        dest.writeParcelable(this.mUpdatedAt, 0);
     }
 
     public String getId() {
@@ -82,13 +62,6 @@ public class Media implements Parcelable {
         this.mId = id;
     }
 
-    public long getUserId() {
-        return mUserId;
-    }
-
-    public void setUserId(long userId) {
-        this.mUserId = userId;
-    }
 
     public String getFileName() {
         return mFileName;
@@ -114,13 +87,6 @@ public class Media implements Parcelable {
         this.mOriginLink = originLink;
     }
 
-    public String getOriginUsername() {
-        return mOriginUsername;
-    }
-
-    public void setOriginUsername(String originUsername) {
-        this.mOriginUsername = originUsername;
-    }
 
     public String getOriginMedia() {
         return (mOriginMedia != null) ? mOriginMedia.substring(mOriginMedia.indexOf("http"), mOriginMedia.length()) : null;
@@ -138,22 +104,6 @@ public class Media implements Parcelable {
         this.mOriginThumb = originThumb;
     }
 
-    public Date getCreatedAt() {
-        return mCreatedAt;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.mCreatedAt = createdAt;
-    }
-
-    public Date getUpdatedAt() {
-        return mUpdatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.mUpdatedAt = updatedAt;
-    }
-
     public static final Creator<Media> CREATOR = new Creator<Media>() {
         public Media createFromParcel(Parcel source) {
             return new Media(source);
@@ -163,4 +113,24 @@ public class Media implements Parcelable {
             return new Media[size];
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Media media = (Media) o;
+
+        if (mId != null ? !mId.equals(media.mId) : media.mId != null) return false;
+        if (mFileName != null ? !mFileName.equals(media.mFileName) : media.mFileName != null)
+            return false;
+        if (mCaptionText != null ? !mCaptionText.equals(media.mCaptionText) : media.mCaptionText != null)
+            return false;
+        if (mOriginLink != null ? !mOriginLink.equals(media.mOriginLink) : media.mOriginLink != null)
+            return false;
+        if (mOriginMedia != null ? !mOriginMedia.equals(media.mOriginMedia) : media.mOriginMedia != null)
+            return false;
+        return mOriginThumb != null ? mOriginThumb.equals(media.mOriginThumb) : media.mOriginThumb == null;
+
+    }
 }

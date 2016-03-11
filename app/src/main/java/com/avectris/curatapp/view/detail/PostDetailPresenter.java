@@ -34,6 +34,7 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
 
     void getPostDetail(String postId) {
         checkViewAttached();
+        mView.setButtonEnable(false);
         mSubscription = mDataManager
                 .getPostDetail(postId)
                 .subscribeOn(Schedulers.newThread())
@@ -52,6 +53,7 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                             } else {
                                 mView.showGenericError();
                             }
-                        });
+                        },
+                        () -> mView.setButtonEnable(true));
     }
 }
