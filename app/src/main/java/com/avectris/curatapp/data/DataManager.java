@@ -173,8 +173,9 @@ public class DataManager {
     }
 
     public Observable<Boolean> enablePushNotification(Account account) {
+        Account accountDb = mAccountModel.getAccountById(account.getAccountId());
         return mSessionService
-                .enablePushNotification(account.getGcmToken(), String.valueOf(account.getAccountId()))
+                .enablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
                 .map(response -> {
                     if (response.isSuccess()) {
                         mAccountModel.updatePushNotification(account, true);
@@ -185,8 +186,9 @@ public class DataManager {
     }
 
     public Observable<Boolean> disablePushNotification(Account account) {
+        Account accountDb = mAccountModel.getAccountById(account.getAccountId());
         return mSessionService
-                .disablePushNotification(account.getGcmToken(), String.valueOf(account.getAccountId()))
+                .disablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
                 .map(response -> {
                     if (response.isSuccess()) {
                         mAccountModel.updatePushNotification(account, false);

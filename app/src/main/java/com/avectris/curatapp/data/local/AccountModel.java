@@ -108,4 +108,12 @@ public class AccountModel extends BaseModel {
                 .where(Account_Table.accountId.eq(account.getAccountId()))
                 .execute();
     }
+
+    public Account getAccountById(long accountId) {
+        return (Account) SQLite
+                .select()
+                .from(getModelClazz())
+                .where(Account_Table.accountId.eq(accountId))
+                .querySingle();
+    }
 }
