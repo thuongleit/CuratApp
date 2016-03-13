@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.OnLoadMoreListener;
 import com.avectris.curatapp.view.OnRecyclerItemClickListener;
 import com.avectris.curatapp.view.detail.PostDetailActivity;
+import com.avectris.curatapp.vo.Media;
 import com.avectris.curatapp.vo.Post;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,7 +32,7 @@ import butterknife.ButterKnife;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class PostsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
@@ -45,11 +45,10 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
     // The minimum amount of items to have below your current scroll position
     // before loading more.
     private int visibleThreshold = 5;
-    private int lastVisibleItem, totalItemCount;
     private boolean loading;
     private OnLoadMoreListener onLoadMoreListener;
 
-    public PostsRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts) {
+    public PostRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts) {
         ((CuratApp) application).getAppComponent().inject(this);
         this.mContext = context;
         this.mPosts = posts;
@@ -64,8 +63,8 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
                                                int dx, int dy) {
                             super.onScrolled(recyclerView, dx, dy);
 
-                            totalItemCount = linearLayoutManager.getItemCount();
-                            lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
+                            int totalItemCount = linearLayoutManager.getItemCount();
+                            int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
                             if (!loading
                                     && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                                 // End has been reached
@@ -124,6 +123,23 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         return (mPosts == null || mPosts.isEmpty()) ? 0 : mPosts.size();
     }
 
+    public void clear() {
+        int size = mPosts.size();
+        mPosts.clear();
+        notifyItemRangeRemoved(0, size);
+    }
+
+    public void addItems(List<Post> posts) {
+        int oldSize = mPosts.size();
+        int newSize = posts.size();
+        mPosts.clear();
+        mPosts.addAll(posts);
+
+        notifyItemRangeRemoved(0, oldSize);
+        notifyItemRangeInserted(0, newSize);
+        loading = false;
+    }
+
     class PostViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.image_picture)
         ImageView mImagePicture;
@@ -149,8 +165,15 @@ public class PostsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         public void bind(Post post) {
-            ImageLoader.getInstance().displayImage(post.getMedia().getOriginMedia(), mImagePicture, mDisplayImageOptions);
-            mTextCaption.setText(Html.fromHtml(post.getMedia().getCaptionText()));
+            Media media = post.getMedia();
+            if (media != null) {
+                ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
+                mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
+                mTextCaption.setText(media.getCaptionText());
+            } else {
+                mImagePicture.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimary));
+                mTextCaption.setText("");
+            }
             mTextDueTime.setText("Due " + post.getExecDate());
 
             this.setItemClickListener(() -> {

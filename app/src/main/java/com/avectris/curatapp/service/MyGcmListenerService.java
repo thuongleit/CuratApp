@@ -25,8 +25,10 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.view.detail.PostDetailActivity;
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -98,5 +100,9 @@ public class MyGcmListenerService extends GcmListenerService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+
+        //notify UI when receive a notification
+        Intent receiveNotification = new Intent(Constant.RECEIVE_NOTIFICATION);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(receiveNotification);
     }
 }

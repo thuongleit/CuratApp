@@ -11,7 +11,7 @@ import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.avectris.curatapp.di.scope.ApplicationScope;
 import com.avectris.curatapp.service.RegistrationIntentService;
-import com.avectris.curatapp.view.post.PostsRecyclerAdapter;
+import com.avectris.curatapp.view.post.PostRecyclerAdapter;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -53,7 +53,7 @@ public interface ApplicationComponent {
 
     void inject(DataManager manager);
 
-    void inject(PostsRecyclerAdapter adapter);
+    void inject(PostRecyclerAdapter adapter);
 
     void inject(RegistrationIntentService service);
 }

@@ -4,10 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -34,10 +32,8 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
-import com.avectris.curatapp.view.base.BaseFragment;
 import com.avectris.curatapp.view.base.ToolbarActivity;
-import com.avectris.curatapp.view.post.PostedFragment;
-import com.avectris.curatapp.view.post.UpcomingFragment;
+import com.avectris.curatapp.view.post.PostFragment;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
 import com.google.android.gms.common.ConnectionResult;
@@ -106,10 +102,6 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                SharedPreferences sharedPreferences =
-                        PreferenceManager.getDefaultSharedPreferences(context);
-                boolean sentToken = sharedPreferences
-                        .getBoolean(Constant.SENT_TOKEN_TO_SERVER, false);
             }
         };
         if (checkPlayServices()) {
@@ -196,7 +188,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     @Override
     public void onEnableDisableNotificationFailed(SwitchCompat view, boolean state) {
         if (view != null) {
-            new Handler().postDelayed(() -> view.setChecked(state), 1000);
+            new Handler().postDelayed(() -> view.setChecked(state), 200);
         }
         Toast.makeText(MainActivity.this, "Request failed", Toast.LENGTH_LONG).show();
     }
@@ -277,8 +269,8 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private void setupTabLayout() {
         final CustomPageAdapter adapter = new CustomPageAdapter(getSupportFragmentManager());
         String[] titles = getResources().getStringArray(R.array.tab_titles);
-        Fragment[] fragments = new Fragment[]{BaseFragment.create(UpcomingFragment.class),
-                BaseFragment.create(PostedFragment.class)};
+        Fragment[] fragments = new Fragment[]{PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE),
+                PostFragment.createInstance(Constant.POSTED_CONTENT_MODE)};
         adapter.addTabs(titles, fragments);
         mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);

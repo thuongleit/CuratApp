@@ -11,18 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="2dp">
 
         <ImageView
             android:id="@+id/image_picture"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:layout_marginLeft="5dp"
-            android:elevation="2dp" />
+            android:scaleType="centerCrop"
+            android:layout_marginLeft="5dp" />
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="100dp"
             android:layout_marginRight="5dp"
             android:orientation="vertical"
             android:paddingLeft="15dp">

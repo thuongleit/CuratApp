@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
+import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.exception.SessionNotFoundException;
 import com.avectris.curatapp.data.local.AccountModel;
 import com.avectris.curatapp.data.remote.ApiHeaders;
@@ -13,11 +14,12 @@ import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
-import com.avectris.curatapp.data.remote.vo.AccountPost;
 import com.avectris.curatapp.vo.Account;
+import com.avectris.curatapp.vo.Post;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -79,17 +81,31 @@ public class DataManager {
                 });
     }
 
-    public Observable<AccountPost> getUpcomingPosts(int pageNumber) {
-        return mPostService
-                .getUpcomingPosts(pageNumber)
-                .map(response -> response.getResult());
-
-    }
-
-    public Observable<AccountPost> getPassedPosts(int pageNumber) {
-        return mPostService
-                .getPassedPosts(pageNumber)
-                .map(response -> response.getResult());
+    public Observable<List<Post>> getPosts(int requestMode, int pageNumber) {
+        if (requestMode == Constant.POSTED_CONTENT_MODE) {
+            return mPostService
+                    .getPassedPosts(pageNumber)
+                    .map(response ->
+                    {
+                        if (response.isSuccess()) {
+                            return response.getResult().getPosts();
+                        } else {
+                            return Collections.EMPTY_LIST;
+                        }
+                    });
+        } else if (requestMode == Constant.UPCOMING_CONTENT_MODE) {
+            return mPostService
+                    .getUpcomingPosts(pageNumber)
+                    .map(response ->
+                    {
+                        if (response.isSuccess()) {
+                            return response.getResult().getPosts();
+                        } else {
+                            return Collections.EMPTY_LIST;
+                        }
+                    });
+        }
+        return Observable.just(Collections.EMPTY_LIST);
     }
 
     public Observable<List<Account>> getAccounts() {

@@ -8,9 +8,8 @@ import com.avectris.curatapp.di.scope.ActivityScope;
 import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.detail.PostDetailActivity;
 import com.avectris.curatapp.view.main.MainActivity;
-import com.avectris.curatapp.view.post.PostedFragment;
+import com.avectris.curatapp.view.post.PostFragment;
 import com.avectris.curatapp.view.splash.SplashActivity;
-import com.avectris.curatapp.view.post.UpcomingFragment;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 
 import dagger.Component;
@@ -31,9 +30,7 @@ public interface ActivityComponent {
 
     void inject(SplashActivity activity);
 
-    void inject(UpcomingFragment fragment);
-
-    void inject(PostedFragment fragment);
+    void inject(PostFragment fragment);
 
     void inject(MainActivity activity);
 

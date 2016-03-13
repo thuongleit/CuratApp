@@ -15,12 +15,13 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class PostedPresenter extends BasePresenter<PostView> {
+public class PostPresenter extends BasePresenter<PostView> {
     private final DataManager mDataManager;
     private CompositeSubscription mSubscription;
+    private int mRequestMode;
 
     @Inject
-    public PostedPresenter(DataManager dataManager) {
+    public PostPresenter(DataManager dataManager) {
         mDataManager = dataManager;
         mSubscription = new CompositeSubscription();
     }
@@ -35,26 +36,26 @@ public class PostedPresenter extends BasePresenter<PostView> {
         checkViewAttached();
         if (pageNumber == 0) {
             mView.showProgress(true);
-            mView.setNextPageLoaded(true);
         }
         mSubscription.add(mDataManager
-                .getPassedPosts(pageNumber)
+                .getPosts(mRequestMode, pageNumber)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        accountPost -> {
-                            if (accountPost == null || accountPost.getPosts() == null
-                                    || accountPost.getPosts().isEmpty()) {
+                        posts -> {
+                            if (posts.isEmpty()) {
                                 if (pageNumber == 0) {
-                                    mView.onEmptyPosts();
+                                    mView.onEmptyPostsReturn();
                                 } else {
                                     mView.onRemoveBottomProgressBar();
                                 }
                             } else {
-                                mView.onPostsShow(accountPost);
+                                mView.shouldRemoveEmptyView();
+                                mView.onPostsReturn(posts);
                             }
                         },
                         e -> {
+                            mView.shouldRemoveEmptyView();
                             if (pageNumber == 0) {
                                 mView.showProgress(false);
                                 if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
@@ -64,22 +65,46 @@ public class PostedPresenter extends BasePresenter<PostView> {
                                 }
                             } else {
                                 mView.onRemoveBottomProgressBar();
+                                if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                                    mView.showNetworkFailedInRefresh();
+                                }
                             }
                         },
-                        () -> mView.showProgress(false)));
+                        () -> {
+                            mView.showProgress(false);
+                            mView.shouldRemoveErrorView();
+                        }
+                ));
 
     }
 
     public void getPostsForRefresh() {
         mSubscription.add(mDataManager
-                .getPassedPosts(0)
+                .getPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        accountPost -> {
-                            mView.removeSwipePullRefresh();
-                            mView.onPostsShowAfterRefresh(accountPost);
+                        posts -> {
+                            if (posts.isEmpty()) {
+                                mView.onEmptyPostsReturn();
+                            } else {
+                                mView.shouldRemoveEmptyView();
+                                mView.onPostsReturnAfterRefresh(posts);
+                            }
                         },
-                        e -> mView.removeSwipePullRefresh()));
+                        e -> {
+                            mView.shouldStopPullRefresh();
+                            if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                                mView.showNetworkFailedInRefresh();
+                            }
+                        }
+                        , () -> {
+                            mView.shouldStopPullRefresh();
+                            mView.shouldRemoveErrorView();
+                        }));
+    }
+
+    public void setRequestMode(int mode) {
+        mRequestMode = mode;
     }
 }
