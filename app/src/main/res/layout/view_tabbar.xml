@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.avectris.curatapp.view.widget.MuliTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/text_tab_title"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:textAppearance="?android:attr/textAppearanceMedium" />

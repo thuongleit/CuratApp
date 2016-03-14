@@ -1,0 +1,206 @@
+package com.avectris.curatapp.vo;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.avectris.curatapp.data.local.CuratAppDatabase;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
+/**
+ * Created by thuongle on 2/12/16.
+ */
+@Table(database = CuratAppDatabase.class, name = "account")
+public class Account extends BaseModel implements Parcelable {
+
+    @Column(name = "accountId")
+    @PrimaryKey()
+    long mAccountId;
+
+    @Column(name = "name")
+    @JsonProperty("name")
+    String mName;
+
+    @Column(name = "apiCode")
+    @JsonProperty("api_code")
+    String mApiCode;
+
+    @Column(name = "active")
+    @JsonProperty("active")
+    int mActive;
+
+    @JsonProperty("created_at")
+    Date mCreatedAt;
+
+    @JsonProperty("updated_at")
+    Date mUpdatedAt;
+
+    @JsonProperty("client")
+    Client mClient;
+
+    @JsonProperty("agency")
+    Agency mAgency;
+
+    @Column(name = "current", defaultValue = "false")
+    boolean mCurrent;
+
+    @Column(name = "gcm_token")
+    String mGcmToken;
+
+    @Column(name = "enable_notification", defaultValue = "true")
+    boolean mEnableNotification;
+
+    public Account() {
+    }
+
+    protected Account(Parcel in) {
+        this.mAccountId = in.readLong();
+        this.mName = in.readString();
+        this.mApiCode = in.readString();
+        this.mActive = in.readInt();
+        this.mCreatedAt = in.readParcelable(Date.class.getClassLoader());
+        this.mUpdatedAt = in.readParcelable(Date.class.getClassLoader());
+        this.mClient = in.readParcelable(Client.class.getClassLoader());
+        this.mAgency = in.readParcelable(Agency.class.getClassLoader());
+        this.mCurrent = in.readByte() != 0;
+        this.mGcmToken = in.readString();
+        this.mEnableNotification = in.readByte() != 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Account account = (Account) o;
+
+        return mAccountId == account.mAccountId;
+
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(this.mAccountId);
+        dest.writeString(this.mName);
+        dest.writeString(this.mApiCode);
+        dest.writeInt(this.mActive);
+        dest.writeParcelable(this.mCreatedAt, 0);
+        dest.writeParcelable(this.mUpdatedAt, 0);
+        dest.writeParcelable(this.mClient, 0);
+        dest.writeParcelable(this.mAgency, 0);
+        dest.writeByte(mCurrent ? (byte) 1 : (byte) 0);
+        dest.writeString(mGcmToken);
+        dest.writeByte(mEnableNotification ? (byte) 1 : (byte) 0);
+    }
+
+    public long getAccountId() {
+        return mAccountId;
+    }
+
+    @JsonProperty("id")
+    public void setAccountId(long id) {
+        this.mAccountId = id;
+    }
+
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        this.mName = name;
+    }
+
+    public String getApiCode() {
+        return mApiCode;
+    }
+
+    public void setActive(int active) {
+        this.mActive = active;
+    }
+
+    public int getActive() {
+        return mActive;
+    }
+
+    public boolean isActive() {
+        return (mActive == 1);
+    }
+
+    public void setApiCode(String apiCode) {
+        this.mApiCode = apiCode;
+    }
+
+    public Date getCreatedAt() {
+        return mCreatedAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.mCreatedAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return mUpdatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.mUpdatedAt = updatedAt;
+    }
+
+    public Client getClient() {
+        return mClient;
+    }
+
+    public void setClient(Client client) {
+        this.mClient = client;
+    }
+
+    public Agency getAgency() {
+        return mAgency;
+    }
+
+    public void setAgency(Agency agency) {
+        this.mAgency = agency;
+    }
+
+    public void setCurrentActive(boolean current) {
+        this.mCurrent = current;
+    }
+
+    public boolean isCurrentAccount() {
+        return mCurrent;
+    }
+
+    public String getGcmToken() {
+        return mGcmToken;
+    }
+
+    public void setGcmToken(String token) {
+        this.mGcmToken = token;
+    }
+
+    public boolean isEnableNotification() {
+        return mEnableNotification;
+    }
+
+    public void setEnableNotification(boolean notification) {
+        this.mEnableNotification = notification;
+    }
+
+    public static final Creator<Account> CREATOR = new Creator<Account>() {
+        public Account createFromParcel(Parcel source) {
+            return new Account(source);
+        }
+
+        public Account[] newArray(int size) {
+            return new Account[size];
+        }
+    };
+}
