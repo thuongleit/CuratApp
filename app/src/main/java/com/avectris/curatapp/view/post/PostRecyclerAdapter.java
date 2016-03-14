@@ -43,9 +43,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private final Context mContext;
     private final List<Post> mPosts;
     // The minimum amount of items to have below your current scroll position
-    // before loading more.
+    // before canLoad more.
     private int visibleThreshold = 5;
-    private boolean loading;
+    private boolean canLoad;
     private OnLoadMoreListener onLoadMoreListener;
 
     public PostRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts) {
@@ -65,14 +65,14 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
                             int totalItemCount = linearLayoutManager.getItemCount();
                             int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-                            if (!loading
+                            if (canLoad
                                     && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
                                 // End has been reached
                                 // Do something
                                 if (onLoadMoreListener != null) {
                                     onLoadMoreListener.onLoadMore();
                                 }
-                                loading = true;
+                                canLoad = false;
                             }
                         }
                     });
@@ -105,8 +105,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
 
-    public void setLoaded(boolean loaded) {
-        loading = loaded;
+    public void canLoadMore(boolean canLoad) {
+        this.canLoad = canLoad;
     }
 
     public void setOnLoadMoreListener(OnLoadMoreListener onLoadMoreListener) {
@@ -137,7 +137,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         notifyItemRangeRemoved(0, oldSize);
         notifyItemRangeInserted(0, newSize);
-        loading = false;
+        canLoad = false;
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {

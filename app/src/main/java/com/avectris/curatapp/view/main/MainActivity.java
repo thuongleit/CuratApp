@@ -52,6 +52,8 @@ import timber.log.Timber;
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountNavView {
 
     public static final String EXTRA_ACCOUNT = "MainActivity.EXTRA_ACCOUNT";
+    private static final String EXTRA_FRAGMENT_UPCOMING = "MainActivity.EXTRA_FRAGMENT_UPCOMING";
+    private static final String EXTRA_FRAGMENT_POSTED = "MainActivity.EXTRA_FRAGMENT_POSTED";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     @Bind(R.id.spinner_list_account)
@@ -71,10 +73,13 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     DataManager mDataManager;
     Context mContext;
 
+
     private RecyclerView mRecyclerViewOnNav;
     private Account mAccount;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
     private int mCurrentAccount;
+    private Fragment mUpcomingFragment;
+    private Fragment mPostedFragment;
 
     @Override
     protected int getLayoutId() {
@@ -87,8 +92,12 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
         if (savedInstanceState == null) {
             mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+            mUpcomingFragment = PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE);
+            mPostedFragment = PostFragment.createInstance(Constant.POSTED_CONTENT_MODE);
         } else {
             mAccount = savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+            mUpcomingFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_UPCOMING);
+            mPostedFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_POSTED);
         }
         getComponent().inject(this);
         mAccountNavPresenter.attachView(this);
@@ -120,8 +129,11 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
         super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+        //Save the fragment's instance
+        getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_UPCOMING, mUpcomingFragment);
+        getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_POSTED, mPostedFragment);
     }
 
     @Override
@@ -269,8 +281,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private void setupTabLayout() {
         final CustomPageAdapter adapter = new CustomPageAdapter(getSupportFragmentManager());
         String[] titles = getResources().getStringArray(R.array.tab_titles);
-        Fragment[] fragments = new Fragment[]{PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE),
-                PostFragment.createInstance(Constant.POSTED_CONTENT_MODE)};
+        Fragment[] fragments = new Fragment[]{mUpcomingFragment, mPostedFragment};
         adapter.addTabs(titles, fragments);
         mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);

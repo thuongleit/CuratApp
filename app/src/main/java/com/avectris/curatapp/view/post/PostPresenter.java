@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.post;
 
+import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
 
@@ -48,10 +49,16 @@ public class PostPresenter extends BasePresenter<PostView> {
                                     mView.onEmptyPostsReturn();
                                 } else {
                                     mView.onRemoveBottomProgressBar();
+                                    mView.setViewCanLoadMore(false);
                                 }
                             } else {
                                 mView.shouldRemoveEmptyView();
                                 mView.onPostsReturn(posts);
+                                if (pageNumber == 0) {
+                                    if (posts.size() >= Constant.ITEM_PER_PAGE) {
+                                        mView.setViewCanLoadMore(true);
+                                    }
+                                }
                             }
                         },
                         e -> {
@@ -90,6 +97,9 @@ public class PostPresenter extends BasePresenter<PostView> {
                             } else {
                                 mView.shouldRemoveEmptyView();
                                 mView.onPostsReturnAfterRefresh(posts);
+                                if (posts.size() >= Constant.ITEM_PER_PAGE) {
+                                    mView.setViewCanLoadMore(true);
+                                }
                             }
                         },
                         e -> {

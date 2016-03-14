@@ -122,9 +122,19 @@ public class DataManager {
                 });
     }
 
-    public Observable<PostDetailResponse> getPostDetail(String postId) {
+    public Observable<PostDetailResponse> getPostDetail(String apiCode, String postId) {
+        String oldCode = mApiHeaders.getApiCode();
+        if(apiCode != null) {
+            mApiHeaders.withSession(apiCode);
+        }
+
         return mPostService
-                .getPostDetail(postId);
+                .getPostDetail(postId)
+                .doOnCompleted(() -> {
+                    if (!TextUtils.isEmpty(oldCode)) {
+                        mApiHeaders.withSession(oldCode);
+                    }
+                });
     }
 
     private void cacheAccount(Account account) {

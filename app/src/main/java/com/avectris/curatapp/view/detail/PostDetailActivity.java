@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
+import com.avectris.curatapp.vo.Media;
 import com.avectris.curatapp.vo.Post;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -48,6 +49,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     DisplayImageOptions mDisplayImageOptions;
     private Post mPost;
     private String mPostId;
+    private String mApiCode;
 
     @Override
     protected int getLayoutId() {
@@ -65,10 +67,12 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
         if (savedInstanceState == null) {
             mPostId = getIntent().getStringExtra(EXTRA_POST_ID);
+            mApiCode = getIntent().getStringExtra(EXTRA_API_CODE);
         } else {
             mPostId = savedInstanceState.getString(EXTRA_POST_ID);
+            mApiCode = savedInstanceState.getString(EXTRA_API_CODE);
         }
-        mPostDetailPresenter.getPostDetail(mPostId);
+        mPostDetailPresenter.getPostDetail(mApiCode, mPostId);
     }
 
     @Override
@@ -79,8 +83,9 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putString(EXTRA_POST_ID, mPostId);
         super.onSaveInstanceState(outState);
+        outState.putString(EXTRA_POST_ID, mPostId);
+        outState.putString(EXTRA_API_CODE, mApiCode);
     }
 
     @Override
@@ -96,8 +101,13 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     public void onPostDetailReturn(Post post) {
         mPost = post;
-        mTextCaption.setText(post.getMedia().getCaptionText());
-        ImageLoader.getInstance().displayImage(post.getMedia().getOriginMedia(), mImagePicture, mDisplayImageOptions);
+        Media media = post.getMedia();
+        if(media != null) {
+            mTextCaption.setText(media.getCaptionText());
+            ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
+        }else{
+            mImagePicture.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        }
     }
 
     @Override

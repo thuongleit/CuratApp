@@ -29,14 +29,16 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
     @Override
     public void detachView() {
         super.detachView();
-        mSubscription.unsubscribe();
+        if(mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 
-    void getPostDetail(String postId) {
+    void getPostDetail(String apiCode, String postId) {
         checkViewAttached();
         mView.setButtonEnable(false);
         mSubscription = mDataManager
-                .getPostDetail(postId)
+                .getPostDetail(apiCode, postId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

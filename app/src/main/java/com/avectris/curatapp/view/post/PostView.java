@@ -28,4 +28,5 @@ public interface PostView extends ErrorView {
 
     void onRemoveBottomProgressBar();
 
+    void setViewCanLoadMore(boolean canLoad);
 }

@@ -82,12 +82,15 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.from(getActivity()).inflate(R.layout.fragment_posts, container, false);
 
+        if (savedInstanceState == null) {
+            mContentMode = getArguments().getInt(ARG_CONTENT_MODE);
+        } else {
+            mContentMode = savedInstanceState.getInt(ARG_CONTENT_MODE);
+        }
+
         ButterKnife.bind(this, view);
         getComponent().inject(this);
 
-        if (savedInstanceState == null) {
-            mContentMode = getArguments().getInt(ARG_CONTENT_MODE);
-        }
         mPostPresenter.attachView(this);
         mPostPresenter.setRequestMode(mContentMode);
 
@@ -99,6 +102,12 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
         };
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(ARG_CONTENT_MODE, mContentMode);
     }
 
     @Override
@@ -169,7 +178,7 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
                 mPosts.add(posts.get(i));
                 adapter.notifyItemInserted(mPosts.size());
             }
-            adapter.setLoaded(false);
+            adapter.canLoadMore(true);
         }
     }
 
@@ -241,6 +250,12 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     @Override
+    public void setViewCanLoadMore(boolean canLoad) {
+        PostRecyclerAdapter adapter = (PostRecyclerAdapter) mRecyclerView.getAdapter();
+        adapter.canLoadMore(canLoad);
+    }
+
+    @Override
     public void shouldStopPullRefresh() {
         if (mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(false);
@@ -277,14 +292,12 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
         PostRecyclerAdapter adapter = new PostRecyclerAdapter(mApplication, mContext, mRecyclerView, mPosts);
 
         //no need to add load more listener when items < 10 (1 page in UI)
-        if (mPosts.size() >= Constant.ITEM_PER_PAGE) {
-            adapter.setOnLoadMoreListener(() -> {
-                //add null , so the adapter will check view_type and show progress bar at bottom
-                mPosts.add(null);
-                adapter.notifyItemInserted(mPosts.size() - 1);
-                mPostPresenter.getPosts(++mCurrentPage);
-            });
-        }
+        adapter.setOnLoadMoreListener(() -> {
+            //add null , so the adapter will check view_type and show progress bar at bottom
+            mPosts.add(null);
+            adapter.notifyItemInserted(mPosts.size() - 1);
+            mPostPresenter.getPosts(++mCurrentPage);
+        });
         mRecyclerView.setAdapter(adapter);
     }
 }

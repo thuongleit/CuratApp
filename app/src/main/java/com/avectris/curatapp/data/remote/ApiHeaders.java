@@ -18,6 +18,10 @@ public class ApiHeaders implements Interceptor {
         mApiCode = null;
     }
 
+    public String getApiCode() {
+        return mApiCode;
+    }
+
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
