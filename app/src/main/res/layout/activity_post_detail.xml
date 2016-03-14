@@ -36,7 +36,8 @@
                 <com.avectris.curatapp.view.widget.SquareImageView
                     android:id="@+id/image_picture"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary" />
             </FrameLayout>
 
             <com.avectris.curatapp.view.widget.MuliTextView

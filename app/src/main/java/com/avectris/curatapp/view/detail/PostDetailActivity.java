@@ -8,6 +8,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatButton;
 import android.text.ClipboardManager;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,12 +22,11 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 
-import java.io.FileNotFoundException;
-
 import javax.inject.Inject;
 
 import butterknife.Bind;
 import butterknife.OnClick;
+import timber.log.Timber;
 
 
 /**
@@ -102,10 +102,11 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     public void onPostDetailReturn(Post post) {
         mPost = post;
         Media media = post.getMedia();
-        if(media != null) {
+        if (media != null) {
             mTextCaption.setText(media.getCaptionText());
             ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
-        }else{
+            mImagePicture.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        } else {
             mImagePicture.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         }
     }
@@ -123,22 +124,26 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
     @OnClick(R.id.button_post_now)
     public void postToInstagram() {
-        copyTextToClipboard();
-
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.instagram.android");
         if (intent != null) {
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setPackage("com.instagram.android");
             try {
-                shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.insertImage(getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(), ImageLoader.getInstance().getDiscCache()).getAbsolutePath(), mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            shareIntent.setType("image/jpeg");
+                shareIntent.putExtra(Intent.EXTRA_STREAM,
+                        Uri.parse(MediaStore.Images.Media.insertImage(
 
-            startActivity(shareIntent);
+                                getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
+                                        ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
+                                mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+                copyTextToClipboard();
+                shareIntent.setType("image/jpeg");
+
+                startActivity(shareIntent);
+            } catch (Exception e) {
+                Timber.d(e, "Cannot perform post now");
+                DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
+            }
         } else {
             // bring user to the market to download the app.
             // or let them choose an app?
@@ -150,9 +155,12 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     }
 
     private void copyTextToClipboard() {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        clipboard.setText(mTextCaption.getText());
-        Toast.makeText(PostDetailActivity.this, "Caption Copied to the clipboard", Toast.LENGTH_SHORT).show();
+        CharSequence text = mTextCaption.getText();
+        if (!TextUtils.isEmpty(text)) {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            clipboard.setText(text);
+            Toast.makeText(PostDetailActivity.this, "Caption copied to the clipboard", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 
