@@ -10,5 +10,5 @@ interface SplashView extends ErrorView {
 
     void onRestoreSessionSuccess(Account account);
 
-    void onNoActiveSession();
+    void onNoActiveSession(String errorMsg);
 }

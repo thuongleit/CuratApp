@@ -3,6 +3,8 @@ package com.avectris.curatapp.view.splash;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.view.base.BaseActivity;
@@ -43,7 +45,10 @@ public class SplashActivity extends BaseActivity implements SplashView {
     }
 
     @Override
-    public void onNoActiveSession() {
+    public void onNoActiveSession(String errorMsg) {
+        if(!TextUtils.isEmpty(errorMsg)){
+            Toast.makeText(SplashActivity.this, errorMsg, Toast.LENGTH_SHORT).show();
+        }
         Intent intent = new Intent(this, VerifyActivity.class);
         startActivity(intent);
         finish();

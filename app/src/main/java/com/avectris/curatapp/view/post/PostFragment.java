@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -253,6 +254,13 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     public void setViewCanLoadMore(boolean canLoad) {
         PostRecyclerAdapter adapter = (PostRecyclerAdapter) mRecyclerView.getAdapter();
         adapter.canLoadMore(canLoad);
+    }
+
+    @Override
+    public void showResultMessage(String errorMsg) {
+        Snackbar snackbar = Snackbar.make(mLayoutContent, errorMsg, Snackbar.LENGTH_SHORT);
+        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        snackbar.show();
     }
 
     @Override

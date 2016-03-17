@@ -12,14 +12,13 @@ import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
+import com.avectris.curatapp.data.remote.post.PostResponse;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
 import com.avectris.curatapp.vo.Account;
-import com.avectris.curatapp.vo.Post;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -77,35 +76,25 @@ public class DataManager {
                     VerifyRequest request = new VerifyRequest(verifyCode);
                     return mSessionService
                             .verify(request)
-                            .doOnNext(response -> cacheAccount(response.getAccount()));
+                            .doOnNext(response -> {
+                                if (response.isSuccess()) {
+                                    cacheAccount(response.getAccount());
+                                }
+                            });
                 });
     }
 
-    public Observable<List<Post>> getPosts(int requestMode, int pageNumber) {
+    public Observable<PostResponse> getPosts(int requestMode, int pageNumber) {
         if (requestMode == Constant.POSTED_CONTENT_MODE) {
             return mPostService
-                    .getPassedPosts(pageNumber)
-                    .map(response ->
-                    {
-                        if (response.isSuccess()) {
-                            return response.getResult().getPosts();
-                        } else {
-                            return Collections.EMPTY_LIST;
-                        }
-                    });
+                    .getPassedPosts(pageNumber);
         } else if (requestMode == Constant.UPCOMING_CONTENT_MODE) {
             return mPostService
-                    .getUpcomingPosts(pageNumber)
-                    .map(response ->
-                    {
-                        if (response.isSuccess()) {
-                            return response.getResult().getPosts();
-                        } else {
-                            return Collections.EMPTY_LIST;
-                        }
-                    });
+                    .getUpcomingPosts(pageNumber);
         }
-        return Observable.just(Collections.EMPTY_LIST);
+        PostResponse failedResponse = new PostResponse();
+        failedResponse.setResponse("error");
+        return Observable.just(failedResponse);
     }
 
     public Observable<List<Account>> getAccounts() {
@@ -124,7 +113,7 @@ public class DataManager {
 
     public Observable<PostDetailResponse> getPostDetail(String apiCode, String postId) {
         String oldCode = mApiHeaders.getApiCode();
-        if(apiCode != null) {
+        if (apiCode != null) {
             mApiHeaders.withSession(apiCode);
         }
 

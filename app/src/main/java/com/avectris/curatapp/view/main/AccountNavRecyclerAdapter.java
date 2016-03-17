@@ -90,7 +90,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
 
         public void bind(Account account) {
             if (account.isCurrentAccount()) {
-                ((CardView)mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
+                ((CardView) mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
             }
             mTextAccountName.setText(account.getName());
             if (account.isActive()) {
@@ -105,6 +105,12 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                 mTextAccountName.setTextColor(inactiveColor);
                 mTextAccountStatus.setTextColor(inactiveColor);
                 mTextAccountStatus.setText("Inactive");
+            }
+
+            if (account.isEnableNotification()) {
+                mSwitchNotification.setChecked(true);
+            } else {
+                mSwitchNotification.setChecked(false);
             }
         }
     }

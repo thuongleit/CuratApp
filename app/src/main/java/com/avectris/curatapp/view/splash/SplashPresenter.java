@@ -52,7 +52,7 @@ class SplashPresenter extends BasePresenter<SplashView> {
                                                 if (response.isSuccess()) {
                                                     mView.onRestoreSessionSuccess(response.getAccount());
                                                 } else {
-                                                    mView.onNoActiveSession();
+                                                    mView.onNoActiveSession(response.getErrorMsg());
                                                 }
                                             },
                                             e -> {
@@ -66,7 +66,7 @@ class SplashPresenter extends BasePresenter<SplashView> {
                         },
                         e -> {
                             if (e instanceof SessionNotFoundException) {
-                                mView.onNoActiveSession();
+                                mView.onNoActiveSession("");
                             } else {
                                 mView.showGenericError();
                             }
