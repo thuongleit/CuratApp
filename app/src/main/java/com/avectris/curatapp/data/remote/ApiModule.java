@@ -70,7 +70,7 @@ public class ApiModule {
     public OkHttpClient provideOkHttpClient(ApiHeaders apiHeaders) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         // set your desired log level
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+//        logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
 
         OkHttpClient httpClient = new OkHttpClient();
         // add your other interceptors …

@@ -38,6 +38,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorPrimary" />
+
+                <com.avectris.curatapp.view.widget.SquareVideoView
+                    android:id="@+id/video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
             </FrameLayout>
 
             <com.avectris.curatapp.view.widget.MuliTextView

@@ -167,7 +167,7 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void bind(Post post) {
             Media media = post.getMedia();
             if (media != null) {
-                ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
+                ImageLoader.getInstance().displayImage(media.getOriginThumb(), mImagePicture, mDisplayImageOptions);
                 mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
                 mTextCaption.setText(media.getCaptionText());
             } else {

@@ -3,28 +3,35 @@ package com.avectris.curatapp.view.detail;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatButton;
 import android.text.ClipboardManager;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
+import com.avectris.curatapp.view.widget.SquareVideoView;
 import com.avectris.curatapp.vo.Media;
 import com.avectris.curatapp.vo.Post;
+import com.danikula.videocache.CacheListener;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 
+import java.io.File;
+
 import javax.inject.Inject;
 
 import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import timber.log.Timber;
 
@@ -32,9 +39,10 @@ import timber.log.Timber;
 /**
  * Created by thuongle on 2/15/16.
  */
-public class PostDetailActivity extends ToolbarActivity implements PostDetailView {
+public class PostDetailActivity extends ToolbarActivity implements PostDetailView, CacheListener {
     public static final String EXTRA_POST_ID = "EXTRA_POST_ID";
     public static final String EXTRA_API_CODE = "EXTRA_API_CODE";
+    private static final String VIDEO_PATTERN = ".mp4";
 
     @Bind(R.id.text_caption)
     TextView mTextCaption;
@@ -42,14 +50,21 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     ImageView mImagePicture;
     @Bind(R.id.button_post_now)
     AppCompatButton mButtonPostNow;
+    @Bind(R.id.video_view)
+    SquareVideoView mVideoView;
 
     @Inject
     PostDetailPresenter mPostDetailPresenter;
     @Inject
     DisplayImageOptions mDisplayImageOptions;
+    @Inject
+    HttpProxyCacheServer mHttpProxyCacheServer;
+
     private Post mPost;
     private String mPostId;
     private String mApiCode;
+    private File mCacheVideo;
+    private boolean mVideoMode;
 
     @Override
     protected int getLayoutId() {
@@ -78,7 +93,25 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ButterKnife.unbind(this);
         mPostDetailPresenter.detachView();
+        if (mVideoView != null) {
+            mVideoView.stopPlayback();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mVideoView.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mVideoView.isPlaying()) {
+            mVideoView.pause();
+        }
     }
 
     @Override
@@ -103,9 +136,28 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         mPost = post;
         Media media = post.getMedia();
         if (media != null) {
-            mTextCaption.setText(media.getCaptionText());
-            ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
-            mImagePicture.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            //if media is a video
+            String originMedia = media.getOriginMedia();
+            if (originMedia.endsWith(VIDEO_PATTERN)) {
+                mVideoMode = true;
+                mVideoView.setVisibility(View.VISIBLE);
+                mImagePicture.setVisibility(View.GONE);
+
+                MediaController vidControl = new MediaController(this);
+                vidControl.setAnchorView(mVideoView);
+                mVideoView.setMediaController(vidControl);
+                mVideoView.requestFocus();
+
+                String proxyUrl = mHttpProxyCacheServer.getProxyUrl(originMedia);
+                mHttpProxyCacheServer.registerCacheListener(this, originMedia);
+                mVideoView.setVideoPath(proxyUrl);
+                mVideoView.start();
+
+            } else {
+                mTextCaption.setText(media.getCaptionText());
+                ImageLoader.getInstance().displayImage(originMedia, mImagePicture, mDisplayImageOptions);
+                mImagePicture.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            }
         } else {
             mImagePicture.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         }
@@ -119,7 +171,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
     @Override
     public void setButtonEnable(boolean enabled) {
-        new Handler().postDelayed(() -> mButtonPostNow.setEnabled(enabled), 500);
+        mButtonPostNow.setEnabled(enabled);
     }
 
     @OnClick(R.id.button_post_now)
@@ -130,14 +182,22 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setPackage("com.instagram.android");
             try {
-                shareIntent.putExtra(Intent.EXTRA_STREAM,
-                        Uri.parse(MediaStore.Images.Media.insertImage(
+                if (mVideoMode) {
+                    if (mCacheVideo == null) {
+                        throw new Exception();
+                    }
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mCacheVideo));
+                    shareIntent.setType("video/*");
+                } else {
+                    shareIntent.putExtra(Intent.EXTRA_STREAM,
+                            Uri.parse(MediaStore.Images.Media.insertImage(
 
-                                getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
-                                        ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
-                                mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+                                    getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
+                                            ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
+                                    mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+                    shareIntent.setType("image/*");
+                }
                 copyTextToClipboard();
-                shareIntent.setType("image/jpeg");
 
                 startActivity(shareIntent);
             } catch (Exception e) {
@@ -160,6 +220,13 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             clipboard.setText(text);
             Toast.makeText(PostDetailActivity.this, "Caption copied to the clipboard", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
+        if (percentsAvailable == 100) {
+            mCacheVideo = cacheFile;
         }
     }
 }

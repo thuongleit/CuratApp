@@ -12,6 +12,7 @@ import com.avectris.curatapp.di.module.ApplicationModule;
 import com.avectris.curatapp.di.scope.ApplicationScope;
 import com.avectris.curatapp.service.RegistrationIntentService;
 import com.avectris.curatapp.view.post.PostRecyclerAdapter;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.squareup.okhttp.OkHttpClient;
 
@@ -50,6 +51,8 @@ public interface ApplicationComponent {
     PostService postService();
 
     DisplayImageOptions displayImageOptions();
+
+    HttpProxyCacheServer proxy();
 
     void inject(DataManager manager);
 

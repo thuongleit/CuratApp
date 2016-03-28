@@ -8,6 +8,7 @@ import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.di.scope.ApplicationScope;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
 import javax.inject.Singleton;
@@ -55,6 +56,14 @@ public class ApplicationModule {
                 .cacheOnDisk(true)
                 .considerExifParams(true)
                 .bitmapConfig(Bitmap.Config.ARGB_8888)
+                .build();
+    }
+
+    @Provides
+    @Singleton
+    HttpProxyCacheServer provideProxy() {
+        return new HttpProxyCacheServer.Builder(mApp)
+                .maxCacheFilesCount(20)
                 .build();
     }
 }

@@ -25,4 +25,8 @@ interface AccountNavView extends MvpView {
     void onDeleteAccountReturn(Account account);
 
     void onEnableDisableNotificationFailed(SwitchCompat view, boolean state);
+
+    void showProgress(boolean show, String message);
+
+    void onNoInternetWhenDeleting();
 }

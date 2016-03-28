@@ -32,7 +32,9 @@ public class PostPresenter extends BasePresenter<PostView> {
     @Override
     public void detachView() {
         super.detachView();
-        mSubscription.unsubscribe();
+        if(mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 
     void getPosts(int pageNumber) {
@@ -44,6 +46,7 @@ public class PostPresenter extends BasePresenter<PostView> {
                 .getPosts(mRequestMode, pageNumber)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {
@@ -97,6 +100,7 @@ public class PostPresenter extends BasePresenter<PostView> {
                 .getPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {

@@ -41,9 +41,11 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                 .getPostDetail(apiCode, postId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {
+                                mView.setButtonEnable(true);
                                 mView.onPostDetailReturn(response.getPost());
                             } else {
                                 mView.onRequestFailed(response.getErrorMsg());
@@ -55,7 +57,6 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                             } else {
                                 mView.showGenericError();
                             }
-                        },
-                        () -> mView.setButtonEnable(true));
+                        });
     }
 }

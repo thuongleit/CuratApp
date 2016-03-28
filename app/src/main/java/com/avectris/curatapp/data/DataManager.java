@@ -189,29 +189,37 @@ public class DataManager {
 
     public Observable<Boolean> enablePushNotification(Account account) {
         Account accountDb = mAccountModel.getAccountById(account.getAccountId());
-        return mSessionService
-                .enablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
-                .map(response -> {
-                    if (response.isSuccess()) {
-                        mAccountModel.updatePushNotification(account, true);
-                        return true;
-                    }
-                    return false;
-                });
+        if (!accountDb.isEnableNotification()) {
+            return mSessionService
+                    .enablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
+                    .map(response -> {
+                        if (response.isSuccess()) {
+                            mAccountModel.updatePushNotification(account, true);
+                            return true;
+                        }
+                        return false;
+                    });
+        } else {
+            return Observable.just(Boolean.TRUE);
+        }
     }
 
     public Observable<Boolean> disablePushNotification(Account account) {
         Account accountDb = mAccountModel.getAccountById(account.getAccountId());
-        return mSessionService
-                .disablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
-                .map(response -> {
-                    if (response.isSuccess()) {
-                        mAccountModel.updatePushNotification(account, false);
-                        //saveOrUpdate to database
-                        return true;
-                    }
-                    return false;
-                });
+        if (accountDb.isEnableNotification()) {
+            return mSessionService
+                    .disablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
+                    .map(response -> {
+                        if (response.isSuccess()) {
+                            mAccountModel.updatePushNotification(account, false);
+                            //saveOrUpdate to database
+                            return true;
+                        }
+                        return false;
+                    });
+        } else {
+            return Observable.just(Boolean.TRUE);
+        }
     }
 
     public Observable<Boolean> updateActiveAccount(Account account) {

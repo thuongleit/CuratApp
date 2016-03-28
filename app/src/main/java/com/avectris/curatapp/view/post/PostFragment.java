@@ -153,6 +153,11 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         mPostPresenter.detachView();
     }
 

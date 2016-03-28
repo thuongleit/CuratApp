@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.main;
 
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
+import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostFragment;
 import com.avectris.curatapp.view.verify.VerifyActivity;
@@ -80,6 +82,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private int mCurrentAccount;
     private Fragment mUpcomingFragment;
     private Fragment mPostedFragment;
+    private ProgressDialog mProcessDialog;
 
     @Override
     protected int getLayoutId() {
@@ -203,6 +206,25 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             new Handler().postDelayed(() -> view.setChecked(state), 200);
         }
         Toast.makeText(MainActivity.this, "Request failed", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showProgress(boolean show, String message) {
+        if (mProcessDialog == null) {
+            mProcessDialog = DialogFactory.createProgressDialog(mContext, message);
+        }
+
+        if (show) {
+            mProcessDialog.show();
+        } else {
+            mProcessDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onNoInternetWhenDeleting() {
+        String message = "Internet connection is required";
+        DialogFactory.createGenericErrorDialog(mContext, message).show();
     }
 
     private void setupSpinnerAccount(List<Account> accounts) {

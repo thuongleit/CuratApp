@@ -60,7 +60,7 @@ public final class DialogFactory {
         return createProgressDialog(context, context.getString(messageResource));
     }
 
-    public static Dialog createTryAgainDialog(Context context, String message, DialogInterface.OnClickListener onClickListener) {
+    public static Dialog createListenableDialog(Context context, String message, DialogInterface.OnClickListener onClickListener) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
                 .setMessage(message)
                 .setPositiveButton(context.getString(R.string.dialog_action_try_again), onClickListener);
