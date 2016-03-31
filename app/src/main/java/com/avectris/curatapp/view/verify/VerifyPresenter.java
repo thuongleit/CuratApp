@@ -44,6 +44,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
                 .verify(verifyCode)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {

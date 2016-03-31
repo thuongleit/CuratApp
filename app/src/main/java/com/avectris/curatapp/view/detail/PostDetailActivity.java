@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,6 +53,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     AppCompatButton mButtonPostNow;
     @Bind(R.id.video_view)
     SquareVideoView mVideoView;
+    @Bind(R.id.progress_bar)
+    ProgressBar mProgressWheel;
 
     @Inject
     PostDetailPresenter mPostDetailPresenter;
@@ -139,8 +142,11 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             //if media is a video
             String originMedia = media.getOriginMedia();
             if (originMedia.endsWith(VIDEO_PATTERN)) {
+                setButtonEnable(false);
                 mVideoMode = true;
                 mVideoView.setVisibility(View.VISIBLE);
+                mProgressWheel.setVisibility(View.VISIBLE);
+                mProgressWheel.setProgress(0);
                 mImagePicture.setVisibility(View.GONE);
 
                 MediaController vidControl = new MediaController(this);
@@ -225,8 +231,17 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
 
     @Override
     public void onCacheAvailable(File cacheFile, String url, int percentsAvailable) {
+        if (mProgressWheel != null) {
+            mProgressWheel.setProgress(percentsAvailable);
+        }
         if (percentsAvailable == 100) {
+            if (mButtonPostNow != null) {
+                setButtonEnable(true);
+            }
             mCacheVideo = cacheFile;
+            if (mProgressWheel != null) {
+                mProgressWheel.setVisibility(View.GONE);
+            }
         }
     }
 }

@@ -20,6 +20,7 @@
     <string name="dialog_message_verified_code_failed">Verified your code failed</string>
     <string name="title_scheduled_posts">Scheduled Posts</string>
     <string name="dialog_error_general_message">Something went wrong with the app. Please try again later</string>
+    <string name="verification_string">Please insert the Verification Code provided by your CuraTapp Manager inside your email inbox.</string>
 
     <array name="tab_titles">
         <item>UPCOMING</item>

@@ -42,6 +42,7 @@ class SplashPresenter extends BasePresenter<SplashView> {
                 .restoreSession()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         responseObservable -> {
                             mSubscriptions.add(responseObservable

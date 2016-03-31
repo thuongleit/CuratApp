@@ -33,7 +33,6 @@ import butterknife.ButterKnife;
  * Created by thuongle on 2/13/16.
  */
 public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 

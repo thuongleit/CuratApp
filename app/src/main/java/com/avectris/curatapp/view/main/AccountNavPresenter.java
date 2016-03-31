@@ -46,6 +46,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                         .getAccounts()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
+                        .unsubscribeOn(Schedulers.io())
                         .subscribe(models -> {
                                     if (models == null || models.isEmpty()) {
                                         mView.onNoAccountReturn();
@@ -64,6 +65,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                         .disablePushNotification(accounts.get(deletePosition))
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
+                        .unsubscribeOn(Schedulers.io())
                         .subscribe(result -> {
                                     if (result) {
                                         performDeleteAccount(accounts, deletePosition);
@@ -86,6 +88,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                 .deleteAccount(accounts, deletePosition)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(results -> {
                             if (results.isEmpty()) {
                                 mView.onNoAccountAfterDelete();
