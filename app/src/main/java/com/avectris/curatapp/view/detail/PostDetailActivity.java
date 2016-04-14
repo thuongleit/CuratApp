@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.detail;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.danikula.videocache.HttpProxyCacheServer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import java.io.File;
 
@@ -68,6 +70,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     private String mApiCode;
     private File mCacheVideo;
     private boolean mVideoMode;
+    private boolean isPermissionApproved;
 
     @Override
     protected int getLayoutId() {
@@ -83,6 +86,21 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         setTitle("Post Review");
         mSupportActionBar.setDisplayHomeAsUpEnabled(true);
 
+        //fix for request permission in Android M
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(granted -> {
+                    if (granted) { // Always true pre-M
+                        // I can control this permission now
+                        isPermissionApproved = true;
+                    } else {
+                        // Oups permission denied
+                        DialogFactory.createGenericErrorDialog(PostDetailActivity.this,
+                                R.string.error_message_ignore_permission).show();
+                        isPermissionApproved = false;
+                    }
+                });
+
         if (savedInstanceState == null) {
             mPostId = getIntent().getStringExtra(EXTRA_POST_ID);
             mApiCode = getIntent().getStringExtra(EXTRA_API_CODE);
@@ -90,7 +108,6 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             mPostId = savedInstanceState.getString(EXTRA_POST_ID);
             mApiCode = savedInstanceState.getString(EXTRA_API_CODE);
         }
-        mPostDetailPresenter.getPostDetail(mApiCode, mPostId);
     }
 
     @Override
@@ -106,6 +123,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     protected void onResume() {
         super.onResume();
+        mPostDetailPresenter.getPostDetail(mApiCode, mPostId);
         mVideoView.start();
     }
 
@@ -137,6 +155,9 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     public void onPostDetailReturn(Post post) {
         mPost = post;
+        if (mPost.isPosted()) {
+            mButtonPostNow.setText(R.string.button_post_again);
+        }
         Media media = post.getMedia();
         if (media != null) {
             //if media is a video
@@ -180,35 +201,48 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         mButtonPostNow.setEnabled(enabled);
     }
 
-    @OnClick(R.id.button_post_now)
-    public void postToInstagram() {
+    @Override
+    public void onUpdatePostSuccess() {
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.instagram.android");
         if (intent != null) {
-            Intent shareIntent = new Intent();
-            shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setPackage("com.instagram.android");
-            try {
-                if (mVideoMode) {
-                    if (mCacheVideo == null) {
-                        throw new Exception();
+            if (isPermissionApproved) {
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.setPackage("com.instagram.android");
+                try {
+                    if (mVideoMode) {
+                        if (mCacheVideo == null) {
+                            throw new Exception();
+                        }
+                        //workaround for cached video
+                        //issue: in the first time of download, the file path is not correct
+                        //should remove .download
+                        // TODO: 4/6/16 deal with file type # .mp4 later
+                        if (mCacheVideo.getAbsolutePath().endsWith(".mp4.download")) {
+                            mCacheVideo = new File(mCacheVideo.getAbsolutePath().replace(".mp4.download", ".mp4"));
+                        }
+
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mCacheVideo));
+                        shareIntent.setType("video/mp4");
+                    } else {
+                        shareIntent.putExtra(Intent.EXTRA_STREAM,
+                                Uri.parse(MediaStore.Images.Media.insertImage(
+
+                                        getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
+                                                ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
+                                        mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+                        shareIntent.setType("image/*");
                     }
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mCacheVideo));
-                    shareIntent.setType("video/*");
-                } else {
-                    shareIntent.putExtra(Intent.EXTRA_STREAM,
-                            Uri.parse(MediaStore.Images.Media.insertImage(
+                    copyTextToClipboard();
 
-                                    getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
-                                            ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
-                                    mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
-                    shareIntent.setType("image/*");
+                    startActivity(shareIntent);
+                } catch (Exception e) {
+                    Timber.d(e, "Cannot perform post now");
+                    DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
                 }
-                copyTextToClipboard();
-
-                startActivity(shareIntent);
-            } catch (Exception e) {
-                Timber.d(e, "Cannot perform post now");
-                DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
+            } else {
+                DialogFactory.createGenericErrorDialog(PostDetailActivity.this,
+                        R.string.error_message_ignore_permission).show();
             }
         } else {
             // bring user to the market to download the app.
@@ -217,6 +251,15 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
             startActivity(intent);
+        }
+    }
+
+    @OnClick(R.id.button_post_now)
+    public void postToInstagram() {
+        if (mPost.isPosted()) {//if post already posted, no need to update api
+            onUpdatePostSuccess();
+        } else {
+            mPostDetailPresenter.updatePost(mApiCode, mPostId);
         }
     }
 
@@ -235,12 +278,12 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             mProgressWheel.setProgress(percentsAvailable);
         }
         if (percentsAvailable == 100) {
-            if (mButtonPostNow != null) {
-                setButtonEnable(true);
-            }
             mCacheVideo = cacheFile;
             if (mProgressWheel != null) {
                 mProgressWheel.setVisibility(View.GONE);
+            }
+            if (mButtonPostNow != null) {
+                setButtonEnable(true);
             }
         }
     }

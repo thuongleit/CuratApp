@@ -146,6 +146,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         TextView mTextCaption;
         @Bind(R.id.text_due_time)
         TextView mTextDueTime;
+        @Bind(R.id.text_posted)
+        TextView mTextPosted;
 
         private OnRecyclerItemClickListener mItemClickListener = null;
 
@@ -165,6 +167,9 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public void bind(Post post) {
             Media media = post.getMedia();
+            if (post.isPosted()) {
+                mTextPosted.setVisibility(View.VISIBLE);
+            }
             if (media != null) {
                 ImageLoader.getInstance().displayImage(media.getOriginThumb(), mImagePicture, mDisplayImageOptions);
                 mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));

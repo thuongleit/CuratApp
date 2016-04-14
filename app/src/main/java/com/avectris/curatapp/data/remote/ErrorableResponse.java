@@ -9,7 +9,7 @@ public class ErrorableResponse {
 
     @JsonProperty("response")
     String mResponse;
-    @JsonProperty("errors")
+    @JsonProperty("message")
     String mErrorMsg;
 
     public boolean isSuccess() {

@@ -116,11 +116,18 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
         super.onViewCreated(view, savedInstanceState);
 
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST));
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.pink, R.color.green, R.color.blue);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mSwipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+            }
+        });
     }
 
     @Override
@@ -153,11 +160,6 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
         mPostPresenter.detachView();
     }
 

@@ -53,9 +53,11 @@ import timber.log.Timber;
 
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountNavView {
 
-    public static final String EXTRA_ACCOUNT = "MainActivity.EXTRA_ACCOUNT";
-    private static final String EXTRA_FRAGMENT_UPCOMING = "MainActivity.EXTRA_FRAGMENT_UPCOMING";
-    private static final String EXTRA_FRAGMENT_POSTED = "MainActivity.EXTRA_FRAGMENT_POSTED";
+    public static final String EXTRA_ACCOUNT = "exAccount";
+    private static final String EXTRA_FRAGMENT_UPCOMING = "exUpcoming";
+    private static final String EXTRA_ACCOUNT_POSITION = "exAccountPos";
+    private static final String EXTRA_FRAGMENT_POSTED = "exPosted";
+
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     @Bind(R.id.spinner_list_account)
@@ -75,14 +77,13 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     DataManager mDataManager;
     Context mContext;
 
-
     private RecyclerView mRecyclerViewOnNav;
-    private Account mAccount;
     private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private int mCurrentAccount;
     private Fragment mUpcomingFragment;
     private Fragment mPostedFragment;
     private ProgressDialog mProcessDialog;
+    private Account mAccount;
+    private int mCurrentAccount;
 
     @Override
     protected int getLayoutId() {
@@ -94,10 +95,12 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
+            mCurrentAccount = 0;
             mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
             mUpcomingFragment = PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE);
             mPostedFragment = PostFragment.createInstance(Constant.POSTED_CONTENT_MODE);
         } else {
+            mCurrentAccount = getIntent().getIntExtra(EXTRA_ACCOUNT_POSITION, 0);
             mAccount = savedInstanceState.getParcelable(EXTRA_ACCOUNT);
             mUpcomingFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_UPCOMING);
             mPostedFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_POSTED);
@@ -134,6 +137,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+        outState.putInt(EXTRA_ACCOUNT_POSITION, mCurrentAccount);
         //Save the fragment's instance
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_UPCOMING, mUpcomingFragment);
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_POSTED, mPostedFragment);

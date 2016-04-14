@@ -3,8 +3,8 @@ package com.avectris.curatapp.data.remote;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
 
-import retrofit.http.GET;
-import retrofit.http.Query;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -20,4 +20,7 @@ public interface PostService {
 
     @GET("posts/get")
     Observable<PostDetailResponse> getPostDetail(@Query("id") String postId);
+
+    @GET("updateuserposted")
+    Observable<ErrorableResponse> updateUserPosted(@Query("id") String postId, @Query("user_posted") int userPosted);
 }

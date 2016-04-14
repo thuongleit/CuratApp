@@ -31,7 +31,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null && mSubscription.isUnsubscribed()) {
+        if (mSubscription != null) {
             mSubscription.unsubscribe();
         }
     }

@@ -9,6 +9,7 @@ import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.exception.SessionNotFoundException;
 import com.avectris.curatapp.data.local.AccountModel;
 import com.avectris.curatapp.data.remote.ApiHeaders;
+import com.avectris.curatapp.data.remote.ErrorableResponse;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
@@ -36,6 +37,7 @@ public class DataManager {
     SessionService mSessionService;
     @Inject
     PostService mPostService;
+
     @Inject
     Config mConfig;
     @Inject
@@ -85,6 +87,9 @@ public class DataManager {
     }
 
     public Observable<PostResponse> getPosts(int requestMode, int pageNumber) {
+        if (mApiHeaders.getApiCode() == null) {
+            mApiHeaders.withSession(mConfig.getCurrentCode());
+        }
         if (requestMode == Constant.POSTED_CONTENT_MODE) {
             return mPostService
                     .getPassedPosts(pageNumber);
@@ -226,5 +231,20 @@ public class DataManager {
         cacheAccount(account);
         mAccountModel.updateActiveAccount(account, true);
         return Observable.just(true);
+    }
+
+    public Observable<ErrorableResponse> updatePosted(String apiCode, String postId) {
+        String oldCode = mApiHeaders.getApiCode();
+        if (apiCode != null) {
+            mApiHeaders.withSession(apiCode);
+        }
+
+        return mPostService
+                .updateUserPosted(postId, 1)
+                .doOnCompleted(() -> {
+                    if (!TextUtils.isEmpty(oldCode)) {
+                        mApiHeaders.withSession(oldCode);
+                    }
+                });
     }
 }
