@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -115,11 +116,18 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
         super.onViewCreated(view, savedInstanceState);
 
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
+        mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL_LIST));
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.pink, R.color.green, R.color.blue);
         mSwipeRefreshLayout.setOnRefreshListener(this);
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mSwipeRefreshLayout.setEnabled(layoutManager.findFirstCompletelyVisibleItemPosition() == 0);
+            }
+        });
     }
 
     @Override
@@ -253,6 +261,13 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     public void setViewCanLoadMore(boolean canLoad) {
         PostRecyclerAdapter adapter = (PostRecyclerAdapter) mRecyclerView.getAdapter();
         adapter.canLoadMore(canLoad);
+    }
+
+    @Override
+    public void showResultMessage(String errorMsg) {
+        Snackbar snackbar = Snackbar.make(mLayoutContent, errorMsg, Snackbar.LENGTH_SHORT);
+        snackbar.getView().setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        snackbar.show();
     }
 
     @Override

@@ -13,4 +13,6 @@ interface PostDetailView extends ErrorView {
     void onRequestFailed(String errorMsg);
 
     void setButtonEnable(boolean enabled);
+
+    void onUpdatePostSuccess();
 }

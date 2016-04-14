@@ -15,23 +15,25 @@
  *
  */
 
-package com.avectris.curatapp.data.remote;
+package com.avectris.curatapp.data;
 
 import com.avectris.curatapp.config.Constant;
+import com.avectris.curatapp.data.remote.ApiHeaders;
+import com.avectris.curatapp.data.remote.PostService;
+import com.avectris.curatapp.data.remote.SessionService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import retrofit.CallAdapter;
-import retrofit.Converter;
-import retrofit.JacksonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
+import okhttp3.OkHttpClient;
+import retrofit2.CallAdapter;
+import retrofit2.Converter;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 
 @Module
 public class ApiModule {
@@ -68,18 +70,12 @@ public class ApiModule {
     @Provides
     @Singleton
     public OkHttpClient provideOkHttpClient(ApiHeaders apiHeaders) {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        // set your desired log level
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        OkHttpClient httpClient = new OkHttpClient();
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
         // add your other interceptors …
-        httpClient.interceptors().clear();
-        httpClient.interceptors().add(apiHeaders);
+        builder.interceptors().clear();
+        builder.interceptors().add(apiHeaders);
 
-        // add logging as last interceptor
-        httpClient.interceptors().add(logging);
-        return httpClient;
+        return builder.build();
     }
 
     @Provides

@@ -17,6 +17,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.squareup.leakcanary.LeakCanary;
 
 import java.io.File;
 
@@ -37,12 +38,16 @@ public class CuratApp extends Application {
         //initialize database
         FlowManager.init(this);
 
-        //setup crash report
-        CrashlyticsCore core = new CrashlyticsCore.Builder()
+        //install leak canary
+        LeakCanary.install(this);
+
+        //enable logger
+        CrashlyticsCore crashCore = new CrashlyticsCore.Builder()
                 .disabled(BuildConfig.DEBUG)
                 .build();
-
-        Fabric.with(this, new Crashlytics.Builder().core(core).build());
+        Fabric.with(this, new Crashlytics.Builder()
+                .core(crashCore)
+                .build());
 
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());

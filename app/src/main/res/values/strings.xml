@@ -1,8 +1,6 @@
 <resources>
-    <string name="app_name">CuratApp</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name">CuraTapp</string>
     <string name="get_started">Get Started</string>
-    <string name="title_activity_main2">Main2Activity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -20,9 +18,13 @@
     <string name="dialog_message_verified_code_failed">Verified your code failed</string>
     <string name="title_scheduled_posts">Scheduled Posts</string>
     <string name="dialog_error_general_message">Something went wrong with the app. Please try again later</string>
+    <string name="verification_string">Please insert the Verification Code provided by your CuraTapp Manager inside your email inbox.</string>
+    <string name="error_message_ignore_permission">You ignore this permission. You may not post to Instagram</string>
+    <string name="posted">Posted</string>
+    <string name="button_post_again">Post Again</string>
 
     <array name="tab_titles">
-        <item>UPCOMING</item>
+        <item>SCHEDULED</item>
         <item>POSTED</item>
     </array>
 </resources>

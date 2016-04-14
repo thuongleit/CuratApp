@@ -3,9 +3,11 @@ package com.avectris.curatapp.view.post;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
+import com.avectris.curatapp.vo.Post;
 
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -30,7 +32,9 @@ public class PostPresenter extends BasePresenter<PostView> {
     @Override
     public void detachView() {
         super.detachView();
-        mSubscription.unsubscribe();
+        if(mSubscription != null) {
+            mSubscription.unsubscribe();
+        }
     }
 
     void getPosts(int pageNumber) {
@@ -42,23 +46,29 @@ public class PostPresenter extends BasePresenter<PostView> {
                 .getPosts(mRequestMode, pageNumber)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
-                        posts -> {
-                            if (posts.isEmpty()) {
-                                if (pageNumber == 0) {
-                                    mView.onEmptyPostsReturn();
+                        response -> {
+                            if (response.isSuccess()) {
+                                List<Post> posts = response.getResult().getPosts();
+                                if (posts.isEmpty()) {
+                                    if (pageNumber == 0) {
+                                        mView.onEmptyPostsReturn();
+                                    } else {
+                                        mView.onRemoveBottomProgressBar();
+                                        mView.setViewCanLoadMore(false);
+                                    }
                                 } else {
-                                    mView.onRemoveBottomProgressBar();
-                                    mView.setViewCanLoadMore(false);
-                                }
-                            } else {
-                                mView.shouldRemoveEmptyView();
-                                mView.onPostsReturn(posts);
-                                if (pageNumber == 0) {
-                                    if (posts.size() >= Constant.ITEM_PER_PAGE) {
-                                        mView.setViewCanLoadMore(true);
+                                    mView.shouldRemoveEmptyView();
+                                    mView.onPostsReturn(posts);
+                                    if (pageNumber == 0) {
+                                        if (posts.size() >= Constant.ITEM_PER_PAGE) {
+                                            mView.setViewCanLoadMore(true);
+                                        }
                                     }
                                 }
+                            } else {
+                                mView.showResultMessage(response.getErrorMsg());
                             }
                         },
                         e -> {
@@ -90,16 +100,22 @@ public class PostPresenter extends BasePresenter<PostView> {
                 .getPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
-                        posts -> {
-                            if (posts.isEmpty()) {
-                                mView.onEmptyPostsReturn();
-                            } else {
-                                mView.shouldRemoveEmptyView();
-                                mView.onPostsReturnAfterRefresh(posts);
-                                if (posts.size() >= Constant.ITEM_PER_PAGE) {
-                                    mView.setViewCanLoadMore(true);
+                        response -> {
+                            if (response.isSuccess()) {
+                                List<Post> posts = response.getResult().getPosts();
+                                if (posts.isEmpty()) {
+                                    mView.onEmptyPostsReturn();
+                                } else {
+                                    mView.shouldRemoveEmptyView();
+                                    mView.onPostsReturnAfterRefresh(posts);
+                                    if (posts.size() >= Constant.ITEM_PER_PAGE) {
+                                        mView.setViewCanLoadMore(true);
+                                    }
                                 }
+                            } else {
+                                mView.showResultMessage(response.getErrorMsg());
                             }
                         },
                         e -> {

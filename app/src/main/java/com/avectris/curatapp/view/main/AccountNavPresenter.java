@@ -7,6 +7,8 @@ import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
 import com.avectris.curatapp.vo.Account;
 
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -44,6 +46,7 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
                         .getAccounts()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
+                        .unsubscribeOn(Schedulers.io())
                         .subscribe(models -> {
                                     if (models == null || models.isEmpty()) {
                                         mView.onNoAccountReturn();
@@ -56,10 +59,36 @@ class AccountNavPresenter extends BasePresenter<AccountNavView> {
 
     public void deleteAccount(List<Account> accounts, int deletePosition) {
         checkViewAttached();
+        mView.showProgress(true, "Processing...");
+        mSubscriptions.add(
+                mDataManager
+                        .disablePushNotification(accounts.get(deletePosition))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .unsubscribeOn(Schedulers.io())
+                        .subscribe(result -> {
+                                    if (result) {
+                                        performDeleteAccount(accounts, deletePosition);
+                                    }
+                                },
+                                e -> {
+                                    mView.showProgress(false, null);
+                                    if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                                        mView.onNoInternetWhenDeleting();
+                                    } else {
+                                        Timber.e(e, "Error in delete account");
+                                        mView.onError("Cannot delete this account right now. Please try again later");
+                                    }
+                                },
+                                () -> mView.showProgress(false, null)));
+    }
+
+    private void performDeleteAccount(List<Account> accounts, int deletePosition) {
         mSubscriptions.add(mDataManager
                 .deleteAccount(accounts, deletePosition)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(results -> {
                             if (results.isEmpty()) {
                                 mView.onNoAccountAfterDelete();

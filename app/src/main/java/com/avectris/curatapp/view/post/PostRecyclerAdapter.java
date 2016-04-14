@@ -33,7 +33,6 @@ import butterknife.ButterKnife;
  * Created by thuongle on 2/13/16.
  */
 public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 
@@ -147,6 +146,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         TextView mTextCaption;
         @Bind(R.id.text_due_time)
         TextView mTextDueTime;
+        @Bind(R.id.text_posted)
+        TextView mTextPosted;
 
         private OnRecyclerItemClickListener mItemClickListener = null;
 
@@ -166,8 +167,11 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         public void bind(Post post) {
             Media media = post.getMedia();
+            if (post.isPosted()) {
+                mTextPosted.setVisibility(View.VISIBLE);
+            }
             if (media != null) {
-                ImageLoader.getInstance().displayImage(media.getOriginMedia(), mImagePicture, mDisplayImageOptions);
+                ImageLoader.getInstance().displayImage(media.getOriginThumb(), mImagePicture, mDisplayImageOptions);
                 mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
                 mTextCaption.setText(media.getCaptionText());
             } else {

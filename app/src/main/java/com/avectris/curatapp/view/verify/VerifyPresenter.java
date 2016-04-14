@@ -31,7 +31,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null && mSubscription.isUnsubscribed()) {
+        if (mSubscription != null) {
             mSubscription.unsubscribe();
         }
     }
@@ -44,6 +44,7 @@ class VerifyPresenter extends BasePresenter<VerfifyView> {
                 .verify(verifyCode)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {

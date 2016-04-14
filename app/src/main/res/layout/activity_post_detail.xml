@@ -36,8 +36,25 @@
                 <com.avectris.curatapp.view.widget.SquareImageView
                     android:id="@+id/image_picture"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorPrimary" />
+
+                <com.avectris.curatapp.view.widget.SquareVideoView
+                    android:id="@+id/video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
             </FrameLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_gravity="bottom"
+                android:background="@color/colorPrimaryDark"
+                android:max="100"
+                android:visibility="gone" />
 
             <com.avectris.curatapp.view.widget.MuliTextView
                 android:id="@+id/text_caption"

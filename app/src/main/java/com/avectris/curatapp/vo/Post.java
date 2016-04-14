@@ -18,30 +18,13 @@ public class Post implements Parcelable {
     @JsonProperty("status")
     int mStatus;
 
+    @JsonProperty("user_posted")
+    int mPosted;
+
     @JsonProperty("media")
     Media mMedia;
 
     public Post() {
-    }
-
-    protected Post(Parcel in) {
-        this.mId = in.readString();
-        this.mExecDate = in.readString();
-        this.mStatus = in.readInt();
-        this.mMedia = in.readParcelable(Media.class.getClassLoader());
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.mId);
-        dest.writeString(this.mExecDate);
-        dest.writeInt(this.mStatus);
-        dest.writeParcelable(this.mMedia, 0);
     }
 
     public String getId() {
@@ -70,6 +53,17 @@ public class Post implements Parcelable {
         this.mStatus = status;
     }
 
+    public int getPosted() {
+        return mPosted;
+    }
+
+    public boolean isPosted(){
+        return mPosted == 1;
+    }
+
+    public void setPosted(int posted) {
+        this.mPosted = posted;
+    }
 
     public Media getMedia() {
         return mMedia;
@@ -78,16 +72,6 @@ public class Post implements Parcelable {
     public void setMedia(Media media) {
         this.mMedia = media;
     }
-
-    public static final Creator<Post> CREATOR = new Creator<Post>() {
-        public Post createFromParcel(Parcel source) {
-            return new Post(source);
-        }
-
-        public Post[] newArray(int size) {
-            return new Post[size];
-        }
-    };
 
     @Override
     public boolean equals(Object o) {
@@ -103,4 +87,38 @@ public class Post implements Parcelable {
         return mMedia != null ? mMedia.equals(post.mMedia) : post.mMedia == null;
 
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.mId);
+        dest.writeString(this.mExecDate);
+        dest.writeInt(this.mStatus);
+        dest.writeInt(this.mPosted);
+        dest.writeParcelable(this.mMedia, flags);
+    }
+
+    protected Post(Parcel in) {
+        this.mId = in.readString();
+        this.mExecDate = in.readString();
+        this.mStatus = in.readInt();
+        this.mPosted = in.readInt();
+        this.mMedia = in.readParcelable(Media.class.getClassLoader());
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel source) {
+            return new Post(source);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
 }

@@ -3,10 +3,10 @@ package com.avectris.curatapp.data.remote;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
 
-import retrofit.http.Body;
-import retrofit.http.GET;
-import retrofit.http.POST;
-import retrofit.http.Query;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
