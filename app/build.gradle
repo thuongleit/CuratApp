@@ -16,9 +16,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         minSdkVersion app.minSdk
         targetSdkVersion app.targetSdk
-        aaptOptions {
-            additionalParameters "--no-version-vectors"
-        }
+        versionCode app.code
+        versionName app.name
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         testApplicationId 'com.avectris.curatapp.test'
