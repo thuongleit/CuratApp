@@ -278,7 +278,7 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     @Override
-    public void showNetworkFailed() {
+    public void onNetworkError() {
         if (mErrorView == null) {
             mErrorView = LayoutInflater.from(mContext).inflate(R.layout.view_network_error, null);
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -291,7 +291,7 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     @Override
-    public void showGenericError() {
+    public void onGeneralError() {
         if (mErrorView == null) {
             mErrorView = LayoutInflater.from(mContext).inflate(R.layout.view_general_error, null);
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

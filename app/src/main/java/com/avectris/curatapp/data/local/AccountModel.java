@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.Where;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -17,29 +18,30 @@ import timber.log.Timber;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class AccountModel extends BaseModel {
+@Singleton
+public class AccountModel extends BaseModel<Account> {
 
     @Inject
     public AccountModel() {
     }
 
     @Override
-    public Class<? extends com.raizlabs.android.dbflow.structure.BaseModel> getModelClazz() {
+    protected Class<Account> clazz() {
         return Account.class;
     }
 
     public void saveOrUpdate(Account account) {
         deactiveAccounts();
         Insert<? extends com.raizlabs.android.dbflow.structure.BaseModel> insertQuery = SQLite
-                .insert(getModelClazz())
+                .insert(clazz())
                 .orReplace()
                 .columnValues(
-                        Account_Table.accountId.eq(account.getAccountId()),
-                        Account_Table.name.eq(account.getName()),
-                        Account_Table.active.eq(account.getActive()),
-                        Account_Table.apiCode.eq(account.getApiCode()),
-                        Account_Table.current.eq(account.isCurrentAccount()),
-                        Account_Table.enable_notification.eq(account.isEnableNotification()));
+                        Account_Table.id.eq(account.id),
+                        Account_Table.name.eq(account.name),
+                        Account_Table.active.eq(account.active),
+                        Account_Table.apiCode.eq(account.apiCode),
+                        Account_Table.current.eq(account.current),
+                        Account_Table.enable_notification.eq(account.enableNotification));
 
         Timber.i(insertQuery.getQuery());
 
@@ -48,21 +50,21 @@ public class AccountModel extends BaseModel {
 
     public void updateToken(Account account, String token) {
         SQLite
-                .update(getModelClazz())
+                .update(clazz())
                 .orFail()
                 .set(Account_Table.gcm_token.eq(token))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
+                .where(Account_Table.id.eq(account.id))
                 .execute();
     }
 
-    public Observable<Boolean> delete(long accountId) {
+    public Observable<Boolean> delete(String id) {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 try {
                     Where<? extends com.raizlabs.android.dbflow.structure.BaseModel> query = SQLite
-                            .delete(getModelClazz())
-                            .where(Account_Table.accountId.eq(accountId));
+                            .delete(clazz())
+                            .where(Account_Table.id.eq(id));
 
                     Timber.d(query.toString());
                     query.execute();
@@ -82,18 +84,18 @@ public class AccountModel extends BaseModel {
             deactiveAccounts();
         }
         SQLite
-                .update(getModelClazz())
+                .update(clazz())
                 .orIgnore()
                 .set(Account_Table.current.eq(isCurrent))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
+                .where(Account_Table.id.eq(account.id))
                 .execute();
     }
 
     private void deactiveAccounts() {
-        List<? extends com.raizlabs.android.dbflow.structure.BaseModel> accounts = getAllToList();
+        List<? extends com.raizlabs.android.dbflow.structure.BaseModel> accounts = loadAll();
         for (com.raizlabs.android.dbflow.structure.BaseModel model : accounts) {
             Account account1 = (Account) model;
-            if (account1.isCurrentAccount()) {
+            if (account1.current) {
                 updateActiveAccount(account1, false);
                 break;
             }
@@ -102,18 +104,26 @@ public class AccountModel extends BaseModel {
 
     public void updatePushNotification(Account account, boolean notification) {
         SQLite
-                .update(getModelClazz())
+                .update(clazz())
                 .orIgnore()
                 .set(Account_Table.enable_notification.eq(notification))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
+                .where(Account_Table.id.eq(account.id))
                 .execute();
     }
 
-    public Account getAccountById(long accountId) {
+    public Account getAccountById(String id) {
         return (Account) SQLite
                 .select()
-                .from(getModelClazz())
-                .where(Account_Table.accountId.eq(accountId))
+                .from(clazz())
+                .where(Account_Table.id.eq(id))
+                .querySingle();
+    }
+
+    public Account getCurrentAccount() {
+        return SQLite
+                .select()
+                .from(clazz())
+                .where(Account_Table.current.eq(true))
                 .querySingle();
     }
 }

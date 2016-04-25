@@ -17,7 +17,7 @@ class SpinnerArrayAdapter extends ArrayAdapter<String> {
     private Context mContext;
     private OnItemClickListener mOnItemClickListener;
 
-    public SpinnerArrayAdapter(Context context, int resource, List<String> objects) {
+    SpinnerArrayAdapter(Context context, int resource, List<String> objects) {
         super(context, resource, objects);
         this.mContext = context;
     }
@@ -46,7 +46,7 @@ class SpinnerArrayAdapter extends ArrayAdapter<String> {
         textView.setTypeface(typeface);
     }
 
-    public void setOnItemClickListener(OnItemClickListener clickListener) {
+    void setOnItemClickListener(OnItemClickListener clickListener) {
         this.mOnItemClickListener = clickListener;
     }
 

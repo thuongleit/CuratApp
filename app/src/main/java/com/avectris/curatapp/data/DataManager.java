@@ -3,20 +3,25 @@ package com.avectris.curatapp.data;
 import android.app.Application;
 import android.text.TextUtils;
 
+import com.avectris.curatapp.BuildConfig;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.exception.SessionNotFoundException;
 import com.avectris.curatapp.data.local.AccountModel;
+import com.avectris.curatapp.data.local.UserModel;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.ErrorableResponse;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
+import com.avectris.curatapp.data.remote.verify.AccountResponse;
+import com.avectris.curatapp.data.remote.verify.LoginResponse;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
 import com.avectris.curatapp.vo.Account;
+import com.avectris.curatapp.vo.User;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
@@ -44,110 +49,76 @@ public class DataManager {
     ApiHeaders mApiHeaders;
     @Inject
     AccountModel mAccountModel;
+    @Inject
+    UserModel mUserModel;
 
     @Inject
     public DataManager(Application app) {
         ((CuratApp) app).getAppComponent().inject(this);
     }
 
-    public Observable<VerifyResponse> verify(String verifyCode) {
-        VerifyRequest request = new VerifyRequest(verifyCode);
-
-        return mSessionService
-                .verify(request)
-                .doOnNext(response -> {
-                    cacheAccount(response.getAccount());
-                    mAccountModel.saveOrUpdate(response.getAccount());
-                    mAccountModel.updatePushNotification(response.getAccount(), true);
-                });
-
-    }
-
-    public Observable<Observable<VerifyResponse>> restoreSession() {
+    public Observable<User> restoreSession() {
         return Observable
-                .create((Observable.OnSubscribe<String>) subscriber -> {
-                    String apiCode = mConfig.getCurrentCode();
-                    if (TextUtils.isEmpty(apiCode)) {
-                        subscriber.onError(new SessionNotFoundException());
-                    } else {
-                        subscriber.onNext(apiCode);
-                    }
-                    subscriber.onCompleted();
-                })
-                .map(verifyCode -> {
-                    VerifyRequest request = new VerifyRequest(verifyCode);
-                    return mSessionService
-                            .verify(request)
-                            .doOnNext(response -> {
-                                if (response.isSuccess()) {
-                                    cacheAccount(response.getAccount());
-                                }
-                            });
-                });
+                .just(mUserModel.getActiveUser())
+                .filter(user -> user != null)
+                .doOnNext(user -> mApiHeaders.buildSession(user.authToken, null, "123"));
     }
 
-    public Observable<PostResponse> getPosts(int requestMode, int pageNumber) {
+    public Observable<PostResponse> fetchPosts(int requestMode, int pageNumber) {
         if (mApiHeaders.getApiCode() == null) {
-            mApiHeaders.withSession(mConfig.getCurrentCode());
+            Account account = mAccountModel.getCurrentAccount();
+            if (account != null) {
+                mApiHeaders.withApiCode(account.apiCode, "", "123");
+            }
         }
-        if (requestMode == Constant.POSTED_CONTENT_MODE) {
-            return mPostService
-                    .getPassedPosts(pageNumber);
-        } else if (requestMode == Constant.UPCOMING_CONTENT_MODE) {
-            return mPostService
-                    .getUpcomingPosts(pageNumber);
+        if (mApiHeaders.getApiCode() != null) {
+            if (requestMode == Constant.POSTED_CONTENT_MODE) {
+                return mPostService
+                        .getPassedPosts(pageNumber);
+            } else if (requestMode == Constant.UPCOMING_CONTENT_MODE) {
+                return mPostService
+                        .getUpcomingPosts(pageNumber);
+            }
         }
         PostResponse failedResponse = new PostResponse();
         failedResponse.setResponse("error");
         return Observable.just(failedResponse);
     }
 
-    public Observable<List<Account>> getAccounts() {
-        return mAccountModel
-                .getAll()
-                .map(baseModels -> {
-                    List<Account> accounts = new ArrayList<>();
-                    for (BaseModel model : baseModels) {
-                        Account account1 = (Account) model;
-                        accounts.add(account1);
-                    }
-
-                    return accounts;
-                });
+    public Observable<List<Account>> loadAccounts() {
+        return Observable.just(mAccountModel.loadAll());
     }
 
     public Observable<PostDetailResponse> getPostDetail(String apiCode, String postId) {
-        String oldCode = mApiHeaders.getApiCode();
-        if (apiCode != null) {
-            mApiHeaders.withSession(apiCode);
-        }
+//        String oldCode = mApiHeaders.getApiCode();
+//        if (apiCode != null) {
+//            mApiHeaders.withSession(apiCode);
+//        }
 
         return mPostService
                 .getPostDetail(postId)
                 .doOnCompleted(() -> {
-                    if (!TextUtils.isEmpty(oldCode)) {
-                        mApiHeaders.withSession(oldCode);
-                    }
+//                    if (!TextUtils.isEmpty(oldCode)) {
+////                        mApiHeaders.withSession(oldCode);
+//                    }
                 });
     }
 
     private void cacheAccount(Account account) {
         mConfig.setCurrentAccount(account);
 
-        String apiCode = account.getApiCode();
-        mConfig.putCurrentCode(apiCode);
-        mApiHeaders.withSession(apiCode);
-        account.setCurrentActive(true);
+        String apiCode = account.apiCode;
+        account.current = true;
     }
 
     public List<Observable<Boolean>> registerGcm(String token) {
         List<Observable<Boolean>> observables = new ArrayList<>();
-        for (BaseModel model : mAccountModel.getAllToList()) {
+        for (BaseModel model : mAccountModel.loadAll()) {
             Account account = (Account) model;
 
-            if (account.isEnableNotification()) {
+            if (account.enableNotification) {
                 observables.add(mSessionService
-                        .enablePushNotification(token == null ? account.getGcmToken() : token, String.valueOf(account.getAccountId()))
+                        .enablePushNotification(token == null ? account.gcmToken : token, String.valueOf(account.id))
                         .map(response -> {
                             if (response.isSuccess()) {
                                 //saveOrUpdate to database
@@ -167,7 +138,7 @@ public class DataManager {
     public Observable<List<Account>> deleteAccount(List<Account> accounts, int position) {
         Account account = accounts.get(position);
         return mAccountModel
-                .delete(account.getAccountId())
+                .delete(account.id)
                 .map(success -> {
                     if (success) {
                         accounts.remove(position);
@@ -175,7 +146,7 @@ public class DataManager {
                         if (!accounts.isEmpty()) {
                             //next active account is the first account
                             Account nextAccount = accounts.get(0);
-                            nextAccount.setCurrentActive(true);
+                            nextAccount.current = true;
                             cacheAccount(nextAccount);
                         }
                     }
@@ -188,15 +159,14 @@ public class DataManager {
         mConfig.setCurrentAccount(null);
         mAccountModel.updateActiveAccount(account, false);
 
-        mConfig.putCurrentCode(null);
         mApiHeaders.logout();
     }
 
     public Observable<Boolean> enablePushNotification(Account account) {
-        Account accountDb = mAccountModel.getAccountById(account.getAccountId());
-        if (!accountDb.isEnableNotification()) {
+        Account accountDb = mAccountModel.getAccountById(account.id);
+        if (!accountDb.enableNotification) {
             return mSessionService
-                    .enablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
+                    .enablePushNotification(accountDb.gcmToken, String.valueOf(account.id))
                     .map(response -> {
                         if (response.isSuccess()) {
                             mAccountModel.updatePushNotification(account, true);
@@ -210,10 +180,10 @@ public class DataManager {
     }
 
     public Observable<Boolean> disablePushNotification(Account account) {
-        Account accountDb = mAccountModel.getAccountById(account.getAccountId());
-        if (accountDb.isEnableNotification()) {
+        Account accountDb = mAccountModel.getAccountById(account.id);
+        if (accountDb.enableNotification) {
             return mSessionService
-                    .disablePushNotification(accountDb.getGcmToken(), String.valueOf(account.getAccountId()))
+                    .disablePushNotification(accountDb.gcmToken, String.valueOf(account.id))
                     .map(response -> {
                         if (response.isSuccess()) {
                             mAccountModel.updatePushNotification(account, false);
@@ -234,16 +204,49 @@ public class DataManager {
     }
 
     public Observable<ErrorableResponse> updatePosted(String apiCode, String postId) {
-        String oldCode = mApiHeaders.getApiCode();
-        if (apiCode != null) {
-            mApiHeaders.withSession(apiCode);
-        }
+//        String oldCode = mApiHeaders.getApiCode();
+//        if (apiCode != null) {
+//            mApiHeaders.withSession(apiCode);
+//        }
+//
+//        return mPostService
+//                .updateUserPosted(postId, 1)
+//                .doOnCompleted(() -> {
+//                    if (!TextUtils.isEmpty(oldCode)) {
+//                        mApiHeaders.withSession(oldCode);
+//                    }
+//                });
 
-        return mPostService
-                .updateUserPosted(postId, 1)
-                .doOnCompleted(() -> {
-                    if (!TextUtils.isEmpty(oldCode)) {
-                        mApiHeaders.withSession(oldCode);
+        return Observable.empty();
+    }
+
+    public Observable<LoginResponse> login(String email, String password) {
+        mApiHeaders.setLoginHeaders(email, password, String.valueOf(BuildConfig.VERSION_CODE));
+        return mSessionService
+                .login()
+                .doOnNext(response -> {
+                    if (response.isSuccess()) {
+                        User user = response.user;
+                        user.isActive = true;
+                        mUserModel.save(user);
+                        mApiHeaders.buildSession(user.authToken, null, String.valueOf(BuildConfig.VERSION_CODE));
+                    }
+                });
+    }
+
+    public Observable<AccountResponse> fetchAccounts(User user) {
+        if (user != null) {
+            mApiHeaders.buildSession(user.authToken, null, String.valueOf(BuildConfig.VERSION_CODE));
+        }
+        return mSessionService
+                .fetchAccounts()
+                .doOnNext(response -> {
+                    if (response.isSuccess()) {
+                        //the first account will be the current(selected) account in the app
+                        if (!response.accounts.isEmpty()) {
+                            response.accounts.get(0).current = true;
+                        }
+                        mAccountModel.save(response.accounts);
                     }
                 });
     }

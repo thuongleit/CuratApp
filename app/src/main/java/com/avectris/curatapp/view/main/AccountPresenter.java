@@ -22,86 +22,40 @@ import timber.log.Timber;
  * Created by thuongle on 2/13/16.
  */
 @PerActivity
-class AccountNavPresenter extends BasePresenter<AccountNavView> {
+class AccountPresenter extends BasePresenter<AccountView> {
 
     private final DataManager mDataManager;
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Inject
-    public AccountNavPresenter(DataManager dataManager) {
+    AccountPresenter(DataManager dataManager) {
         mDataManager = dataManager;
     }
 
     @Override
-    public void detachView() {
-        super.detachView();
+    protected void unsubscribeDataSource() {
         if (mSubscriptions != null) {
-            mSubscriptions.unsubscribe();
+            mSubscriptions.clear();
+            mSubscriptions = null;
         }
     }
 
-    void fetchAccounts() {
-        mSubscriptions.add(
-                mDataManager
-                        .getAccounts()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .unsubscribeOn(Schedulers.io())
-                        .subscribe(models -> {
-                                    if (models == null || models.isEmpty()) {
-                                        mView.onNoAccountReturn();
-                                    } else {
-                                        mView.onAccountsReturn(models);
-                                    }
-                                },
-                                e -> mView.onError("Cannot delete this account right now. Please try again later")));
-    }
-
-    public void deleteAccount(List<Account> accounts, int deletePosition) {
+    void loadAccounts() {
         checkViewAttached();
-        mView.showProgress(true, "Processing...");
         mSubscriptions.add(
                 mDataManager
-                        .disablePushNotification(accounts.get(deletePosition))
+                        .loadAccounts()
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .unsubscribeOn(Schedulers.io())
-                        .subscribe(result -> {
-                                    if (result) {
-                                        performDeleteAccount(accounts, deletePosition);
-                                    }
-                                },
-                                e -> {
-                                    mView.showProgress(false, null);
-                                    if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
-                                        mView.onNoInternetWhenDeleting();
+                        .subscribe(accounts -> {
+                                    if (accounts == null || accounts.isEmpty()) {
+                                        mView.onEmptyAccounts();
                                     } else {
-                                        Timber.e(e, "Error in delete account");
-                                        mView.onError("Cannot delete this account right now. Please try again later");
+                                        mView.onAccountsReturn(accounts);
                                     }
                                 },
-                                () -> mView.showProgress(false, null)));
-    }
-
-    private void performDeleteAccount(List<Account> accounts, int deletePosition) {
-        mSubscriptions.add(mDataManager
-                .deleteAccount(accounts, deletePosition)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .unsubscribeOn(Schedulers.io())
-                .subscribe(results -> {
-                            if (results.isEmpty()) {
-                                mView.onNoAccountAfterDelete();
-                            } else {
-                                mView.onDeleteAccountReturn(accounts.get(0));
-                            }
-                        }, e -> {
-                            Timber.e(e, "Error in delete account");
-                            mView.onError("Cannot delete this account right now. Please try again later");
-                        }
-                )
-
-        );
+                                e -> mView.onGeneralError()));
     }
 
     public void enablePushNotification(SwitchCompat view, Account account) {

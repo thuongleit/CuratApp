@@ -27,7 +27,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
     private final List<Account> mAccounts;
     private OnAccountNavItemClickListener mItemClickListener;
 
-    public AccountNavRecyclerAdapter(Context context, List<Account> accounts) {
+    AccountNavRecyclerAdapter(Context context, List<Account> accounts) {
         mContext = context;
         mAccounts = accounts;
     }
@@ -63,10 +63,8 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
         TextView mTextAccountStatus;
         @Bind(R.id.switch_on_off_notification)
         SwitchCompat mSwitchNotification;
-        @Bind(R.id.image_button_delete)
-        ImageButton mButtonDelete;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.mView = view;
@@ -81,19 +79,14 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                     mItemClickListener.onSwitchControlClick(mSwitchNotification, getAdapterPosition(), isChecked);
                 }
             });
-            this.mButtonDelete.setOnClickListener(v -> {
-                if (mItemClickListener != null) {
-                    mItemClickListener.onDeleteButtonClick(getAdapterPosition());
-                }
-            });
         }
 
         public void bind(Account account) {
-            if (account.isCurrentAccount()) {
+            if (account.current) {
                 ((CardView) mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
             }
-            mTextAccountName.setText(account.getName());
-            if (account.isActive()) {
+            mTextAccountName.setText(account.name);
+            if (account.current) {
                 viewAccountStatus.setBackgroundResource(R.drawable.shape_circle_spot_account_active);
                 int activeColor = mContext.getResources().getColor(R.color.black_87);
                 mTextAccountStatus.setText("Active");
@@ -107,7 +100,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                 mTextAccountStatus.setText("Inactive");
             }
 
-            if (account.isEnableNotification()) {
+            if (account.enableNotification) {
                 mSwitchNotification.setChecked(true);
             } else {
                 mSwitchNotification.setChecked(false);
@@ -120,7 +113,5 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
         void onViewClick(int position);
 
         void onSwitchControlClick(SwitchCompat mSwitchNotification, int position, boolean isChecked);
-
-        void onDeleteButtonClick(int position);
     }
 }

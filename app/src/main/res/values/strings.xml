@@ -13,15 +13,20 @@
     <string name="dialog_action_try_again">Try Again</string>
     <string name="dialog_message_verify_code_invalid">Verification code is invalid</string>
     <string name="error_message_this_field_cannot_be_blank">This field cannot be empty</string>
+    <string name="error_message_your_email_is_invalid">Your input email is invalid</string>
     <string name="dialog_message_verifying">Verifying</string>
     <string name="dialog_message_no_internet_working">Oops, looks like your internet has stopped working</string>
-    <string name="dialog_message_verified_code_failed">Verified your code failed</string>
+    <string name="message_general_error">Please try loading your app again in minute</string>
+    <string name="title_general_error"><![CDATA[Sorry, We are Having Some Issues]]></string>
     <string name="title_scheduled_posts">Scheduled Posts</string>
     <string name="dialog_error_general_message">Something went wrong with the app. Please try again later</string>
     <string name="verification_string">Please insert the Verification Code provided by your CuraTapp Manager inside your email inbox.</string>
     <string name="error_message_ignore_permission">You ignore this permission. You may not post to Instagram</string>
     <string name="posted">Posted</string>
     <string name="button_post_again">Post Again</string>
+    <string name="button_sign_in">Sign In</string>
+    <string name="accounts">Accounts</string>
+    <string name="logout">Logout</string>
 
     <array name="tab_titles">
         <item>SCHEDULED</item>

@@ -47,15 +47,15 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                                 mView.setButtonEnable(true);
                                 mView.onPostDetailReturn(response.getPost());
                             } else {
-                                mView.onRequestFailed(response.getErrorMsg());
+                                mView.onRequestFailed(response.getMessage());
                             }
                         },
                         e -> {
                             mView.setButtonEnable(true);
                             if (e instanceof IOException) {
-                                mView.showNetworkFailed();
+                                mView.onNetworkError();
                             } else {
-                                mView.showGenericError();
+                                mView.onGeneralError();
                             }
                         }));
     }
@@ -74,15 +74,15 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                                 mView.setButtonEnable(true);
                                 mView.onUpdatePostSuccess();
                             } else {
-                                mView.onRequestFailed(response.getErrorMsg());
+                                mView.onRequestFailed(response.getMessage());
                             }
                         },
                         e -> {
                             mView.setButtonEnable(true);
                             if (e instanceof IOException) {
-                                mView.showNetworkFailed();
+                                mView.onNetworkError();
                             } else {
-                                mView.showGenericError();
+                                mView.onGeneralError();
                             }
                         }));
     }

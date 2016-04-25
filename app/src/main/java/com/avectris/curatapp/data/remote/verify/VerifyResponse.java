@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by thuongle on 2/12/16.
  */
+@Deprecated
 public class VerifyResponse extends ErrorableResponse {
     @JsonProperty("account")
     Account mAccount;
