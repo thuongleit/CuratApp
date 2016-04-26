@@ -1,33 +1,56 @@
 package com.avectris.curatapp.data.local;
 
-import com.raizlabs.android.dbflow.sql.language.From;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.List;
 
-import rx.Observable;
-import timber.log.Timber;
-
 /**
  * Created by thuongle on 2/13/16.
  */
-public abstract class BaseModel {
+public abstract class BaseModel<T extends com.raizlabs.android.dbflow.structure.BaseModel> {
 
     public BaseModel() {
     }
 
-    public Observable<List<? extends com.raizlabs.android.dbflow.structure.BaseModel>> getAll() {
-        return Observable.just(getAllToList());
+    public List<T> loadAll() {
+        return SQLite
+                .select()
+                .from(clazz())
+                .queryList();
     }
 
-    public List<? extends com.raizlabs.android.dbflow.structure.BaseModel> getAllToList() {
-        From<? extends com.raizlabs.android.dbflow.structure.BaseModel> selectQuery =
-                SQLite
-                        .select()
-                        .from(getModelClazz());
-        Timber.i(selectQuery.getQuery());
-        return selectQuery.queryList();
+    public void save(List<T> objects) {
+        if (objects != null && !objects.isEmpty()) {
+            TransactionManager.transact(CuratAppDatabase.DATABASE_NAME, () -> {
+                for (T object : objects) {
+                    object.save();
+                }
+            });
+        }
     }
 
-    public abstract Class<? extends com.raizlabs.android.dbflow.structure.BaseModel> getModelClazz();
+    public void deleteAll() {
+        List<T> objects = loadAll();
+        TransactionManager.transact(CuratAppDatabase.DATABASE_NAME, () -> {
+            for (T object : objects) {
+                object.delete();
+            }
+        });
+    }
+
+    public void save(T object) {
+        if (object != null) {
+            object.save();
+        }
+    }
+
+    public void update(T object) {
+        if (object != null) {
+            object.update();
+        }
+    }
+
+    protected abstract Class<T> clazz();
+
 }

@@ -18,7 +18,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class PostPresenter extends BasePresenter<PostView> {
+class PostPresenter extends BasePresenter<PostView> {
     private final DataManager mDataManager;
     private CompositeSubscription mSubscription;
     private int mRequestMode;
@@ -43,7 +43,7 @@ public class PostPresenter extends BasePresenter<PostView> {
             mView.showProgress(true);
         }
         mSubscription.add(mDataManager
-                .getPosts(mRequestMode, pageNumber)
+                .fetchPosts(mRequestMode, pageNumber)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
@@ -68,7 +68,7 @@ public class PostPresenter extends BasePresenter<PostView> {
                                     }
                                 }
                             } else {
-                                mView.showResultMessage(response.getErrorMsg());
+                                mView.showResultMessage(response.getMessage());
                             }
                         },
                         e -> {
@@ -76,9 +76,9 @@ public class PostPresenter extends BasePresenter<PostView> {
                             if (pageNumber == 0) {
                                 mView.showProgress(false);
                                 if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
-                                    mView.showNetworkFailed();
+                                    mView.onNetworkError();
                                 } else {
-                                    mView.showGenericError();
+                                    mView.onGeneralError();
                                 }
                             } else {
                                 mView.onRemoveBottomProgressBar();
@@ -95,9 +95,9 @@ public class PostPresenter extends BasePresenter<PostView> {
 
     }
 
-    public void getPostsForRefresh() {
+    void getPostsForRefresh() {
         mSubscription.add(mDataManager
-                .getPosts(mRequestMode, 0)
+                .fetchPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
@@ -115,7 +115,7 @@ public class PostPresenter extends BasePresenter<PostView> {
                                     }
                                 }
                             } else {
-                                mView.showResultMessage(response.getErrorMsg());
+                                mView.showResultMessage(response.getMessage());
                             }
                         },
                         e -> {
@@ -130,7 +130,7 @@ public class PostPresenter extends BasePresenter<PostView> {
                         }));
     }
 
-    public void setRequestMode(int mode) {
+    void setRequestMode(int mode) {
         mRequestMode = mode;
     }
 }

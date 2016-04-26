@@ -143,12 +143,12 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     }
 
     @Override
-    public void showNetworkFailed() {
+    public void onNetworkError() {
         onRequestFailed(getString(R.string.dialog_message_no_internet_working));
     }
 
     @Override
-    public void showGenericError() {
+    public void onGeneralError() {
         onRequestFailed(getString(R.string.dialog_error_general_message));
     }
 

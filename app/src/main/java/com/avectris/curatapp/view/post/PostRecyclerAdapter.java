@@ -32,11 +32,10 @@ import butterknife.ButterKnife;
 /**
  * Created by thuongle on 2/13/16.
  */
-public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 
-    @Inject
     DisplayImageOptions mDisplayImageOptions;
 
     private final Context mContext;
@@ -48,7 +47,8 @@ public class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private OnLoadMoreListener onLoadMoreListener;
 
     public PostRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts) {
-        ((CuratApp) application).getAppComponent().inject(this);
+        mDisplayImageOptions = ((CuratApp) application).getAppComponent().displayImageOptions();
+
         this.mContext = context;
         this.mPosts = posts;
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {

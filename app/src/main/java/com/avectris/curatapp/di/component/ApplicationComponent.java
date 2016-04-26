@@ -11,7 +11,6 @@ import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.avectris.curatapp.di.scope.ApplicationScope;
 import com.avectris.curatapp.service.RegistrationIntentService;
-import com.avectris.curatapp.view.post.PostRecyclerAdapter;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 
@@ -55,8 +54,6 @@ public interface ApplicationComponent {
     HttpProxyCacheServer proxy();
 
     void inject(DataManager manager);
-
-    void inject(PostRecyclerAdapter adapter);
 
     void inject(RegistrationIntentService service);
 }

@@ -30,6 +30,8 @@ import com.pnikosis.materialishprogress.ProgressWheel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.inject.Inject;
 
@@ -39,7 +41,7 @@ import butterknife.ButterKnife;
 /**
  * Created by thuongle on 1/13/16.
  */
-public class PostFragment extends BaseFragment implements PostView, SwipeRefreshLayout.OnRefreshListener {
+public class PostFragment extends BaseFragment implements PostView, SwipeRefreshLayout.OnRefreshListener{
     private static final String ARG_CONTENT_MODE = "PostFragment.ARG_CONTENT_MODE";
 
     @Bind(R.id.recycler_view)
@@ -278,7 +280,7 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     @Override
-    public void showNetworkFailed() {
+    public void onNetworkError() {
         if (mErrorView == null) {
             mErrorView = LayoutInflater.from(mContext).inflate(R.layout.view_network_error, null);
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -291,7 +293,7 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     @Override
-    public void showGenericError() {
+    public void onGeneralError() {
         if (mErrorView == null) {
             mErrorView = LayoutInflater.from(mContext).inflate(R.layout.view_general_error, null);
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

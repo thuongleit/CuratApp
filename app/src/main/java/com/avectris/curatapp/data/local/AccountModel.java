@@ -2,118 +2,70 @@ package com.avectris.curatapp.data.local;
 
 import com.avectris.curatapp.vo.Account;
 import com.avectris.curatapp.vo.Account_Table;
-import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.Where;
 
-import java.util.List;
-
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.Subscriber;
 import timber.log.Timber;
 
+import java.util.List;
+
 /**
  * Created by thuongle on 2/13/16.
  */
-public class AccountModel extends BaseModel {
+@Singleton
+public class AccountModel extends BaseModel<Account> {
 
     @Inject
     public AccountModel() {
     }
 
     @Override
-    public Class<? extends com.raizlabs.android.dbflow.structure.BaseModel> getModelClazz() {
+    protected Class<Account> clazz() {
         return Account.class;
     }
 
-    public void saveOrUpdate(Account account) {
-        deactiveAccounts();
-        Insert<? extends com.raizlabs.android.dbflow.structure.BaseModel> insertQuery = SQLite
-                .insert(getModelClazz())
-                .orReplace()
-                .columnValues(
-                        Account_Table.accountId.eq(account.getAccountId()),
-                        Account_Table.name.eq(account.getName()),
-                        Account_Table.active.eq(account.getActive()),
-                        Account_Table.apiCode.eq(account.getApiCode()),
-                        Account_Table.current.eq(account.isCurrentAccount()),
-                        Account_Table.enable_notification.eq(account.isEnableNotification()));
-
-        Timber.i(insertQuery.getQuery());
-
-        insertQuery.execute();
-    }
-
-    public void updateToken(Account account, String token) {
-        SQLite
-                .update(getModelClazz())
-                .orFail()
-                .set(Account_Table.gcm_token.eq(token))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
-                .execute();
-    }
-
-    public Observable<Boolean> delete(long accountId) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                try {
-                    Where<? extends com.raizlabs.android.dbflow.structure.BaseModel> query = SQLite
-                            .delete(getModelClazz())
-                            .where(Account_Table.accountId.eq(accountId));
-
-                    Timber.d(query.toString());
-                    query.execute();
-
-                    subscriber.onNext(Boolean.TRUE);
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
-            }
-        });
-    }
-
-    public void updateActiveAccount(Account account, boolean isCurrent) {
+    public boolean updateActiveAccount(Account account) {
         //if active state, need to deactivate other accounts
-        if (isCurrent) {
-            deactiveAccounts();
-        }
-        SQLite
-                .update(getModelClazz())
-                .orIgnore()
-                .set(Account_Table.current.eq(isCurrent))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
-                .execute();
-    }
-
-    private void deactiveAccounts() {
-        List<? extends com.raizlabs.android.dbflow.structure.BaseModel> accounts = getAllToList();
-        for (com.raizlabs.android.dbflow.structure.BaseModel model : accounts) {
-            Account account1 = (Account) model;
-            if (account1.isCurrentAccount()) {
-                updateActiveAccount(account1, false);
-                break;
+        List<Account> accounts = loadAll();
+        if (accounts != null && !accounts.isEmpty()) {
+            for (Account accountInDb : accounts) {
+                if (accountInDb.id.equals(account.id)) {
+                    accountInDb.current = true;
+                } else {
+                    accountInDb.current = false;
+                }
+                accountInDb.update();
             }
         }
+        return true;
     }
 
-    public void updatePushNotification(Account account, boolean notification) {
-        SQLite
-                .update(getModelClazz())
-                .orIgnore()
-                .set(Account_Table.enable_notification.eq(notification))
-                .where(Account_Table.accountId.eq(account.getAccountId()))
-                .execute();
-    }
-
-    public Account getAccountById(long accountId) {
-        return (Account) SQLite
+    public Account getAccountById(String id) {
+        return SQLite
                 .select()
-                .from(getModelClazz())
-                .where(Account_Table.accountId.eq(accountId))
+                .from(clazz())
+                .where(Account_Table.id.eq(id))
+                .querySingle();
+    }
+
+    public Account getCurrentAccount() {
+        return SQLite
+                .select()
+                .from(clazz())
+                .where(Account_Table.current.eq(true))
+                .querySingle();
+    }
+
+    public Account getAccountByApiCode(String apiCode) {
+        return SQLite
+                .select()
+                .from(clazz())
+                .where(Account_Table.apiCode.eq(apiCode))
                 .querySingle();
     }
 }

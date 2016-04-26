@@ -1,12 +1,11 @@
 package com.avectris.curatapp.data.remote;
 
+import com.avectris.curatapp.data.remote.verify.AccountResponse;
+import com.avectris.curatapp.data.remote.verify.LoginResponse;
 import com.avectris.curatapp.data.remote.verify.VerifyRequest;
 import com.avectris.curatapp.data.remote.verify.VerifyResponse;
 
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
+import retrofit2.http.*;
 import rx.Observable;
 
 /**
@@ -14,6 +13,7 @@ import rx.Observable;
  */
 public interface SessionService {
 
+    @Deprecated
     @POST("account/verify")
     Observable<VerifyResponse> verify(@Body VerifyRequest request);
 
@@ -25,6 +25,15 @@ public interface SessionService {
 
     @GET("updatepushnotification")
     Observable<ErrorableResponse> updateDeviceId(@Query("device_id") String deviceId, @Query("remove_device_id") String removeDeviceId, @Query("schedule_id") String scheduleId);
+
+    @POST("user/login")
+    Observable<LoginResponse> login();
+
+    @GET("accounts")
+    Observable<AccountResponse> fetchAccounts();
+
+    @POST("user/logout")
+    Observable<ErrorableResponse> logout();
 }
 
 

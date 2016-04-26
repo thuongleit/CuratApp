@@ -5,7 +5,7 @@ package com.avectris.curatapp.view.base;
  */
 public interface ErrorView extends MvpView {
 
-    void showNetworkFailed();
+    void onNetworkError();
 
-    void showGenericError();
+    void onGeneralError();
 }
