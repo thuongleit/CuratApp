@@ -30,11 +30,27 @@ public abstract class BaseModel<T extends com.raizlabs.android.dbflow.structure.
         }
     }
 
+    public void deleteAll() {
+        List<T> objects = loadAll();
+        TransactionManager.transact(CuratAppDatabase.DATABASE_NAME, () -> {
+            for (T object : objects) {
+                object.delete();
+            }
+        });
+    }
+
     public void save(T object) {
         if (object != null) {
             object.save();
         }
     }
 
+    public void update(T object) {
+        if (object != null) {
+            object.update();
+        }
+    }
+
     protected abstract Class<T> clazz();
+
 }

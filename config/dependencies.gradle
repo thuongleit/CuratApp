@@ -1,7 +1,7 @@
 ext.app = [
         applicationId: 'com.avectris.curatapp',
-        code         : 10,
-        name         : '1.0.2',
+        code         : 12,
+        name         : '1.1.0',
 
         minSdk       : 15,
         targetSdk    : 23,

@@ -83,4 +83,9 @@ public class Account extends BaseModel implements Parcelable {
             return new Account[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

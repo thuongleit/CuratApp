@@ -31,6 +31,9 @@ public interface SessionService {
 
     @GET("accounts")
     Observable<AccountResponse> fetchAccounts();
+
+    @POST("user/logout")
+    Observable<ErrorableResponse> logout();
 }
 
 

@@ -12,7 +12,7 @@ interface VerifyView extends ErrorView {
 
     void setButtonVerifyEnable(boolean enabled);
 
-    void onRequestSuccess(User user);
+    void onRequestSuccess(User user, String gcmToken);
 
     void onRequestFailed(String message);
 

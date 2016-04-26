@@ -17,7 +17,13 @@ interface AccountView extends ErrorView {
 
     void onEmptyAccounts();
 
-    void reloadActivity(Account account);
+    void refreshPage();
 
     void onEnableDisableNotificationFailed(SwitchCompat view, boolean state);
+
+    void removeSwipeLayout();
+
+    void logout();
+
+    void onRequestFailed(String message);
 }

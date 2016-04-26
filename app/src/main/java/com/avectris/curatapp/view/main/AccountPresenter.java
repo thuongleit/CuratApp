@@ -7,6 +7,7 @@ import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
 import com.avectris.curatapp.vo.Account;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -58,7 +59,7 @@ class AccountPresenter extends BasePresenter<AccountView> {
                                 e -> mView.onGeneralError()));
     }
 
-    public void enablePushNotification(SwitchCompat view, Account account) {
+    void enablePushNotification(SwitchCompat view, Account account) {
         mSubscriptions.add(
                 mDataManager
                         .enablePushNotification(account)
@@ -73,7 +74,7 @@ class AccountPresenter extends BasePresenter<AccountView> {
                         }));
     }
 
-    public void disablePushNotification(SwitchCompat view, Account account) {
+    void disablePushNotification(SwitchCompat view, Account account) {
         mSubscriptions.add(
                 mDataManager.
                         disablePushNotification(account)
@@ -88,18 +89,67 @@ class AccountPresenter extends BasePresenter<AccountView> {
                         }));
     }
 
-    public void chooseAccount(Account account) {
+    void chooseAccount(Account account) {
+        checkViewAttached();
         mSubscriptions.add(
                 mDataManager
                         .updateActiveAccount(account)
-                        .subscribeOn(Schedulers.newThread())
+                        .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(aBoolean -> {
-                                    if (aBoolean) {
-                                        mView.reloadActivity(account);
-                                    }
-                                }
-                                , e -> {
-                                }));
+                        .subscribe(result -> {
+                            if (result) {
+                                mView.refreshPage();
+                            }
+                        }, e -> {
+                            mView.onGeneralError();
+                        }));
     }
+
+    void fetchAccounts() {
+        checkViewAttached();
+        mSubscriptions.add(
+                mDataManager
+                        .fetchAccounts(null, null)
+                        .filter(respone -> respone.isSuccess())
+                        .flatMap(response -> mDataManager.loadAccounts())
+                        .subscribeOn(Schedulers.io())
+                        .unsubscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(accounts -> mView.onAccountsReturn(accounts),
+                                e -> {
+                                    mView.removeSwipeLayout();
+                                    if (e instanceof IOException) {
+                                        mView.onNetworkError();
+                                    } else {
+                                        mView.onGeneralError();
+                                    }
+                                },
+                                () -> mView.removeSwipeLayout()));
+    }
+
+    void logout() {
+        checkViewAttached();
+        mSubscriptions.add(
+                mDataManager
+                        .logout()
+                        .subscribeOn(Schedulers.io())
+                        .unsubscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(response -> {
+                                    if (response.isSuccess()) {
+                                        mView.logout();
+                                    } else {
+                                        mView.onRequestFailed(response.getMessage());
+                                    }
+                                },
+                                e -> {
+                                    if (e instanceof IOException) {
+                                        mView.onNetworkError();
+                                    } else {
+                                        mView.onGeneralError();
+                                    }
+                                })
+        );
+    }
+
 }

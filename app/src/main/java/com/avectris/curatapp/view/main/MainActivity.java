@@ -1,6 +1,5 @@
 package com.avectris.curatapp.view.main;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +12,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +26,7 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
+import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostFragment;
 import com.avectris.curatapp.view.verify.VerifyActivity;
@@ -33,7 +34,6 @@ import com.avectris.curatapp.vo.Account;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -69,8 +69,8 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private RecyclerView mRecyclerViewOnNav;
     private Fragment mUpcomingFragment;
     private Fragment mPostedFragment;
-    private ProgressDialog mProcessDialog;
-    private int mCurrentAccount;
+    private int mCurrentPosition;
+    private SwipeRefreshLayout mSwipeLayoutOnNav;
 
     @Override
     protected int getLayoutId() {
@@ -82,11 +82,11 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            mCurrentAccount = 0;
+            mCurrentPosition = 0;
             mUpcomingFragment = PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE);
             mPostedFragment = PostFragment.createInstance(Constant.POSTED_CONTENT_MODE);
         } else {
-            mCurrentAccount = getIntent().getIntExtra(EXTRA_ACCOUNT_POSITION, 0);
+            mCurrentPosition = getIntent().getIntExtra(EXTRA_ACCOUNT_POSITION, 0);
             mUpcomingFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_UPCOMING);
             mPostedFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_POSTED);
         }
@@ -109,7 +109,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(EXTRA_ACCOUNT_POSITION, mCurrentAccount);
+        outState.putInt(EXTRA_ACCOUNT_POSITION, mCurrentPosition);
         //Save the fragment's instance
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_UPCOMING, mUpcomingFragment);
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_POSTED, mPostedFragment);
@@ -143,6 +143,16 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_action_log_out:
+                mAccountPresenter.logout();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onAccountsReturn(List<Account> accounts) {
         setupSpinnerAccount(accounts);
         setupAccountNavView(accounts);
@@ -157,10 +167,10 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
-    public void reloadActivity(Account account) {
+    public void refreshPage() {
         Intent reload = getReloadIntent();
-        startActivity(reload);
         finish();
+        startActivity(reload);
     }
 
     @Override
@@ -171,44 +181,54 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         Toast.makeText(MainActivity.this, "Request failed", Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void removeSwipeLayout() {
+        if (mSwipeLayoutOnNav.isRefreshing()) {
+            mSwipeLayoutOnNav.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void logout() {
+        Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(mContext, VerifyActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onRequestFailed(String message) {
+        DialogFactory.createGenericErrorDialog(this, message).show();
+    }
+
     private void setupSpinnerAccount(List<Account> accounts) {
-        List<String> accountNames = buildAccountName(accounts);
-        SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accountNames);
+        SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accounts);
         mSpinner.setAdapter(adapter);
         int selected = 0;
         for (int i = 0, size = accounts.size(); i < size; i++) {
             if (accounts.get(i).current) {
                 selected = i;
-                mCurrentAccount = i;
+                mCurrentPosition = i;
                 break;
             }
         }
         mSpinner.setSelection(selected);
-        adapter.setOnItemClickListener(position -> {
-            if (mCurrentAccount != position) {
-                mAccountPresenter.chooseAccount(accounts.get(position));
-                mCurrentAccount = position;
+        adapter.setOnItemClickListener((account, position) -> {
+            if (mCurrentPosition != position) {
+                mAccountPresenter.chooseAccount(account);
+                mCurrentPosition = position;
             }
         });
-    }
-
-    private List<String> buildAccountName(List<Account> accounts) {
-        List<String> accountNames = new ArrayList<>();
-        for (Account account : accounts) {
-            accountNames.add(account.name);
-        }
-
-        return accountNames;
     }
 
     private void setupAccountNavView(List<Account> accounts) {
         AccountNavRecyclerAdapter adapter = new AccountNavRecyclerAdapter(this, accounts);
         adapter.setOnItemClickListener(new AccountNavRecyclerAdapter.OnAccountNavItemClickListener() {
             @Override
-            public void onViewClick(int position) {
-                if (mCurrentAccount != position) {
-                    mAccountPresenter.chooseAccount(accounts.get(position));
-                    mCurrentAccount = position;
+            public void onViewClick(Account account, int position) {
+                if (mCurrentPosition != position) {
+                    mAccountPresenter.chooseAccount(account);
+                    mCurrentPosition = position;
                 }
                 if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
                     mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -216,28 +236,15 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             }
 
             @Override
-            public void onSwitchControlClick(SwitchCompat view, int position, boolean isChecked) {
+            public void onSwitchControlClick(SwitchCompat compat, Account account, boolean isChecked) {
                 if (isChecked) {
-                    mAccountPresenter.enablePushNotification(view, accounts.get(position));
+                    mAccountPresenter.enablePushNotification(compat, account);
                 } else {
-                    mAccountPresenter.disablePushNotification(view, accounts.get(position));
+                    mAccountPresenter.disablePushNotification(compat, account);
                 }
             }
-
-//                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//                builder.setMessage("Are you sure to delete this account?")
-//                        .setPositiveButton("OK", (dialog, which) -> {
-//                            mAccountPresenter.deleteAccount(accounts, position);
-//                            dialog.dismiss();
-//                        })
-//                        .setNegativeButton("Cancel", (dialog, which) -> {
-//                            dialog.dismiss();
-//                        });
-//                builder.create().show();
-//                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-//                    mDrawerLayout.closeDrawer(GravityCompat.START);
-//                }
         });
+
         mRecyclerViewOnNav.setAdapter(adapter);
     }
 
@@ -277,6 +284,19 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
         mRecyclerViewOnNav.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerViewOnNav.setHasFixedSize(true);
+
+        mSwipeLayoutOnNav = (SwipeRefreshLayout) headerView.findViewById(R.id.swipe_refresh_layout);
+        mSwipeLayoutOnNav.setColorSchemeResources(R.color.pink, R.color.green, R.color.blue);
+        mSwipeLayoutOnNav.setOnRefreshListener(() -> {
+            mAccountPresenter.fetchAccounts();
+        });
+        mRecyclerViewOnNav.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mSwipeLayoutOnNav.setEnabled(((LinearLayoutManager) mRecyclerViewOnNav.getLayoutManager())
+                        .findFirstCompletelyVisibleItemPosition() == 0);
+            }
+        });
     }
 
     /**
@@ -302,12 +322,12 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
     @Override
     public void onNetworkError() {
-
+        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_no_internet_working).show();
     }
 
     @Override
     public void onGeneralError() {
-
+        DialogFactory.createSimpleOkErrorDialog(this, R.string.title_general_error, R.string.message_general_error).show();
     }
 
     private class CustomPageAdapter extends FragmentStatePagerAdapter {

@@ -15,18 +15,18 @@ import javax.inject.Singleton;
 @Singleton
 public class Config {
     private final SharedPreferences mSharedPreferences;
-    private Account mCurrentAccount;
+    private static final String KEY_GCM_TOKEN = "gcm_token";
 
     @Inject
     public Config(@ApplicationScope Context context) {
         mSharedPreferences = context.getSharedPreferences("curatapp_cfg", Context.MODE_PRIVATE);
     }
 
-    public Account getCurrentAccount() {
-        return mCurrentAccount;
+    public void saveGcmToken(String token) {
+        mSharedPreferences.edit().putString(KEY_GCM_TOKEN, token).apply();
     }
 
-    public void setCurrentAccount(Account currentAccount) {
-        this.mCurrentAccount = currentAccount;
+    public String getGcmToken() {
+        return mSharedPreferences.getString(KEY_GCM_TOKEN, "");
     }
 }

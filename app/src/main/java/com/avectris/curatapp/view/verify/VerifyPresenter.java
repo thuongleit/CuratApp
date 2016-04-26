@@ -42,21 +42,22 @@ class VerifyPresenter extends BasePresenter<VerifyView> {
         }
     }
 
-    void login(String email, String password) {
+    void login(String email, String password, String gcmToken) {
         checkViewAttached();
         unsubscribeDataSource();
         mView.showProgress(true);
         mView.setButtonVerifyEnable(false);
         mSubscription = mDataManager
-                .login(email, password)
+                .login(email, password, gcmToken)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {
-                                mView.onRequestSuccess(response.user);
+                                mView.onRequestSuccess(response.user, gcmToken);
                             } else {
+                                resetView();
                                 mView.onRequestFailed(response.getMessage());
                             }
                         },
@@ -70,11 +71,11 @@ class VerifyPresenter extends BasePresenter<VerifyView> {
                         });
     }
 
-    void getAccounts(User user) {
+    void fetchAccounts(User user, String gcmToken) {
         checkViewAttached();
         unsubscribeDataSource();
         mSubscription1 = mDataManager
-                .fetchAccounts(user)
+                .fetchAccounts(user, gcmToken)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -93,9 +94,7 @@ class VerifyPresenter extends BasePresenter<VerifyView> {
                                 mView.onGeneralError();
                             }
                         },
-                        () -> {
-                            resetView();
-                        });
+                        () -> resetView());
     }
 
     private void resetView() {

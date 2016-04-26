@@ -95,7 +95,7 @@ class PostPresenter extends BasePresenter<PostView> {
 
     }
 
-    public void getPostsForRefresh() {
+    void getPostsForRefresh() {
         mSubscription.add(mDataManager
                 .fetchPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
@@ -130,7 +130,7 @@ class PostPresenter extends BasePresenter<PostView> {
                         }));
     }
 
-    public void setRequestMode(int mode) {
+    void setRequestMode(int mode) {
         mRequestMode = mode;
     }
 }

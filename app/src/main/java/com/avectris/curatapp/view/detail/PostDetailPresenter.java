@@ -20,7 +20,7 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
     private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Inject
-    public PostDetailPresenter(DataManager dataManager) {
+    PostDetailPresenter(DataManager dataManager) {
         mDataManager = dataManager;
     }
 

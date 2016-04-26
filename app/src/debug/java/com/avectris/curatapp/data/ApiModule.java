@@ -61,7 +61,7 @@ public class ApiModule {
     @Singleton
     public Retrofit provideRestAdapter(OkHttpClient okHttpClient, Converter.Factory converter, CallAdapter.Factory callAdapter) {
         return new Retrofit.Builder()
-                .baseUrl(Constant.BETA_API_END_POINT)
+                .baseUrl(Constant.API_END_POINT)
                 .client(okHttpClient)
                 .addConverterFactory(converter)
                 .addCallAdapterFactory(callAdapter)

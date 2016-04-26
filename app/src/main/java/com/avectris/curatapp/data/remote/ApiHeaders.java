@@ -16,19 +16,19 @@ public class ApiHeaders implements Interceptor {
     private String mAuthToken;
     private String mApiCode;
 
-    public void setLoginHeaders(String email, String password, String version) {
+    public void setLoginHeaders(String email, String password, String token, String version) {
         mEmail = email;
         mPassword = password;
         mVersion = version;
         mOS = OS.ANDROID.getName();
         mAuthToken = null;
-        mDeviceId = null;
+        mDeviceId = token;
         mApiCode = null;
     }
 
-    public void buildSession(String token, String deviceId, String version) {
-        mAuthToken = token;
-        mDeviceId = deviceId;
+    public void buildSession(String authToken, String gcmToken, String version) {
+        mAuthToken = authToken;
+        mDeviceId = gcmToken;
         mVersion = version;
         mOS = OS.ANDROID.getName();
         mEmail = null;
@@ -36,14 +36,18 @@ public class ApiHeaders implements Interceptor {
         mApiCode = null;
     }
 
-    public void withApiCode(String apiCode, String devideId, String version) {
+    public void withApiCode(String apiCode, String token, String version) {
         mApiCode = apiCode;
-        mDeviceId = devideId;
+        mDeviceId = token;
         mVersion = version;
         mOS = OS.ANDROID.getName();
         mEmail = null;
         mPassword = null;
         mAuthToken = null;
+    }
+
+    public void removeApiCode(){
+        mApiCode = null;
     }
 
     public void logout() {
@@ -88,6 +92,10 @@ public class ApiHeaders implements Interceptor {
 
     public String getApiCode() {
         return mApiCode;
+    }
+
+    public String getAuthToken() {
+        return mAuthToken;
     }
 
     private enum OS {

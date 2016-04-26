@@ -30,6 +30,8 @@ import com.pnikosis.materialishprogress.ProgressWheel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.inject.Inject;
 
@@ -39,7 +41,7 @@ import butterknife.ButterKnife;
 /**
  * Created by thuongle on 1/13/16.
  */
-public class PostFragment extends BaseFragment implements PostView, SwipeRefreshLayout.OnRefreshListener {
+public class PostFragment extends BaseFragment implements PostView, SwipeRefreshLayout.OnRefreshListener{
     private static final String ARG_CONTENT_MODE = "PostFragment.ARG_CONTENT_MODE";
 
     @Bind(R.id.recycler_view)

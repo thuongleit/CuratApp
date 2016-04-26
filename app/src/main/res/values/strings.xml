@@ -27,6 +27,7 @@
     <string name="button_sign_in">Sign In</string>
     <string name="accounts">Accounts</string>
     <string name="logout">Logout</string>
+    <string name="message_wait_to_get_token">Please wait a minute to register token in server</string>
 
     <array name="tab_titles">
         <item>SCHEDULED</item>
