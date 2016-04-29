@@ -2,7 +2,7 @@ package com.avectris.curatapp.data.remote;
 
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
-import okhttp3.RequestBody;
+import okhttp3.MultipartBody;
 import retrofit2.http.*;
 import rx.Observable;
 
@@ -28,13 +28,13 @@ public interface PostService {
 
     @Multipart
     @POST("post/uploadfile")
-    Observable<ErrorableResponse> addPostToLibrary(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
+    Observable<ErrorableResponse> addPostToLibrary(@Part MultipartBody.Part file);
 
     @Multipart
     @POST("post/uploadaddtoscheduleexact")
-    Observable<ErrorableResponse> addPostOnExactTime(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
+    Observable<ErrorableResponse> addPostOnExactTime(@Part MultipartBody.Part file);
 
     @Multipart
     @POST("post/uploadaddtoschedule")
-    Observable<ErrorableResponse> addPostToSchedule(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
+    Observable<ErrorableResponse> addPostToSchedule(@Part MultipartBody.Part file);
 }

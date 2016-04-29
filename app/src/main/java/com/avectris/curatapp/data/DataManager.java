@@ -20,6 +20,7 @@ import com.avectris.curatapp.vo.Account;
 import com.avectris.curatapp.vo.Post;
 import com.avectris.curatapp.vo.User;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import rx.Observable;
 
@@ -292,19 +293,25 @@ public class DataManager {
     }
 
     public Observable<ErrorableResponse> uploadPost(int uploadMode, Account account, String path, String caption, String uploadTime) {
-        RequestBody request = RequestBody.create(MediaType.parse("multipart/form-data"), new File(path));
+        File file = new File(path);
+        RequestBody requestFile =
+                RequestBody.create(MediaType.parse("multipart/form-data"), file);
+
+        // MultipartBody.Part is used to send also the actual file name
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("uploadFile", file.getName(), requestFile);
 
         User user = mUserModel.getActiveUser();
         switch (uploadMode) {
             case UploadPostService.REQUEST_ADD_TO_LIBRARY:
                 mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
-                return mPostService.addPostToLibrary(request).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostToLibrary(body).doOnNext(response -> mApiHeaders.removeSchedule());
             case UploadPostService.REQUEST_SELECT_EXACT_TIME:
                 mApiHeaders.addToLibrary(user.authToken, account.gcmToken, account.id, caption, uploadTime);
-                return mPostService.addPostOnExactTime(request).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostOnExactTime(body).doOnNext(response -> mApiHeaders.removeSchedule());
             case UploadPostService.REQUEST_ADD_TO_SCHEDULE:
                 mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
-                return mPostService.addPostToSchedule(request).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostToSchedule(body).doOnNext(response -> mApiHeaders.removeSchedule());
 
         }
         return Observable.empty();

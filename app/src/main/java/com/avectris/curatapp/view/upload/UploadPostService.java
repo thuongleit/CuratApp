@@ -66,6 +66,7 @@ public class UploadPostService extends IntentService {
         mSubscription = Observable
                 .from(filePaths)
                 .flatMap(path -> mDataManager.uploadPost(uploadMode, account, path, caption, uploadTime))
+                .filter(response -> response.isSuccess())
                 .count()
                 .doOnNext(count -> numberOfSuccess[0]++)
                 .subscribe(count -> {

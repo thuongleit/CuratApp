@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -38,6 +34,7 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
+import com.avectris.curatapp.util.AppUtils;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostFragment;
@@ -172,7 +169,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             switch (requestCode) {
                 case REQUEST_GALLERY_INTENT:
                     if (data.getData() != null) {
-                        filePaths.add(getRealPathFromUri(data.getData()));
+                        filePaths.add(AppUtils.getPathFromURI(mContext, data.getData()));
                     } else {
                         ClipData clipData;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -184,7 +181,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
                         if (clipData != null) {
                             for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
-                                filePaths.add(getRealPathFromUri(clipData.getItemAt(i).getUri()));
+                                filePaths.add(AppUtils.getPathFromURI(mContext, clipData.getItemAt(i).getUri()));
                             }
                         }
                     }
@@ -192,7 +189,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
                 case REQUEST_GALLERY_KITKAT_INTENT:
                     //user just choose 1 file
                     if (data.getData() != null) {
-                        filePaths.add(getRealPathFromUri(data.getData()));
+                        filePaths.add(AppUtils.getPathFromURI(mContext, data.getData()));
                     } else { //users choose multiple files
                         ClipData clipData = null;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
@@ -201,7 +198,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
                         if (clipData != null) {
                             for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
-                                filePaths.add(getRealPathFromUri(clipData.getItemAt(i).getUri()));
+                                filePaths.add(AppUtils.getPathFromURI(mContext, clipData.getItemAt(i).getUri()));
                             }
                         }
                     }
@@ -214,49 +211,6 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         }
     }
 
-    private String getRealPathFromUri(Uri uri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            String id = uri.getLastPathSegment().split(":")[1];
-            final String[] imageColumns = {MediaStore.Images.Media.DATA};
-            final String imageOrderBy = null;
-
-            Uri newUri = getUri();
-            String path = null;
-
-            Cursor imageCursor = getContentResolver().query(newUri, imageColumns,
-                    MediaStore.Images.Media._ID + "=" + id, null, imageOrderBy);
-
-            if (imageCursor.moveToFirst()) {
-                path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            Timber.d("path %s", path); // use path
-
-            imageCursor.close();
-            return path;
-        } else {
-            String[] projection = {MediaStore.Images.Media.DATA};
-
-            Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-            String path = null;
-            if (cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(projection[0]);
-                path = cursor.getString(columnIndex); // returns null
-            }
-            Timber.d("path %s", path);
-            cursor.close();
-
-            return path;
-        }
-    }
-
-    // By using this method get the Uri of Internal/External Storage for Media
-    private Uri getUri() {
-        String state = Environment.getExternalStorageState();
-        if (!state.equalsIgnoreCase(Environment.MEDIA_MOUNTED))
-            return MediaStore.Images.Media.INTERNAL_CONTENT_URI;
-
-        return MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    }
 
     @Override
     public void onAccountsReturn(List<Account> accounts) {
