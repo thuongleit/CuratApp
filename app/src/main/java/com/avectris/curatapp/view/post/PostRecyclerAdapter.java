@@ -10,7 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.OnLoadMoreListener;
@@ -24,17 +25,13 @@ import com.pnikosis.materialishprogress.ProgressWheel;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-
 /**
  * Created by thuongle on 2/13/16.
  */
 class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
+    private static final int PENDING_REMOVAL_TIMEOUT = 3000; // 3sec
 
     DisplayImageOptions mDisplayImageOptions;
 
@@ -139,6 +136,15 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         canLoad = false;
     }
 
+    Post getItem(int position) {
+        return mPosts.get(position);
+    }
+
+    void addItem(Post item, int previousPos) {
+        mPosts.add(previousPos, item);
+        notifyItemInserted(previousPos);
+    }
+
     class PostViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.image_picture)
         ImageView mImagePicture;
@@ -151,7 +157,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         private OnRecyclerItemClickListener mItemClickListener = null;
 
-        public PostViewHolder(View view) {
+        PostViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             view.setOnClickListener(v -> {
@@ -161,7 +167,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             });
         }
 
-        public void setItemClickListener(OnRecyclerItemClickListener itemClickListener) {
+        void setItemClickListener(OnRecyclerItemClickListener itemClickListener) {
             this.mItemClickListener = itemClickListener;
         }
 
@@ -188,12 +194,20 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
-        public ProgressWheel progressBar;
+    private static class ProgressViewHolder extends RecyclerView.ViewHolder {
+        ProgressWheel progressBar;
 
-        public ProgressViewHolder(View v) {
+        ProgressViewHolder(View v) {
             super(v);
             progressBar = (ProgressWheel) v.findViewById(R.id.progress_wheel);
+        }
+    }
+
+    void remove(int position) {
+        Post item = mPosts.get(position);
+        if (mPosts.contains(item)) {
+            mPosts.remove(position);
+            notifyItemRemoved(position);
         }
     }
 }

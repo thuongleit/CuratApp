@@ -1,9 +1,16 @@
 package com.avectris.curatapp.view.main;
 
+import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -17,11 +24,16 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
-import android.view.*;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
@@ -29,18 +41,16 @@ import com.avectris.curatapp.service.RegistrationIntentService;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostFragment;
+import com.avectris.curatapp.view.upload.UploadPostsActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-
-import java.util.List;
+import timber.log.Timber;
 
 import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import timber.log.Timber;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountView {
@@ -49,6 +59,8 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     private static final String EXTRA_FRAGMENT_POSTED = "exPosted";
 
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final int REQUEST_GALLERY_INTENT = 1;
+    private static final int REQUEST_GALLERY_KITKAT_INTENT = 2;
 
     @Bind(R.id.spinner_list_account)
     Spinner mSpinner;
@@ -153,6 +165,100 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<String> filePaths = new ArrayList<>();
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_GALLERY_INTENT:
+                    if (data.getData() != null) {
+                        filePaths.add(getRealPathFromUri(data.getData()));
+                    } else {
+                        ClipData clipData;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                            clipData = data.getClipData();
+                        } else {
+                            Toast.makeText(mContext, R.string.error_not_support_multiple_files, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (clipData != null) {
+                            for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
+                                filePaths.add(getRealPathFromUri(clipData.getItemAt(i).getUri()));
+                            }
+                        }
+                    }
+                    break;
+                case REQUEST_GALLERY_KITKAT_INTENT:
+                    //user just choose 1 file
+                    if (data.getData() != null) {
+                        filePaths.add(getRealPathFromUri(data.getData()));
+                    } else { //users choose multiple files
+                        ClipData clipData = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                            clipData = data.getClipData();
+                        }
+
+                        if (clipData != null) {
+                            for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
+                                filePaths.add(getRealPathFromUri(clipData.getItemAt(i).getUri()));
+                            }
+                        }
+                    }
+                    break;
+
+            }
+            Intent newIntent = new Intent(mContext, UploadPostsActivity.class);
+            newIntent.putExtra(UploadPostsActivity.EXTRA_FILE_PATHS, filePaths);
+            startActivity(newIntent);
+        }
+    }
+
+    private String getRealPathFromUri(Uri uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            String id = uri.getLastPathSegment().split(":")[1];
+            final String[] imageColumns = {MediaStore.Images.Media.DATA};
+            final String imageOrderBy = null;
+
+            Uri newUri = getUri();
+            String path = null;
+
+            Cursor imageCursor = getContentResolver().query(newUri, imageColumns,
+                    MediaStore.Images.Media._ID + "=" + id, null, imageOrderBy);
+
+            if (imageCursor.moveToFirst()) {
+                path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            }
+            Timber.d("path %s", path); // use path
+
+            imageCursor.close();
+            return path;
+        } else {
+            String[] projection = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+            String path = null;
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(projection[0]);
+                path = cursor.getString(columnIndex); // returns null
+            }
+            Timber.d("path %s", path);
+            cursor.close();
+
+            return path;
+        }
+    }
+
+    // By using this method get the Uri of Internal/External Storage for Media
+    private Uri getUri() {
+        String state = Environment.getExternalStorageState();
+        if (!state.equalsIgnoreCase(Environment.MEDIA_MOUNTED))
+            return MediaStore.Images.Media.INTERNAL_CONTENT_URI;
+
+        return MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+    }
+
+    @Override
     public void onAccountsReturn(List<Account> accounts) {
         setupSpinnerAccount(accounts);
         setupAccountNavView(accounts);
@@ -199,6 +305,24 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     @Override
     public void onRequestFailed(String message) {
         DialogFactory.createGenericErrorDialog(this, message).show();
+    }
+
+    @OnClick(R.id.fab)
+    void onFabClick() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            Intent intent = new Intent();
+            intent.setType("image/* video/mp4");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_INTENT);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/* video/mp4");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/mp4"});
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(intent, REQUEST_GALLERY_KITKAT_INTENT);
+        }
     }
 
     private void setupSpinnerAccount(List<Account> accounts) {

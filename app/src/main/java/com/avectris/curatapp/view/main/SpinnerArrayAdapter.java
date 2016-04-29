@@ -2,6 +2,7 @@ package com.avectris.curatapp.view.main;
 
 import android.content.Context;
 import android.graphics.Typeface;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -13,12 +14,12 @@ import java.util.List;
 /**
  * Created by thuongle on 2/13/16.
  */
-class SpinnerArrayAdapter extends ArrayAdapter<Account> {
+public class SpinnerArrayAdapter extends ArrayAdapter<Account> {
 
     private final List<Account> mAccounts;
     private OnItemClickListener mOnItemClickListener;
 
-    SpinnerArrayAdapter(Context context, int resource, List<Account> accounts) {
+    public SpinnerArrayAdapter(Context context, int resource, List<Account> accounts) {
         super(context, resource, accounts);
         mAccounts = accounts;
     }
@@ -37,6 +38,9 @@ class SpinnerArrayAdapter extends ArrayAdapter<Account> {
         textView.setOnClickListener(v -> {
             if (mOnItemClickListener != null) {
                 mOnItemClickListener.onItemClick(mAccounts.get(position), position);
+                View root = textView.getRootView();
+                root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+                root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
             }
         });
         return textView;
@@ -47,11 +51,11 @@ class SpinnerArrayAdapter extends ArrayAdapter<Account> {
         textView.setTypeface(typeface);
     }
 
-    void setOnItemClickListener(OnItemClickListener clickListener) {
+    public void setOnItemClickListener(OnItemClickListener clickListener) {
         this.mOnItemClickListener = clickListener;
     }
 
-    interface OnItemClickListener {
+    public interface OnItemClickListener {
         void onItemClick(Account account, int position);
     }
 }

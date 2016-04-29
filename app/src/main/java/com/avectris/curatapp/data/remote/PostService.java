@@ -2,9 +2,8 @@ package com.avectris.curatapp.data.remote;
 
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
-
-import retrofit2.http.GET;
-import retrofit2.http.Query;
+import okhttp3.RequestBody;
+import retrofit2.http.*;
 import rx.Observable;
 
 /**
@@ -23,4 +22,19 @@ public interface PostService {
 
     @GET("updateuserposted")
     Observable<ErrorableResponse> updateUserPosted(@Query("id") String postId, @Query("user_posted") int userPosted);
+
+    @POST("account/deletepost")
+    Observable<ErrorableResponse> deletePost();
+
+    @Multipart
+    @POST("post/uploadfile")
+    Observable<ErrorableResponse> addPostToLibrary(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
+
+    @Multipart
+    @POST("post/uploadaddtoscheduleexact")
+    Observable<ErrorableResponse> addPostOnExactTime(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
+
+    @Multipart
+    @POST("post/uploadaddtoschedule")
+    Observable<ErrorableResponse> addPostToSchedule(@Part("uploadFile\"; filename=\"1.*\"") RequestBody file);
 }

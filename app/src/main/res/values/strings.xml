@@ -28,6 +28,7 @@
     <string name="accounts">Accounts</string>
     <string name="logout">Logout</string>
     <string name="message_wait_to_get_token">Please wait a minute to register token in server</string>
+    <string name="error_not_support_multiple_files">Not support select multiple files</string>
 
     <array name="tab_titles">
         <item>SCHEDULED</item>

@@ -1,10 +1,10 @@
 package com.avectris.curatapp.data.remote;
 
-import java.io.IOException;
-
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import java.io.IOException;
 
 public class ApiHeaders implements Interceptor {
 
@@ -15,6 +15,10 @@ public class ApiHeaders implements Interceptor {
     private String mOS;
     private String mAuthToken;
     private String mApiCode;
+    private String mPostId;
+    private String mAccountId;
+    private String mCaption;
+    private String mUploadTime;
 
     public void setLoginHeaders(String email, String password, String token, String version) {
         mEmail = email;
@@ -46,7 +50,7 @@ public class ApiHeaders implements Interceptor {
         mAuthToken = null;
     }
 
-    public void removeApiCode(){
+    public void removeApiCode() {
         mApiCode = null;
     }
 
@@ -58,6 +62,33 @@ public class ApiHeaders implements Interceptor {
         mVersion = null;
         mAuthToken = null;
         mApiCode = null;
+    }
+
+    public void addPostId(String postId) {
+        this.mPostId = postId;
+    }
+
+    public void removePostId() {
+        this.mPostId = null;
+    }
+
+    public void addToSchedule(String authToken, String gcmToken, String accountId, String caption) {
+        this.mAuthToken = authToken;
+        this.mDeviceId = gcmToken;
+        this.mAccountId = accountId;
+        this.mCaption = caption;
+    }
+
+    public void addToLibrary(String authToken, String gcmToken, String id, String caption, String uploadTime) {
+        addToSchedule(authToken, gcmToken, id, caption);
+        this.mUploadTime = uploadTime;
+    }
+
+    public void removeSchedule() {
+        this.mAuthToken = null;
+        this.mDeviceId = null;
+        this.mAccountId = null;
+        this.mCaption = null;
     }
 
     @Override
@@ -84,6 +115,18 @@ public class ApiHeaders implements Interceptor {
         }
         if (mApiCode != null) {
             builder.addHeader("API-Code", mApiCode);
+        }
+        if (mPostId != null) {
+            builder.addHeader("postId", mPostId);
+        }
+        if (mAccountId != null) {
+            builder.addHeader("accountId", mAccountId);
+        }
+        if (mCaption != null) {
+            builder.addHeader("caption", mCaption);
+        }
+        if (mUploadTime != null) {
+            builder.addHeader("exactDateTime", mUploadTime);
         }
         builder.method(original.method(), original.body());
         Request request = builder.build();

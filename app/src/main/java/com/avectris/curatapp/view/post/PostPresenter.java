@@ -4,16 +4,15 @@ import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
 import com.avectris.curatapp.vo.Post;
-
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * Created by thuongle on 2/13/16.
@@ -24,7 +23,7 @@ class PostPresenter extends BasePresenter<PostView> {
     private int mRequestMode;
 
     @Inject
-    public PostPresenter(DataManager dataManager) {
+    PostPresenter(DataManager dataManager) {
         mDataManager = dataManager;
         mSubscription = new CompositeSubscription();
     }
@@ -32,8 +31,9 @@ class PostPresenter extends BasePresenter<PostView> {
     @Override
     public void detachView() {
         super.detachView();
-        if(mSubscription != null) {
-            mSubscription.unsubscribe();
+        if (mSubscription != null) {
+            mSubscription.clear();
+            mSubscription = null;
         }
     }
 
@@ -96,6 +96,7 @@ class PostPresenter extends BasePresenter<PostView> {
     }
 
     void getPostsForRefresh() {
+        checkViewAttached();
         mSubscription.add(mDataManager
                 .fetchPosts(mRequestMode, 0)
                 .subscribeOn(Schedulers.newThread())
@@ -120,7 +121,7 @@ class PostPresenter extends BasePresenter<PostView> {
                         },
                         e -> {
                             mView.shouldStopPullRefresh();
-                            if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
+                            if (e instanceof IOException) {
                                 mView.showNetworkFailedInRefresh();
                             }
                         }
@@ -132,5 +133,34 @@ class PostPresenter extends BasePresenter<PostView> {
 
     void setRequestMode(int mode) {
         mRequestMode = mode;
+    }
+
+    void deletePost(Post item, int position) {
+        mView.showProgress(true);
+        checkViewAttached();
+        mSubscription.add(
+                mDataManager
+                        .deleteAccount(item)
+                        .subscribeOn(Schedulers.io())
+                        .unsubscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(response -> {
+                                    if (response.isSuccess()) {
+                                        mView.onDeleteSuccess(position);
+                                    } else {
+                                        mView.showResultMessage(response.getMessage());
+                                        mView.recoverItem(item, position);
+                                    }
+                                },
+                                e -> {
+                                    mView.showProgress(false);
+                                    if (e instanceof IOException) {
+                                        mView.showNetworkFailedInRefresh();
+                                    } else {
+                                        mView.showResultMessage("Request failed");
+                                    }
+                                    mView.recoverItem(item, position);
+                                },
+                                () -> mView.showProgress(false)));
     }
 }

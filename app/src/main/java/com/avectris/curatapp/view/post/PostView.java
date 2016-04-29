@@ -31,4 +31,8 @@ interface PostView extends ErrorView {
     void setViewCanLoadMore(boolean canLoad);
 
     void showResultMessage(String errorMsg);
+
+    void onDeleteSuccess(int position);
+
+    void recoverItem(Post item, int previousPos);
 }

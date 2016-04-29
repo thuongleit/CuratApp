@@ -1,8 +1,6 @@
 package com.avectris.curatapp.data;
 
 import android.app.Application;
-
-import android.text.TextUtils;
 import com.avectris.curatapp.BuildConfig;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
@@ -17,17 +15,19 @@ import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
 import com.avectris.curatapp.data.remote.verify.AccountResponse;
 import com.avectris.curatapp.data.remote.verify.LoginResponse;
+import com.avectris.curatapp.view.upload.UploadPostService;
 import com.avectris.curatapp.vo.Account;
+import com.avectris.curatapp.vo.Post;
 import com.avectris.curatapp.vo.User;
-import com.raizlabs.android.dbflow.structure.BaseModel;
-
-import java.util.ArrayList;
-import java.util.List;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import rx.Observable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import rx.Observable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by thuongle on 1/14/16.
@@ -280,5 +280,33 @@ public class DataManager {
 
     public void saveGcmToken(String token) {
         mConfig.saveGcmToken(token);
+    }
+
+    public Observable<ErrorableResponse> deleteAccount(Post item) {
+        Account account = mAccountModel.getCurrentAccount();
+        mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+        mApiHeaders.addPostId(item.getId());
+        return mPostService
+                .deletePost()
+                .doOnNext(response -> mApiHeaders.removePostId());
+    }
+
+    public Observable<ErrorableResponse> uploadPost(int uploadMode, Account account, String path, String caption, String uploadTime) {
+        RequestBody request = RequestBody.create(MediaType.parse("multipart/form-data"), new File(path));
+
+        User user = mUserModel.getActiveUser();
+        switch (uploadMode) {
+            case UploadPostService.REQUEST_ADD_TO_LIBRARY:
+                mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
+                return mPostService.addPostToLibrary(request).doOnNext(response -> mApiHeaders.removeSchedule());
+            case UploadPostService.REQUEST_SELECT_EXACT_TIME:
+                mApiHeaders.addToLibrary(user.authToken, account.gcmToken, account.id, caption, uploadTime);
+                return mPostService.addPostOnExactTime(request).doOnNext(response -> mApiHeaders.removeSchedule());
+            case UploadPostService.REQUEST_ADD_TO_SCHEDULE:
+                mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
+                return mPostService.addPostToSchedule(request).doOnNext(response -> mApiHeaders.removeSchedule());
+
+        }
+        return Observable.empty();
     }
 }
