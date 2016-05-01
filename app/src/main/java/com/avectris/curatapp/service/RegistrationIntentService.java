@@ -43,6 +43,7 @@ public class RegistrationIntentService extends IntentService {
 
     private static final String TAG = "RegIntentService";
     private static final String[] TOPICS = {"global"};
+    public static final String EXTRA_TOKEN = "exToken";
     @Inject
     DataManager mDataManager;
 
@@ -78,6 +79,10 @@ public class RegistrationIntentService extends IntentService {
             // sent to your server. If the boolean is false, send the token to your server,
             // otherwise your server should have already received the token.
             sharedPreferences.edit().putBoolean(Constant.SENT_TOKEN_TO_SERVER, true).apply();
+            // Notify UI that registration has completed, so the progress indicator can be hidden.
+            Intent registrationComplete = new Intent(Constant.REGISTRATION_COMPLETE);
+            registrationComplete.putExtra(EXTRA_TOKEN, token);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
             // [END register_for_gcm]
         } catch (Exception e) {
             Log.d(TAG, "Failed to complete token refresh", e);
@@ -85,9 +90,6 @@ public class RegistrationIntentService extends IntentService {
             // on a third-party server, this ensures that we'll attempt the update at a later time.
             sharedPreferences.edit().putBoolean(Constant.SENT_TOKEN_TO_SERVER, false).apply();
         }
-        // Notify UI that registration has completed, so the progress indicator can be hidden.
-        Intent registrationComplete = new Intent(Constant.REGISTRATION_COMPLETE);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
     }
 
     /**
@@ -101,6 +103,7 @@ public class RegistrationIntentService extends IntentService {
     private void sendRegistrationToServer(String token) {
         // Add custom implementation, as needed.
         ///
+        mDataManager.saveGcmToken(token);
         List<Observable<Boolean>> observables = mDataManager.registerGcm(token);
         for (Observable<Boolean> observable : observables) {
             observable.subscribe(aBoolean -> {

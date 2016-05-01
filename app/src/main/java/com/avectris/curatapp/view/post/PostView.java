@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by thuongle on 2/13/16.
  */
-public interface PostView extends ErrorView {
+interface PostView extends ErrorView {
 
     void onPostsReturn(List<Post> posts);
 
@@ -29,4 +29,10 @@ public interface PostView extends ErrorView {
     void onRemoveBottomProgressBar();
 
     void setViewCanLoadMore(boolean canLoad);
+
+    void showResultMessage(String errorMsg);
+
+    void onDeleteSuccess(int position);
+
+    void recoverItem(Post item, int previousPos);
 }

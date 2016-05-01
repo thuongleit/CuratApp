@@ -3,12 +3,13 @@ package com.avectris.curatapp.view.splash;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
-import com.avectris.curatapp.vo.Account;
 
 import javax.inject.Inject;
 
@@ -35,43 +36,39 @@ public class SplashActivity extends BaseActivity implements SplashView {
     }
 
     @Override
-    public void onRestoreSessionSuccess(Account account) {
+    public void onSessionRestore() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra(MainActivity.EXTRA_ACCOUNT, account);
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void onNoActiveSession() {
+    public void onNoSessionAvailable() {
         Intent intent = new Intent(this, VerifyActivity.class);
         startActivity(intent);
         finish();
     }
 
     @Override
-    public void showNetworkFailed() {
-        showAlertDialog(getResources().getString(R.string.dialog_message_no_internet_working));
+    public void onNetworkError() {
+        //no network required in this view
     }
 
     @Override
-    public void showGenericError() {
-        showAlertDialog("App couldn't launch now. Please try again later!");
+    public void onGeneralError() {
+        showAlertDialog(R.string.title_general_error, R.string.message_general_error);
     }
 
-    private void showAlertDialog(String message) {
+    private void showAlertDialog(int title, int message) {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this)
+                .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.dialog_action_ok, (dialog, which) -> {
                     dialog.dismiss();
                     finish();
                     startActivity(getReloadIntent());
-                });
-        alertDialog.setOnCancelListener(dialog -> {
-            dialog.dismiss();
-            finish();
-            startActivity(getReloadIntent());
-        });
+                })
+                .setCancelable(false);
         alertDialog.create().show();
     }
 }

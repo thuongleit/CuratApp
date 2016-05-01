@@ -3,15 +3,13 @@ package com.avectris.curatapp.view.detail;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
 
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+import java.io.IOException;
 
 import javax.inject.Inject;
 
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by thuongle on 2/15/16.
@@ -19,43 +17,73 @@ import rx.subscriptions.Subscriptions;
 class PostDetailPresenter extends BasePresenter<PostDetailView> {
 
     private final DataManager mDataManager;
-    private Subscription mSubscription = Subscriptions.empty();
+    private CompositeSubscription mSubscriptions = new CompositeSubscription();
 
     @Inject
-    public PostDetailPresenter(DataManager dataManager) {
+    PostDetailPresenter(DataManager dataManager) {
         mDataManager = dataManager;
     }
 
     @Override
     public void detachView() {
         super.detachView();
-        if(mSubscription != null) {
-            mSubscription.unsubscribe();
+        if (mSubscriptions != null) {
+            mSubscriptions.clear();
+            mSubscriptions = null;
         }
     }
 
     void getPostDetail(String apiCode, String postId) {
         checkViewAttached();
         mView.setButtonEnable(false);
-        mSubscription = mDataManager
+        mSubscriptions.add(mDataManager
                 .getPostDetail(apiCode, postId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
                 .subscribe(
                         response -> {
                             if (response.isSuccess()) {
+                                mView.setButtonEnable(true);
                                 mView.onPostDetailReturn(response.getPost());
                             } else {
-                                mView.onRequestFailed(response.getErrorMsg());
+                                mView.onRequestFailed(response.getMessage());
                             }
                         },
                         e -> {
-                            if (e instanceof SocketTimeoutException || e instanceof UnknownHostException) {
-                                mView.showNetworkFailed();
+                            mView.setButtonEnable(true);
+                            if (e instanceof IOException) {
+                                mView.onNetworkError();
                             } else {
-                                mView.showGenericError();
+                                mView.onGeneralError();
+                            }
+                        }));
+    }
+
+    void updatePost(String apiCode, String postId) {
+        checkViewAttached();
+        mView.setButtonEnable(false);
+
+        mSubscriptions.add(mDataManager
+                .updatePosted(apiCode, postId)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
+                .subscribe(response -> {
+                            if (response.isSuccess()) {
+                                mView.setButtonEnable(true);
+                                mView.onUpdatePostSuccess();
+                            } else {
+                                mView.onRequestFailed(response.getMessage());
                             }
                         },
-                        () -> mView.setButtonEnable(true));
+                        e -> {
+                            mView.setButtonEnable(true);
+                            if (e instanceof IOException) {
+                                mView.onNetworkError();
+                            } else {
+                                mView.onGeneralError();
+                            }
+                        }));
     }
 }

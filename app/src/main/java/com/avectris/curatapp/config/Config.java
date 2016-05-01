@@ -14,30 +14,19 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class Config {
-    private static final String KEY_CURRENT_CODE = "KEY_CURRENT_CODE";
-
     private final SharedPreferences mSharedPreferences;
-    private Account mCurrentAccount;
+    private static final String KEY_GCM_TOKEN = "gcm_token";
 
     @Inject
     public Config(@ApplicationScope Context context) {
         mSharedPreferences = context.getSharedPreferences("curatapp_cfg", Context.MODE_PRIVATE);
     }
 
-    public String getCurrentCode() {
-        return mSharedPreferences.getString(KEY_CURRENT_CODE, null);
+    public void saveGcmToken(String token) {
+        mSharedPreferences.edit().putString(KEY_GCM_TOKEN, token).apply();
     }
 
-    public void putCurrentCode(String code) {
-        mSharedPreferences.edit().putString(KEY_CURRENT_CODE, code).apply();
+    public String getGcmToken() {
+        return mSharedPreferences.getString(KEY_GCM_TOKEN, "");
     }
-
-    public Account getCurrentAccount() {
-        return mCurrentAccount;
-    }
-
-    public void setCurrentAccount(Account currentAccount) {
-        this.mCurrentAccount = currentAccount;
-    }
-
 }

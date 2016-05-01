@@ -9,8 +9,10 @@ public class ErrorableResponse {
 
     @JsonProperty("response")
     String mResponse;
-    @JsonProperty("error")
+    @JsonProperty("message")
     String mErrorMsg;
+    @JsonProperty("errors")
+    String mErrors;
 
     public boolean isSuccess() {
         return "Success".equals(mResponse.trim());
@@ -20,11 +22,15 @@ public class ErrorableResponse {
         this.mResponse = response;
     }
 
-    public String getErrorMsg() {
-        return mErrorMsg;
+    public String getMessage() {
+        return (mErrorMsg != null) ? mErrorMsg : mErrors;
     }
 
     public void setErrorMsg(String errorMsg) {
         this.mErrorMsg = errorMsg;
+    }
+
+    public void setErrors(String errors) {
+        this.mErrors = errors;
     }
 }

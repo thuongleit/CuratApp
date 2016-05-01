@@ -1,60 +1,63 @@
 package com.avectris.curatapp.view.main;
 
-import android.content.BroadcastReceiver;
+import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.service.RegistrationIntentService;
+import com.avectris.curatapp.util.AppUtils;
+import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.post.PostFragment;
+import com.avectris.curatapp.view.upload.UploadPostsActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import timber.log.Timber;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import timber.log.Timber;
+public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountView {
+    private static final String EXTRA_FRAGMENT_UPCOMING = "exUpcoming";
+    private static final String EXTRA_ACCOUNT_POSITION = "exAccountPos";
+    private static final String EXTRA_FRAGMENT_POSTED = "exPosted";
 
-
-public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountNavView {
-
-    public static final String EXTRA_ACCOUNT = "MainActivity.EXTRA_ACCOUNT";
-    private static final String EXTRA_FRAGMENT_UPCOMING = "MainActivity.EXTRA_FRAGMENT_UPCOMING";
-    private static final String EXTRA_FRAGMENT_POSTED = "MainActivity.EXTRA_FRAGMENT_POSTED";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final int REQUEST_GALLERY_INTENT = 1;
+    private static final int REQUEST_GALLERY_KITKAT_INTENT = 2;
 
     @Bind(R.id.spinner_list_account)
     Spinner mSpinner;
@@ -68,18 +71,15 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     TabLayout mTabLayout;
 
     @Inject
-    AccountNavPresenter mAccountNavPresenter;
-    @Inject
+    AccountPresenter mAccountPresenter;
     DataManager mDataManager;
     Context mContext;
 
-
     private RecyclerView mRecyclerViewOnNav;
-    private Account mAccount;
-    private BroadcastReceiver mRegistrationBroadcastReceiver;
-    private int mCurrentAccount;
     private Fragment mUpcomingFragment;
     private Fragment mPostedFragment;
+    private int mCurrentPosition;
+    private SwipeRefreshLayout mSwipeLayoutOnNav;
 
     @Override
     protected int getLayoutId() {
@@ -91,28 +91,23 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            mAccount = getIntent().getParcelableExtra(EXTRA_ACCOUNT);
+            mCurrentPosition = 0;
             mUpcomingFragment = PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE);
             mPostedFragment = PostFragment.createInstance(Constant.POSTED_CONTENT_MODE);
         } else {
-            mAccount = savedInstanceState.getParcelable(EXTRA_ACCOUNT);
+            mCurrentPosition = getIntent().getIntExtra(EXTRA_ACCOUNT_POSITION, 0);
             mUpcomingFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_UPCOMING);
             mPostedFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_POSTED);
         }
         getComponent().inject(this);
-        mAccountNavPresenter.attachView(this);
+        mAccountPresenter.attachView(this);
         setTitle(getString(R.string.title_scheduled_posts));
         mContext = this;
 
         setupNavigationView();
         setupTabLayout();
-        mAccountNavPresenter.fetchAccounts();
+        mAccountPresenter.loadAccounts();
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            }
-        };
         if (checkPlayServices()) {
             // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
@@ -121,32 +116,19 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
-                new IntentFilter(Constant.REGISTRATION_COMPLETE));
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(EXTRA_ACCOUNT, mAccount);
+        outState.putInt(EXTRA_ACCOUNT_POSITION, mCurrentPosition);
         //Save the fragment's instance
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_UPCOMING, mUpcomingFragment);
         getSupportFragmentManager().putFragment(outState, EXTRA_FRAGMENT_POSTED, mPostedFragment);
     }
 
     @Override
-    protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
-        super.onPause();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
-        mAccountNavPresenter.detachView();
+        mAccountPresenter.detachView();
     }
 
     @Override
@@ -164,37 +146,91 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_action_log_out:
+                mAccountPresenter.logout();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ArrayList<String> filePaths = new ArrayList<>();
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_GALLERY_INTENT:
+                    if (data.getData() != null) {
+                        filePaths.add(AppUtils.getPathFromURI(mContext, data.getData()));
+                    } else {
+                        ClipData clipData;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                            clipData = data.getClipData();
+                        } else {
+                            Toast.makeText(mContext, R.string.error_not_support_multiple_files, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        if (clipData != null) {
+                            for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
+                                filePaths.add(AppUtils.getPathFromURI(mContext, clipData.getItemAt(i).getUri()));
+                            }
+                        }
+                    }
+                    break;
+                case REQUEST_GALLERY_KITKAT_INTENT:
+                    //user just choose 1 file
+                    if (data.getData() != null) {
+                        filePaths.add(AppUtils.getPathFromURI(mContext, data.getData()));
+                    } else { //users choose multiple files
+                        ClipData clipData = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+                            clipData = data.getClipData();
+                        }
+
+                        if (clipData != null) {
+                            for (int i = 0, size = clipData.getItemCount(); i < size; i++) {
+                                filePaths.add(AppUtils.getPathFromURI(mContext, clipData.getItemAt(i).getUri()));
+                            }
+                        }
+                    }
+                    break;
+
+            }
+            Intent newIntent = new Intent(mContext, UploadPostsActivity.class);
+            newIntent.putExtra(UploadPostsActivity.EXTRA_FILE_PATHS, filePaths);
+            startActivity(newIntent);
+        }
+    }
+
+
+    @Override
     public void onAccountsReturn(List<Account> accounts) {
         setupSpinnerAccount(accounts);
         setupAccountNavView(accounts);
     }
 
     @Override
-    public void onNoAccountReturn() {
-        // TODO: 2/13/16
+    public void onEmptyAccounts() {
+        Timber.d("No Account active in database");
+        Intent intent = new Intent(this, VerifyActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
-    public void onError(String message) {
-        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onNoAccountAfterDelete() {
-        addNewAccount();
-    }
-
-    @Override
-    public void reloadActivity(Account account) {
+    public void refreshPage() {
         Intent reload = getReloadIntent();
-        reload.putExtra(EXTRA_ACCOUNT, account);
         finish();
         startActivity(reload);
-    }
-
-    @Override
-    public void onDeleteAccountReturn(Account account) {
-        reloadActivity(account);
     }
 
     @Override
@@ -205,44 +241,72 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         Toast.makeText(MainActivity.this, "Request failed", Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void removeSwipeLayout() {
+        if (mSwipeLayoutOnNav.isRefreshing()) {
+            mSwipeLayoutOnNav.setRefreshing(false);
+        }
+    }
+
+    @Override
+    public void logout() {
+        Toast.makeText(MainActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(mContext, VerifyActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onRequestFailed(String message) {
+        DialogFactory.createGenericErrorDialog(this, message).show();
+    }
+
+    @OnClick(R.id.fab)
+    void onFabClick() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            Intent intent = new Intent();
+            intent.setType("image/* video/mp4");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_INTENT);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/* video/mp4");
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/mp4"});
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            startActivityForResult(intent, REQUEST_GALLERY_KITKAT_INTENT);
+        }
+    }
+
     private void setupSpinnerAccount(List<Account> accounts) {
-        List<String> accountNames = buildAccountName(accounts);
-        SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accountNames);
+        SpinnerArrayAdapter adapter = new SpinnerArrayAdapter(this, R.layout.view_item_spinner_account, accounts);
         mSpinner.setAdapter(adapter);
         int selected = 0;
         for (int i = 0, size = accounts.size(); i < size; i++) {
-            if (accounts.get(i).isCurrentAccount()) {
+            if (accounts.get(i).current) {
                 selected = i;
-                mCurrentAccount = i;
+                mCurrentPosition = i;
                 break;
             }
         }
         mSpinner.setSelection(selected);
-        adapter.setOnItemClickListener(position -> {
-            if (mCurrentAccount != position) {
-                mAccountNavPresenter.chooseAccount(accounts.get(position));
-                mCurrentAccount = position;
+        adapter.setOnItemClickListener((account, position) -> {
+            if (mCurrentPosition != position) {
+                mAccountPresenter.chooseAccount(account);
+                mCurrentPosition = position;
             }
         });
-    }
-
-    private List<String> buildAccountName(List<Account> accounts) {
-        List<String> accountNames = new ArrayList<>();
-        for (Account account : accounts) {
-            accountNames.add(account.getName());
-        }
-
-        return accountNames;
     }
 
     private void setupAccountNavView(List<Account> accounts) {
         AccountNavRecyclerAdapter adapter = new AccountNavRecyclerAdapter(this, accounts);
         adapter.setOnItemClickListener(new AccountNavRecyclerAdapter.OnAccountNavItemClickListener() {
             @Override
-            public void onViewClick(int position) {
-                if (mCurrentAccount != position) {
-                    mAccountNavPresenter.chooseAccount(accounts.get(position));
-                    mCurrentAccount = position;
+            public void onViewClick(Account account, int position) {
+                if (mCurrentPosition != position) {
+                    mAccountPresenter.chooseAccount(account);
+                    mCurrentPosition = position;
                 }
                 if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
                     mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -250,31 +314,15 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             }
 
             @Override
-            public void onSwitchControlClick(SwitchCompat view, int position, boolean isChecked) {
+            public void onSwitchControlClick(SwitchCompat compat, Account account, boolean isChecked) {
                 if (isChecked) {
-                    mAccountNavPresenter.enablePushNotification(view, accounts.get(position));
+                    mAccountPresenter.enablePushNotification(compat, account);
                 } else {
-                    mAccountNavPresenter.disablePushNotification(view, accounts.get(position));
-                }
-            }
-
-            @Override
-            public void onDeleteButtonClick(int position) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setMessage("Are you sure to delete this account?")
-                        .setPositiveButton("OK", (dialog, which) -> {
-                            mAccountNavPresenter.deleteAccount(accounts, position);
-                            dialog.dismiss();
-                        })
-                        .setNegativeButton("Cancel", (dialog, which) -> {
-                            dialog.dismiss();
-                        });
-                builder.create().show();
-                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                    mAccountPresenter.disablePushNotification(compat, account);
                 }
             }
         });
+
         mRecyclerViewOnNav.setAdapter(adapter);
     }
 
@@ -308,21 +356,25 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         View headerView = getLayoutInflater().inflate(R.layout.nav_header_main, null);
         mRecyclerViewOnNav = (RecyclerView) headerView.findViewById(R.id.recycler_view_nav);
-        headerView.findViewById(R.id.button_add_new_account).setOnClickListener(v -> {
-            addNewAccount();
-        });
 
         mNavView.addView(headerView, layoutParams);
         mNavView.setNavigationItemSelectedListener(this);
 
         mRecyclerViewOnNav.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerViewOnNav.setHasFixedSize(true);
-    }
 
-    private void addNewAccount() {
-        Intent intent = new Intent(mContext, VerifyActivity.class);
-        startActivity(intent);
-        finish();
+        mSwipeLayoutOnNav = (SwipeRefreshLayout) headerView.findViewById(R.id.swipe_refresh_layout);
+        mSwipeLayoutOnNav.setColorSchemeResources(R.color.pink, R.color.green, R.color.blue);
+        mSwipeLayoutOnNav.setOnRefreshListener(() -> {
+            mAccountPresenter.fetchAccounts();
+        });
+        mRecyclerViewOnNav.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                mSwipeLayoutOnNav.setEnabled(((LinearLayoutManager) mRecyclerViewOnNav.getLayoutManager())
+                        .findFirstCompletelyVisibleItemPosition() == 0);
+            }
+        });
     }
 
     /**
@@ -338,7 +390,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
                 apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
                         .show();
             } else {
-                Timber.i("This device is not supported.");
+                Timber.e("This device is not supported.");
                 finish();
             }
             return false;
@@ -346,15 +398,25 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
         return true;
     }
 
+    @Override
+    public void onNetworkError() {
+        DialogFactory.createGenericErrorDialog(this, R.string.dialog_message_no_internet_working).show();
+    }
+
+    @Override
+    public void onGeneralError() {
+        DialogFactory.createSimpleOkErrorDialog(this, R.string.title_general_error, R.string.message_general_error).show();
+    }
+
     private class CustomPageAdapter extends FragmentStatePagerAdapter {
         private String[] titles;
         private Fragment[] fragments;
 
-        public CustomPageAdapter(FragmentManager fm) {
+        CustomPageAdapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void addTabs(String[] titles, Fragment[] fragments) {
+        void addTabs(String[] titles, Fragment[] fragments) {
             this.titles = titles;
             this.fragments = fragments;
         }
@@ -374,7 +436,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             return this.titles[position];
         }
 
-        public View getCustomView(int position) {
+        View getCustomView(int position) {
             TextView textTitle = (TextView) getLayoutInflater().inflate(R.layout.view_tabbar, null);
             textTitle.setText(getPageTitle(position));
             textTitle.setTextColor(getResources().getColorStateList(R.color.tabbar_text));

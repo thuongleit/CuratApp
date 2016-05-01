@@ -7,7 +7,6 @@ import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.avectris.curatapp.R;
@@ -27,7 +26,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
     private final List<Account> mAccounts;
     private OnAccountNavItemClickListener mItemClickListener;
 
-    public AccountNavRecyclerAdapter(Context context, List<Account> accounts) {
+    AccountNavRecyclerAdapter(Context context, List<Account> accounts) {
         mContext = context;
         mAccounts = accounts;
     }
@@ -63,37 +62,19 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
         TextView mTextAccountStatus;
         @Bind(R.id.switch_on_off_notification)
         SwitchCompat mSwitchNotification;
-        @Bind(R.id.image_button_delete)
-        ImageButton mButtonDelete;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.mView = view;
-            this.mView.setOnClickListener(v -> {
-                if (mItemClickListener != null) {
-                    mItemClickListener.onViewClick(getAdapterPosition());
-                }
-            });
-            this.mSwitchNotification.setOnClickListener(v -> {
-                if (mItemClickListener != null) {
-                    boolean isChecked = mSwitchNotification.isChecked();
-                    mItemClickListener.onSwitchControlClick(mSwitchNotification, getAdapterPosition(), isChecked);
-                }
-            });
-            this.mButtonDelete.setOnClickListener(v -> {
-                if (mItemClickListener != null) {
-                    mItemClickListener.onDeleteButtonClick(getAdapterPosition());
-                }
-            });
         }
 
         public void bind(Account account) {
-            if (account.isCurrentAccount()) {
-                ((CardView)mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
+            if (account.current) {
+                ((CardView) mView).setCardBackgroundColor(mContext.getResources().getColor(R.color.colorPrimaryAlpha));
             }
-            mTextAccountName.setText(account.getName());
-            if (account.isActive()) {
+            mTextAccountName.setText(account.name);
+            if (account.active == 1) {
                 viewAccountStatus.setBackgroundResource(R.drawable.shape_circle_spot_account_active);
                 int activeColor = mContext.getResources().getColor(R.color.black_87);
                 mTextAccountStatus.setText("Active");
@@ -106,15 +87,31 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                 mTextAccountStatus.setTextColor(inactiveColor);
                 mTextAccountStatus.setText("Inactive");
             }
+
+            if (account.enableNotification) {
+                mSwitchNotification.setChecked(true);
+            } else {
+                mSwitchNotification.setChecked(false);
+            }
+
+            this.mView.setOnClickListener(v -> {
+                if (mItemClickListener != null) {
+                    mItemClickListener.onViewClick(account, getAdapterPosition());
+                }
+            });
+            this.mSwitchNotification.setOnClickListener(v -> {
+                if (mItemClickListener != null) {
+                    boolean isChecked = mSwitchNotification.isChecked();
+                    mItemClickListener.onSwitchControlClick(mSwitchNotification, account, isChecked);
+                }
+            });
         }
     }
 
     interface OnAccountNavItemClickListener {
 
-        void onViewClick(int position);
+        void onViewClick(Account account, int position);
 
-        void onSwitchControlClick(SwitchCompat mSwitchNotification, int position, boolean isChecked);
-
-        void onDeleteButtonClick(int position);
+        void onSwitchControlClick(SwitchCompat compat, Account account, boolean isChecked);
     }
 }
