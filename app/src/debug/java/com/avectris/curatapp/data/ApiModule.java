@@ -17,15 +17,13 @@
 
 package com.avectris.curatapp.data;
 
+import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.inject.Singleton;
-
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
@@ -35,6 +33,8 @@ import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import javax.inject.Singleton;
 
 @Module
 public class ApiModule {
@@ -59,9 +59,15 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    public Retrofit provideRestAdapter(OkHttpClient okHttpClient, Converter.Factory converter, CallAdapter.Factory callAdapter) {
+    public Retrofit provideRestAdapter(OkHttpClient okHttpClient, Converter.Factory converter, CallAdapter.Factory callAdapter, Config config) {
+        String url;
+        if (config.isUseBeta()) {
+            url = Constant.BETA_API_END_POINT;
+        } else {
+            url = Constant.API_END_POINT;
+        }
         return new Retrofit.Builder()
-                .baseUrl(Constant.BETA_API_END_POINT)
+                .baseUrl(url)
                 .client(okHttpClient)
                 .addConverterFactory(converter)
                 .addCallAdapterFactory(callAdapter)

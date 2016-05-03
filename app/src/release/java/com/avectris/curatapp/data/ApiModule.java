@@ -17,6 +17,7 @@
 
 package com.avectris.curatapp.data;
 
+import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
@@ -58,9 +59,15 @@ public class ApiModule {
 
     @Provides
     @Singleton
-    public Retrofit provideRestAdapter(OkHttpClient okHttpClient, Converter.Factory converter, CallAdapter.Factory callAdapter) {
+    public Retrofit provideRestAdapter(OkHttpClient okHttpClient, Converter.Factory converter, CallAdapter.Factory callAdapter, Config config) {
+        String url;
+        if (config.isUseBeta()) {
+            url = Constant.BETA_API_END_POINT;
+        } else {
+            url = Constant.API_END_POINT;
+        }
         return new Retrofit.Builder()
-                .baseUrl(Constant.API_END_POINT)
+                .baseUrl(url)
                 .client(okHttpClient)
                 .addConverterFactory(converter)
                 .addCallAdapterFactory(callAdapter)

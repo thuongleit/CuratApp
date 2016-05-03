@@ -6,9 +6,10 @@ package com.avectris.curatapp.config;
 public interface Constant {
 
     //    String BETA_API_END_POINT = "https://app.curatapp.com/api/v1/";
-    String BETA_API_END_POINT = "http://beta.curatapp.com/api/v1/";
-    String API_END_POINT = "https://app.curatapp.com/api/v1/";
+    String BETA_API_END_POINT = "http://beta.curatapp.com/api/v2/";
+    String API_END_POINT = "https://app.curatapp.com/api/v2/";
 
+    String SECRET_KEY_CHANGE_URL = "~change~";
 
     String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     String REGISTRATION_COMPLETE = "registrationComplete";

@@ -268,7 +268,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             intent.setType("image/* video/mp4");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_INTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Media"), REQUEST_GALLERY_INTENT);
         } else {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);

@@ -9,14 +9,19 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Patterns;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-
+import android.widget.TextView;
 import android.widget.Toast;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.service.RegistrationIntentService;
 import com.avectris.curatapp.util.DialogFactory;
@@ -27,18 +32,13 @@ import com.avectris.curatapp.vo.User;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.jakewharton.rxbinding.widget.RxTextView;
-
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
+
+import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thuongle on 1/13/16.
@@ -51,9 +51,15 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
     CustomBottomLineEditText mInputPassword;
     @Bind(R.id.button_verify)
     Button mButtonVerify;
+    @Bind(R.id.button_change_api)
+    Button mButtonChangeApi;
+    @Bind(R.id.text_description)
+    TextView mTextDescription;
 
     @Inject
     VerifyPresenter mVerifyPresenter;
+    @Inject
+    Config mConfig;
 
     private ProgressDialog mProgressDialog;
     private Subscription mSubscription;
@@ -78,7 +84,6 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
         ButterKnife.bind(this);
         getComponent().inject(this);
 
-
         mVerifyPresenter.attachView(this);
         mInputPassword.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -89,6 +94,14 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
             }
             return false;
         });
+        if (mConfig.isUseBeta()) {
+            mTextDescription.setText("You're using BETA");
+            mButtonChangeApi.setText("Use Production");
+            mButtonChangeApi.setVisibility(View.VISIBLE);
+        } else {
+            mButtonChangeApi.setText("Use Beta");
+            mTextDescription.setText(R.string.get_started);
+        }
         mSubscription = Observable.combineLatest(RxTextView
                         .textChanges(mInputEmail)
                         .delay(200, TimeUnit.MILLISECONDS)
@@ -128,6 +141,7 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
         mVerifyPresenter.detachView();
         if (mSubscription != null) {
             mSubscription.unsubscribe();
+            mSubscription = null;
         }
     }
 
@@ -177,20 +191,49 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
 
     @OnClick(R.id.button_verify)
     public void verify() {
+        String email = mInputEmail.getText().toString().trim();
+        if (Constant.SECRET_KEY_CHANGE_URL.equals(email)) {
+            mButtonChangeApi.setVisibility(View.VISIBLE);
+            mInputEmail.setText("");
+            mInputPassword.setText("");
+            return;
+        }
         if (mGcmToken != null) {
-            String email = mInputEmail.getText().toString().trim();
             String password = mInputPassword.getText().toString();
             if (validate(email, password)) {
                 mVerifyPresenter.login(email, password, mGcmToken);
             }
         } else {
-            if (mReceiverToken) {
-                Toast.makeText(VerifyActivity.this, "Cannot register token in server", Toast.LENGTH_SHORT).show();
-                onGeneralError();
+            if (mConfig.isUseBeta()) {
+                String password = mInputPassword.getText().toString();
+                if (validate(email, password)) {
+                    mVerifyPresenter.login(email, password, mGcmToken);
+                }
             } else {
-                DialogFactory.createGenericErrorDialog(this, R.string.message_wait_to_get_token).show();
+                if (mReceiverToken) {
+                    Toast.makeText(VerifyActivity.this, "Cannot register token in server", Toast.LENGTH_SHORT).show();
+                    onGeneralError();
+                } else {
+                    DialogFactory.createGenericErrorDialog(this, R.string.message_wait_to_get_token).show();
+                }
             }
         }
+    }
+
+    @OnClick(R.id.button_change_api)
+    public void changeApi() {
+        if (mConfig.isUseBeta()) {
+            mConfig.useProductionUrl();
+        } else {
+            mConfig.useBetaUrl();
+        }
+        Toast.makeText(VerifyActivity.this, "Please open app again to see affect", Toast.LENGTH_SHORT).show();
+        Observable.timer(1000, TimeUnit.MILLISECONDS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(second -> {
+                    finish();
+                    System.exit(0);
+                });
     }
 
     private boolean validate(String email, String password) {

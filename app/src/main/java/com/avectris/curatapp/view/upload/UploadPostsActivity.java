@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.widget.*;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -14,7 +15,9 @@ import com.avectris.curatapp.R;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.main.SpinnerArrayAdapter;
+import com.avectris.curatapp.view.widget.MuliEmojiEditText;
 import com.avectris.curatapp.vo.Account;
+import com.vanniktech.emoji.EmojiPopup;
 import icepick.Icepick;
 import icepick.State;
 import rx.android.schedulers.AndroidSchedulers;
@@ -35,7 +38,7 @@ public class UploadPostsActivity extends ToolbarActivity {
     @Bind(R.id.text_description)
     TextView mTextDescription;
     @Bind(R.id.input_caption)
-    EditText mInputCaption;
+    MuliEmojiEditText mInputCaption;
     @Bind(R.id.button_add_to_schedule)
     Button mButtonAddToSchedule;
     @Bind(R.id.button_select_exact_time)
@@ -44,12 +47,17 @@ public class UploadPostsActivity extends ToolbarActivity {
     Button mButtonUploadLibrary;
     @Bind(R.id.spinner_list_account)
     Spinner mSpinner;
+    @Bind(R.id.toggle_emoji)
+    ImageView mToggleEmoji;
+    @Bind(R.id.root)
+    CoordinatorLayout mRootLayout;
 
     @State
     ArrayList<String> mFilePaths;
     private DataManager mDataManager;
     private Account mSelectedAccount;
     private Context mContext;
+    private EmojiPopup mEmojiPopup;
 
     @Override
     protected int getLayoutId() {
@@ -90,6 +98,8 @@ public class UploadPostsActivity extends ToolbarActivity {
                             Toast.makeText(UploadPostsActivity.this, "Cannot get account list", Toast.LENGTH_SHORT).show();
                             finish();
                         });
+
+        mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootLayout).build(mInputCaption);
     }
 
     @Override
@@ -102,6 +112,15 @@ public class UploadPostsActivity extends ToolbarActivity {
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mEmojiPopup.isShowing()) {
+            mEmojiPopup.dismiss();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @OnClick(R.id.button_add_to_library)
@@ -141,7 +160,7 @@ public class UploadPostsActivity extends ToolbarActivity {
                 Intent intent = new Intent(mContext, UploadPostService.class);
                 intent.putExtra(UploadPostService.EXTRA_UPLOAD_MODE, UploadPostService.REQUEST_SELECT_EXACT_TIME);
                 intent.putExtra(UploadPostService.EXTRA_FILE_PATHS, mFilePaths);
-                intent.putExtra(UploadPostService.EXTRA_CAPTION, mInputCaption.getText().toString().trim().replace("\n", " "));
+                intent.putExtra(UploadPostService.EXTRA_CAPTION, mInputCaption.getText().toString().trim());
                 intent.putExtra(UploadPostService.EXTRA_ACCOUNT_ID, mSelectedAccount);
                 intent.putExtra(UploadPostService.EXTRA_UPLOAD_TIME, timeString);
                 startService(intent);
@@ -166,6 +185,15 @@ public class UploadPostsActivity extends ToolbarActivity {
         startService(intent);
         Toast.makeText(UploadPostsActivity.this, "The task is running background", Toast.LENGTH_SHORT).show();
         finish();
+    }
+
+    @OnClick(R.id.toggle_emoji)
+    void toggleEmoji() {
+        if (mEmojiPopup.isShowing()) {
+            mEmojiPopup.dismiss();
+        } else {
+            mEmojiPopup.toggle(); // Toggles visibility of the Popup
+        }
     }
 
     private void setupSpinner(List<Account> accounts) {

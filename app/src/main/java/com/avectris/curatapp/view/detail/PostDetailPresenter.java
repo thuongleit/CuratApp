@@ -37,7 +37,7 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
         checkViewAttached();
         mView.setButtonEnable(false);
         mSubscriptions.add(mDataManager
-                .getPostDetail(apiCode, postId)
+                .fetchPostDetail(apiCode, postId)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())

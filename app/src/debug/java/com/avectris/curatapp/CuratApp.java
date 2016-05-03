@@ -3,7 +3,6 @@ package com.avectris.curatapp;
 import android.app.Application;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.avectris.curatapp.di.component.ApplicationComponent;
 import com.avectris.curatapp.di.component.DaggerApplicationComponent;
 import com.avectris.curatapp.di.module.ApplicationModule;
@@ -18,11 +17,10 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.squareup.leakcanary.LeakCanary;
-
-import java.io.File;
-
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
+
+import java.io.File;
 
 /**
  * Created by thuongle on 1/13/16.
