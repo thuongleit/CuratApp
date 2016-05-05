@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Patterns;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -51,8 +50,6 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
     CustomBottomLineEditText mInputPassword;
     @Bind(R.id.button_verify)
     Button mButtonVerify;
-    @Bind(R.id.button_change_api)
-    Button mButtonChangeApi;
     @Bind(R.id.text_description)
     TextView mTextDescription;
 
@@ -65,6 +62,7 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
     private Subscription mSubscription;
     private String mGcmToken;
     private boolean mReceiverToken = false;
+    private int mClickCount = 0;
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -96,10 +94,7 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
         });
         if (mConfig.isUseBeta()) {
             mTextDescription.setText("You're using BETA");
-            mButtonChangeApi.setText("Use Production");
-            mButtonChangeApi.setVisibility(View.VISIBLE);
         } else {
-            mButtonChangeApi.setText("Use Beta");
             mTextDescription.setText(R.string.get_started);
         }
         mSubscription = Observable.combineLatest(RxTextView
@@ -192,12 +187,6 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
     @OnClick(R.id.button_verify)
     public void verify() {
         String email = mInputEmail.getText().toString().trim();
-        if (Constant.SECRET_KEY_CHANGE_URL.equals(email)) {
-            mButtonChangeApi.setVisibility(View.VISIBLE);
-            mInputEmail.setText("");
-            mInputPassword.setText("");
-            return;
-        }
         if (mGcmToken != null) {
             String password = mInputPassword.getText().toString();
             if (validate(email, password)) {
@@ -220,20 +209,24 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
         }
     }
 
-    @OnClick(R.id.button_change_api)
-    public void changeApi() {
-        if (mConfig.isUseBeta()) {
-            mConfig.useProductionUrl();
+    @OnClick(R.id.text_change_api)
+    void changeApi() {
+        if (mClickCount == 3) {
+            if (mConfig.isUseBeta()) {
+                mConfig.useProductionUrl();
+            } else {
+                mConfig.useBetaUrl();
+            }
+            Toast.makeText(VerifyActivity.this, "Please open app again to see affect", Toast.LENGTH_SHORT).show();
+            Observable.timer(1000, TimeUnit.MILLISECONDS)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(second -> {
+                        finish();
+                        System.exit(0);
+                    });
         } else {
-            mConfig.useBetaUrl();
+            mClickCount++;
         }
-        Toast.makeText(VerifyActivity.this, "Please open app again to see affect", Toast.LENGTH_SHORT).show();
-        Observable.timer(1000, TimeUnit.MILLISECONDS)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(second -> {
-                    finish();
-                    System.exit(0);
-                });
     }
 
     private boolean validate(String email, String password) {

@@ -118,6 +118,7 @@ public class UploadPostsActivity extends ToolbarActivity {
     public void onBackPressed() {
         if (mEmojiPopup.isShowing()) {
             mEmojiPopup.dismiss();
+            mToggleEmoji.setImageResource(R.drawable.ic_mood);
         } else {
             super.onBackPressed();
         }
@@ -191,8 +192,10 @@ public class UploadPostsActivity extends ToolbarActivity {
     void toggleEmoji() {
         if (mEmojiPopup.isShowing()) {
             mEmojiPopup.dismiss();
+            mToggleEmoji.setImageResource(R.drawable.ic_mood);
         } else {
             mEmojiPopup.toggle(); // Toggles visibility of the Popup
+            mToggleEmoji.setImageResource(R.drawable.ic_keyboard);
         }
     }
 

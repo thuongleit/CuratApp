@@ -90,6 +90,7 @@ android {
 dependencies {
     //google service
     compile libraries.googleGcm
+    compile libraries.googleAnalytics
 
     // Reactive
     compile libraries.rxJava

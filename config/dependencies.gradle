@@ -80,6 +80,7 @@ ext.libraries = [
         googleMaps                : "com.google.android.gms:play-services-maps:$versions.playServices",
         googleLocation            : "com.google.android.gms:play-services-location:$versions.playServices",
         googleGcm                 : "com.google.android.gms:play-services-gcm:$versions.playServices",
+        googleAnalytics           : "com.google.android.gms:play-services-analytics:$versions.playServices",
 
         picasso                   : "com.squareup.picasso:picasso:$versions.picasso",
         picassoOkHttpDownloader   : "com.jakewharton.picasso:picasso2-okhttp3-downloader:$versions.picassoOkHttpDownloader",

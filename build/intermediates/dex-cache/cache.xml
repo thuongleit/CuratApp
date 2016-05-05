@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
+
+    <item
+        jar="/Volumes/Work/android/work/CuratApp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="1c9f35e952b212c843f7bd2c7eec8e82ad95602e">
+        <dex dex="/Volumes/Work/android/work/CuratApp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-analytics-8.4.0_4d08ca00d721cb6025096bd86fa32846a56a381f.jar" />
+    </item>
+
+</items>

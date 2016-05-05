@@ -86,7 +86,6 @@
                     android:layout_width="26dp"
                     android:layout_height="26dp"
                     app:srcCompat="@drawable/ic_mood"
-                    android:tint="@color/black_38"
                     android:layout_gravity="center_vertical|left"
                     android:layout_marginLeft="5dp" />
 

@@ -1,35 +1,32 @@
 {
   "project_info": {
-    "project_id": "curatapp-87521",
-    "project_number": "205553599418",
-    "name": "curatapp"
+    "project_number": "659668128378",
+    "project_id": "curatapp-b704"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:205553599418:android:5ccee788ec3fad41",
-        "client_id": "android:com.avectris.curatapp",
-        "client_type": 1,
+        "mobilesdk_app_id": "1:659668128378:android:5ccee788ec3fad41",
         "android_client_info": {
           "package_name": "com.avectris.curatapp"
         }
       },
       "oauth_client": [],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI0JkGa1QraKR0ukoB2lm9zL-QdjjndNg"
+        }
+      ],
       "services": {
         "analytics_service": {
-          "status": 1
-        },
-        "cloud_messaging_service": {
           "status": 2,
-          "apns_config": []
+          "analytics_property": {
+            "tracking_id": "UA-77250233-2"
+          }
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 1
         },
         "ads_service": {
           "status": 1
@@ -37,6 +34,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }
