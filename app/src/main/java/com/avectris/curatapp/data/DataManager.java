@@ -213,10 +213,10 @@ public class DataManager {
 
     public Observable<AccountResponse> fetchAccounts(User user, String gcmToken) {
         Account currentAccount = mAccountModel.getCurrentAccount();
+        if (user == null) {
+            user = mUserModel.getActiveUser();
+        }
         if (mApiHeaders.getAuthToken() == null) {
-            if (user == null) {
-                user = mUserModel.getActiveUser();
-            }
             if (gcmToken == null) {
                 if (currentAccount != null) {
                     gcmToken = currentAccount.gcmToken;
@@ -254,20 +254,21 @@ public class DataManager {
                             }
                         }
 
-                        for (Account account : response.accounts) {
-                            Account accountInDb = mAccountModel.getAccountById(account.id);
-                            if (accountInDb != null) {
-                                accountInDb.apiCode = account.apiCode;
-                                accountInDb.active = account.active;
-                                accountInDb.name = account.name;
-                                accountInDb.current = account.current;
-                                accountInDb.userEmail = finalUser.email;
+                        List<Account> accountsInDb = mAccountModel.loadAllByUser(finalUser.email);
+                        mAccountModel.deleteAllByUser(finalUser.email);
 
-                                accountInDb.update();
-                            } else {
-                                account.userEmail = finalUser.email;
-                                account.save();
+                        for (Account account : response.accounts) {
+                            if(accountsInDb.contains(account)){
+                                for (Account accountInDb : accountsInDb) {
+                                    if(accountInDb.equals(account)){
+                                        account.gcmToken = accountInDb.gcmToken;
+                                        account.enableNotification = accountInDb.enableNotification;
+                                        break;
+                                    }
+                                }
                             }
+                            account.userEmail = finalUser.email;
+                            account.save();
                         }
                     }
                 });

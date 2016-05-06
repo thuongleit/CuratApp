@@ -3,15 +3,9 @@ package com.avectris.curatapp.data.local;
 import com.avectris.curatapp.vo.Account;
 import com.avectris.curatapp.vo.Account_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.sql.language.Where;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import rx.Observable;
-import rx.Subscriber;
-import timber.log.Timber;
-
 import java.util.List;
 
 /**
@@ -67,5 +61,21 @@ public class AccountModel extends BaseModel<Account> {
                 .from(clazz())
                 .where(Account_Table.apiCode.eq(apiCode))
                 .querySingle();
+    }
+
+    public List<Account> loadAllByUser(String email) {
+        return
+                SQLite
+                .select()
+                .from(clazz())
+                .where(Account_Table.userEmail.eq(email))
+                .queryList();
+    }
+
+    public void deleteAllByUser(String email) {
+        SQLite
+                .delete(clazz())
+                .where(Account_Table.userEmail.eq(email))
+                .execute();
     }
 }
