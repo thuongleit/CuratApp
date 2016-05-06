@@ -59,8 +59,11 @@ public class DataManager {
     public Observable<User> restoreSession() {
         return Observable
                 .just(mUserModel.getActiveUser())
-                .filter(user -> user != null)
-                .doOnNext(user -> mApiHeaders.withSession(user.authToken));
+                .doOnNext(user -> {
+                    if (user != null) {
+                        mApiHeaders.withSession(user.authToken);
+                    }
+                });
     }
 
     public Observable<PostResponse> fetchPosts(int requestMode, int pageNumber) {
@@ -81,7 +84,11 @@ public class DataManager {
     }
 
     public Observable<List<Account>> loadAccounts() {
-        return Observable.just(mAccountModel.loadAll());
+        User user = mUserModel.getActiveUser();
+        return Observable
+                .from(mAccountModel.loadAll())
+                .filter(account -> user.email.equals(account.userEmail))
+                .toList();
     }
 
     public Observable<PostDetailResponse> fetchPostDetail(String apiCode, String postId) {
@@ -221,6 +228,7 @@ public class DataManager {
             //reset user token
             mApiHeaders.withSession(user.authToken);
         }
+        User finalUser = user;
         return mSessionService
                 .fetchAccounts(gcmToken, getAppVersion(), getOs())
                 .doOnNext(response -> {
@@ -231,12 +239,18 @@ public class DataManager {
                             if (!response.accounts.isEmpty()) {
                                 response.accounts.get(0).current = true;
                             }
-                        } else {
+                        } else if (currentAccount.userEmail.equals(finalUser.email)) {
                             for (Account account : response.accounts) {
                                 if (currentAccount.id.equals(account.id)) {
                                     account.current = true;
                                     break;
                                 }
+                            }
+                        } else {
+                            if (!response.accounts.isEmpty()) {
+                                response.accounts.get(0).current = true;
+                                currentAccount.current = false;
+                                currentAccount.save();
                             }
                         }
 
@@ -246,9 +260,12 @@ public class DataManager {
                                 accountInDb.apiCode = account.apiCode;
                                 accountInDb.active = account.active;
                                 accountInDb.name = account.name;
+                                accountInDb.current = account.current;
+                                accountInDb.userEmail = finalUser.email;
 
                                 accountInDb.update();
                             } else {
+                                account.userEmail = finalUser.email;
                                 account.save();
                             }
                         }

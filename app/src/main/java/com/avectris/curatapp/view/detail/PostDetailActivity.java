@@ -10,12 +10,10 @@ import android.support.v7.widget.AppCompatButton;
 import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.MediaController;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
@@ -28,15 +26,10 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.tbruyelle.rxpermissions.RxPermissions;
-
-import java.io.File;
+import timber.log.Timber;
 
 import javax.inject.Inject;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import timber.log.Timber;
+import java.io.File;
 
 
 /**
@@ -202,7 +195,12 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     }
 
     @Override
-    public void onUpdatePostSuccess() {
+    public void onUpdatePostSuccess(Intent shareIntent) {
+        startActivity(shareIntent);
+    }
+
+    @OnClick(R.id.button_post_now)
+    void postToInstagram() {
         Intent intent = getPackageManager().getLaunchIntentForPackage("com.instagram.android");
         if (intent != null) {
             if (isPermissionApproved) {
@@ -235,7 +233,11 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
                     }
                     copyTextToClipboard();
 
-                    startActivity(shareIntent);
+                    if (mPost.isPosted()) {//if post already posted, no need to update api
+                        onUpdatePostSuccess(shareIntent);
+                    } else {
+                        mPostDetailPresenter.updatePost(mApiCode, mPostId, shareIntent);
+                    }
                 } catch (Exception e) {
                     Timber.d(e, "Cannot perform post now");
                     DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
@@ -251,15 +253,6 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.setData(Uri.parse("market://details?id=" + "com.instagram.android"));
             startActivity(intent);
-        }
-    }
-
-    @OnClick(R.id.button_post_now)
-    public void postToInstagram() {
-        if (mPost.isPosted()) {//if post already posted, no need to update api
-            onUpdatePostSuccess();
-        } else {
-            mPostDetailPresenter.updatePost(mApiCode, mPostId);
         }
     }
 
