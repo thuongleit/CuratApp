@@ -15,8 +15,10 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import com.avectris.curatapp.R;
+import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.ToolbarActivity;
+import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.view.widget.SquareVideoView;
 import com.avectris.curatapp.vo.Media;
 import com.avectris.curatapp.vo.Post;
@@ -57,6 +59,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     DisplayImageOptions mDisplayImageOptions;
     @Inject
     HttpProxyCacheServer mHttpProxyCacheServer;
+    @Inject
+    DataManager mDataManager;
 
     private Post mPost;
     private String mPostId;
@@ -75,6 +79,13 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         super.onCreate(savedInstanceState);
 
         getComponent().inject(this);
+        if(mDataManager.getActiveUser() == null){
+            //no user active
+            Intent intent = new Intent(this, VerifyActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         mPostDetailPresenter.attachView(this);
         setTitle("Post Review");
         mSupportActionBar.setDisplayHomeAsUpEnabled(true);

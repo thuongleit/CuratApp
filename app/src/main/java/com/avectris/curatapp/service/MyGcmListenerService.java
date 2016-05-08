@@ -46,7 +46,11 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        int notificationType = data.getInt("notification_type");
+        String notificationTypeStr = data.getString("notification_type");
+        int notificationType = 0;
+        if (notificationTypeStr != null) {
+            notificationType = Integer.parseInt(notificationTypeStr);
+        }
         String message = data.getString("message");
         String postId = data.getString("post_id");
         String body = data.getString("body");
@@ -72,14 +76,14 @@ public class MyGcmListenerService extends GcmListenerService {
          * that a message was received.
          */
         if (notificationType == 2) {//if no scheduled post notification
-            sendNotification(message);
+            sendNotification(title, message);
         } else { //if normal post notification
             sendNotification(title, body, apiCode, postId);
         }
         // [END_EXCLUDE]
     }
 
-    private void sendNotification(String message) {
+    private void sendNotification(String title, String message) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
@@ -90,6 +94,7 @@ public class MyGcmListenerService extends GcmListenerService {
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(message)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
@@ -103,7 +108,6 @@ public class MyGcmListenerService extends GcmListenerService {
 
     /**
      * Create and show a simple notification containing the received GCM message.
-     *
      */
     private void sendNotification(String title, String body, String apiCode, String postId) {
         Intent intent = new Intent(this, PostDetailActivity.class);
