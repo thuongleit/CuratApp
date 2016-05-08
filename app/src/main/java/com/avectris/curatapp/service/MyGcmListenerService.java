@@ -51,7 +51,6 @@ public class MyGcmListenerService extends GcmListenerService {
         if (notificationTypeStr != null) {
             notificationType = Integer.parseInt(notificationTypeStr);
         }
-        String message = data.getString("message");
         String postId = data.getString("post_id");
         String body = data.getString("body");
         String title = data.getString("title");
@@ -76,7 +75,7 @@ public class MyGcmListenerService extends GcmListenerService {
          * that a message was received.
          */
         if (notificationType == 2) {//if no scheduled post notification
-            sendNotification(title, message);
+            sendNotification(title, body);
         } else { //if normal post notification
             sendNotification(title, body, apiCode, postId);
         }
@@ -93,6 +92,7 @@ public class MyGcmListenerService extends GcmListenerService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher))
                 .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title != null ? title : "")
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setAutoCancel(true)
