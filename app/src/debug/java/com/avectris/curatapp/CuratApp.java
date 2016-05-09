@@ -8,6 +8,7 @@ import com.avectris.curatapp.di.component.DaggerApplicationComponent;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.facebook.stetho.Stetho;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
@@ -41,6 +42,8 @@ public class CuratApp extends Application {
 
         //install leak canary
         LeakCanary.install(this);
+
+        Stetho.initializeWithDefaults(this);
 
         //enable logger
         CrashlyticsCore crashCore = new CrashlyticsCore.Builder()

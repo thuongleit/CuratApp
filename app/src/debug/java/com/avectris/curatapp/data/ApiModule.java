@@ -22,6 +22,7 @@ import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.remote.ApiHeaders;
 import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dagger.Module;
@@ -80,6 +81,7 @@ public class ApiModule {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addNetworkInterceptor(new StethoInterceptor());
         // add your other interceptors …
         builder.interceptors().clear();
         builder.interceptors().add(apiHeaders);
