@@ -90,6 +90,7 @@ android {
 dependencies {
     //google service
     compile libraries.googleGcm
+    compile libraries.googleAnalytics
 
     // Reactive
     compile libraries.rxJava
@@ -133,6 +134,7 @@ dependencies {
     compile 'com.danikula:videocache:2.3.4'
     compile 'com.tbruyelle.rxpermissions:rxpermissions:0.7.0@aar'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.vanniktech:emoji:0.2.0'
 
     // debug tools
     debugCompile libraries.okHttpLoggingInterceptor

@@ -9,6 +9,8 @@ import com.avectris.curatapp.di.component.DaggerApplicationComponent;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -29,6 +31,7 @@ import timber.log.Timber;
 public class CuratApp extends Application {
 
     private ApplicationComponent mAppComponent;
+    private Tracker mTracker;
 
     @Override
     public void onCreate() {
@@ -76,6 +79,15 @@ public class CuratApp extends Application {
 
     public ApplicationComponent getAppComponent() {
         return mAppComponent;
+    }
+
+    synchronized public Tracker getDefaulTracker(){
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.global_tracker);
+        }
+        return mTracker;
     }
 
     public class CrashlyticsTree extends Timber.Tree {

@@ -27,10 +27,10 @@ public interface SessionService {
     Observable<ErrorableResponse> updateDeviceId(@Query("device_id") String deviceId, @Query("remove_device_id") String removeDeviceId, @Query("schedule_id") String scheduleId);
 
     @POST("user/login")
-    Observable<LoginResponse> login();
+    Observable<LoginResponse> login(@Query("email") String email, @Query("password") String password, @Query("deviceId") String deviceId, @Query("version") String version, @Query("os") String os);
 
     @GET("accounts")
-    Observable<AccountResponse> fetchAccounts();
+    Observable<AccountResponse> fetchAccounts(@Query("deviceId") String deviceId, @Query("version") String version, @Query("os") String os);
 
     @POST("user/logout")
     Observable<ErrorableResponse> logout();

@@ -3,12 +3,14 @@ package com.avectris.curatapp;
 import android.app.Application;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.avectris.curatapp.di.component.ApplicationComponent;
 import com.avectris.curatapp.di.component.DaggerApplicationComponent;
 import com.avectris.curatapp.di.module.ApplicationModule;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
+import com.facebook.stetho.Stetho;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
@@ -18,11 +20,10 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.squareup.leakcanary.LeakCanary;
-
-import java.io.File;
-
 import io.fabric.sdk.android.Fabric;
 import timber.log.Timber;
+
+import java.io.File;
 
 /**
  * Created by thuongle on 1/13/16.
@@ -30,6 +31,7 @@ import timber.log.Timber;
 public class CuratApp extends Application {
 
     private ApplicationComponent mAppComponent;
+    private Tracker mTracker;
 
     @Override
     public void onCreate() {
@@ -40,6 +42,8 @@ public class CuratApp extends Application {
 
         //install leak canary
         LeakCanary.install(this);
+
+        Stetho.initializeWithDefaults(this);
 
         //enable logger
         CrashlyticsCore crashCore = new CrashlyticsCore.Builder()
@@ -81,6 +85,15 @@ public class CuratApp extends Application {
 
     public ApplicationComponent getAppComponent() {
         return mAppComponent;
+    }
+
+    synchronized public Tracker getDefaulTracker(){
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.my_tracker);
+        }
+        return mTracker;
     }
 
     public class CrashlyticsTree extends Timber.Tree {

@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.main.MainActivity">
@@ -60,19 +61,35 @@
                 android:gravity="center"
                 android:textColor="@color/black_54" />
 
-            <com.avectris.curatapp.view.widget.MuliEditText
-                android:id="@+id/input_caption"
-                android:inputType="textMultiLine"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:padding="2dp"
-                android:hint="Your Caption"
-                android:lines="4"
-                android:minLines="4" />
+                android:layout_marginBottom="10dp">
+
+                <com.avectris.curatapp.view.widget.MuliEmojiEditText
+                    android:id="@+id/input_caption"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:hint="Your Caption"
+                    android:layout_marginLeft="40dp"
+                    android:lines="4"
+                    android:minLines="4"
+                    app:emojiSize="26sp" />
+
+                <ImageView
+                    android:id="@+id/toggle_emoji"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:srcCompat="@drawable/ic_mood"
+                    android:layout_gravity="center_vertical|left"
+                    android:layout_marginLeft="5dp" />
+
+            </FrameLayout>
 
             <com.avectris.curatapp.view.widget.MuliAppCompatButton
                 android:id="@+id/button_add_to_library"
@@ -124,6 +141,11 @@
                 android:text="Select Exact Time"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
+
+            <FrameLayout
+                android:id="@+id/emojicons"
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent" />
 
         </LinearLayout>
 

@@ -72,6 +72,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
     @Inject
     AccountPresenter mAccountPresenter;
+    @Inject
     DataManager mDataManager;
     Context mContext;
 
@@ -90,6 +91,13 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getComponent().inject(this);
+        if (mDataManager.getActiveUser() == null) {
+            //no user active
+            Intent intent = new Intent(this, VerifyActivity.class);
+            startActivity(intent);
+            finish();
+        }
         if (savedInstanceState == null) {
             mCurrentPosition = 0;
             mUpcomingFragment = PostFragment.createInstance(Constant.UPCOMING_CONTENT_MODE);
@@ -99,7 +107,6 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             mUpcomingFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_UPCOMING);
             mPostedFragment = getSupportFragmentManager().getFragment(savedInstanceState, EXTRA_FRAGMENT_POSTED);
         }
-        getComponent().inject(this);
         mAccountPresenter.attachView(this);
         setTitle(getString(R.string.title_scheduled_posts));
         mContext = this;
@@ -268,7 +275,7 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
             intent.setType("image/* video/mp4");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GALLERY_INTENT);
+            startActivityForResult(Intent.createChooser(intent, "Select Media"), REQUEST_GALLERY_INTENT);
         } else {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);

@@ -3,16 +3,14 @@ package com.avectris.curatapp.view.verify;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
-
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import com.avectris.curatapp.vo.User;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
+
+import javax.inject.Inject;
+import java.io.IOException;
 
 /**
  * Created by thuongle on 2/12/16.

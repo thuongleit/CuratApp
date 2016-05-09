@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
@@ -30,14 +29,12 @@ import com.avectris.curatapp.data.DataManager;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
-
-import java.io.IOException;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import rx.Observable;
 import timber.log.Timber;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.List;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -60,7 +57,7 @@ public class RegistrationIntentService extends IntentService {
             // [START register_for_gcm]
             // Initially this call goes out to the network to retrieve the token, subsequent calls
             // are local.
-            // R.string.gcm_defaultSenderId (the Sender ID) is typically derived from google-services.json.
+            // R.string.gcm_defaultSenderId (the Sender ID) is typically derived from google-services.json.bak.
             // See https://developers.google.com/cloud-messaging/android/start for details on this file.
             // [START get_token]
             InstanceID instanceID = InstanceID.getInstance(this);

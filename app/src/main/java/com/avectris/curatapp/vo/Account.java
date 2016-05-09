@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.avectris.curatapp.data.local.CuratAppDatabase;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -42,6 +43,17 @@ public class Account extends BaseModel implements Parcelable {
     @Column(name = "enable_notification", defaultValue = "true")
     public boolean enableNotification;
 
+    @Column
+    @JsonIgnore
+    public String userEmail;
+
+    public Account() {
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 
     @Override
     public int describeContents() {
@@ -57,9 +69,7 @@ public class Account extends BaseModel implements Parcelable {
         dest.writeByte(current ? (byte) 1 : (byte) 0);
         dest.writeString(this.gcmToken);
         dest.writeByte(enableNotification ? (byte) 1 : (byte) 0);
-    }
-
-    public Account() {
+        dest.writeString(this.userEmail);
     }
 
     protected Account(Parcel in) {
@@ -70,6 +80,7 @@ public class Account extends BaseModel implements Parcelable {
         this.current = in.readByte() != 0;
         this.gcmToken = in.readString();
         this.enableNotification = in.readByte() != 0;
+        this.userEmail = in.readString();
     }
 
     public static final Creator<Account> CREATOR = new Creator<Account>() {
@@ -85,7 +96,18 @@ public class Account extends BaseModel implements Parcelable {
     };
 
     @Override
-    public String toString() {
-        return name;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Account account = (Account) o;
+
+        return id != null ? id.equals(account.id) : account.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

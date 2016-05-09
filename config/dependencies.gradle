@@ -1,7 +1,7 @@
 ext.app = [
         applicationId: 'com.avectris.curatapp',
-        code         : 12,
-        name         : '1.1.0',
+        code         : 14,
+        name         : '1.1.2',
 
         minSdk       : 15,
         targetSdk    : 23,
@@ -80,6 +80,7 @@ ext.libraries = [
         googleMaps                : "com.google.android.gms:play-services-maps:$versions.playServices",
         googleLocation            : "com.google.android.gms:play-services-location:$versions.playServices",
         googleGcm                 : "com.google.android.gms:play-services-gcm:$versions.playServices",
+        googleAnalytics           : "com.google.android.gms:play-services-analytics:$versions.playServices",
 
         picasso                   : "com.squareup.picasso:picasso:$versions.picasso",
         picassoOkHttpDownloader   : "com.jakewharton.picasso:picasso2-okhttp3-downloader:$versions.picassoOkHttpDownloader",

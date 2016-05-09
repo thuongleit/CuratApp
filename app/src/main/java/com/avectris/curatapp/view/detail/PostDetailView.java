@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.detail;
 
+import android.content.Intent;
 import com.avectris.curatapp.view.base.ErrorView;
 import com.avectris.curatapp.vo.Post;
 
@@ -14,5 +15,5 @@ interface PostDetailView extends ErrorView {
 
     void setButtonEnable(boolean enabled);
 
-    void onUpdatePostSuccess();
+    void onUpdatePostSuccess(Intent shareIntent);
 }

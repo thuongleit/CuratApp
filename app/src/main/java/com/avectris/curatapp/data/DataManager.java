@@ -1,6 +1,7 @@
 package com.avectris.curatapp.data;
 
 import android.app.Application;
+import android.support.annotation.NonNull;
 import com.avectris.curatapp.BuildConfig;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,27 +57,30 @@ public class DataManager {
         ((CuratApp) app).getAppComponent().inject(this);
     }
 
+    public User getActiveUser(){
+        return mUserModel.getActiveUser();
+    }
+
     public Observable<User> restoreSession() {
         return Observable
                 .just(mUserModel.getActiveUser())
-                .filter(user -> user != null)
-                .doOnNext(user -> mApiHeaders.buildSession(user.authToken, mAccountModel.getCurrentAccount().gcmToken, String.valueOf(BuildConfig.VERSION_CODE)));
+                .doOnNext(user -> {
+                    if (user != null) {
+                        mApiHeaders.withSession(user.authToken);
+                    }
+                });
     }
 
     public Observable<PostResponse> fetchPosts(int requestMode, int pageNumber) {
         Account account = mAccountModel.getCurrentAccount();
-        if (account != null) {
-            mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
-        }
+        buildSessionIfNeed(account);
         if (mApiHeaders.getApiCode() != null) {
             if (requestMode == Constant.POSTED_CONTENT_MODE) {
                 return mPostService
-                        .getPassedPosts(pageNumber)
-                        .doOnNext(postResponse -> mApiHeaders.removeApiCode());
+                        .getPassedPosts(pageNumber, account.gcmToken, getAppVersion(), getOs());
             } else if (requestMode == Constant.UPCOMING_CONTENT_MODE) {
                 return mPostService
-                        .getUpcomingPosts(pageNumber)
-                        .doOnNext(postResponse -> mApiHeaders.removeApiCode());
+                        .getUpcomingPosts(pageNumber, account.gcmToken, getAppVersion(), getOs());
             }
         }
         PostResponse failedResponse = new PostResponse();
@@ -84,52 +89,59 @@ public class DataManager {
     }
 
     public Observable<List<Account>> loadAccounts() {
-        return Observable.just(mAccountModel.loadAll());
+        User user = mUserModel.getActiveUser();
+        return Observable
+                .from(mAccountModel.loadAll())
+                .filter(account -> user.email.equals(account.userEmail))
+                .toList();
     }
 
-    public Observable<PostDetailResponse> getPostDetail(String apiCode, String postId) {
+    public Observable<PostDetailResponse> fetchPostDetail(String apiCode, String postId) {
+        Account account;
         if (apiCode != null) {
-            Account account = mAccountModel.getAccountByApiCode(apiCode);
-            mApiHeaders.withApiCode(apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+            account = mAccountModel.getAccountByApiCode(apiCode);
         } else {
-            Account currentAccount = mAccountModel.getCurrentAccount();
-            mApiHeaders.withApiCode(currentAccount.apiCode, currentAccount.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+            account = mAccountModel.getCurrentAccount();
         }
+        buildSessionIfNeed(account);
         return mPostService
-                .getPostDetail(postId)
+                .fetchPostDetail(postId, account.gcmToken, getAppVersion(), getOs())
                 .doOnNext(response -> mApiHeaders.removeApiCode());
     }
 
     public List<Observable<Boolean>> registerGcm(String token) {
         List<Observable<Boolean>> observables = new ArrayList<>();
-        List<Account> accounts = mAccountModel.loadAll();
-        for (Account account : accounts) {
-            account.gcmToken = token;
-            account.update();
-            mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
-            if (account.enableNotification) {
-                observables.add(mSessionService
-                        .enablePushNotification(token == null ? account.gcmToken : token, String.valueOf(account.id))
-                        .map(response -> {
-                            if (response.isSuccess()) {
-                                //saveOrUpdate to database
-                                if (token != null) {
-                                    account.gcmToken = token;
-                                    mAccountModel.update(account);
+        User activeUser = mUserModel.getActiveUser();
+        if (activeUser != null) {
+            List<Account> accounts = mAccountModel.loadAllByUser(activeUser.email);
+            for (Account account : accounts) {
+                account.gcmToken = token;
+                account.update();
+                buildSessionIfNeed(account);
+                if (account.enableNotification) {
+                    observables.add(mSessionService
+                            .enablePushNotification(token == null ? account.gcmToken : token, String.valueOf(account.id))
+                            .map(response -> {
+                                if (response.isSuccess()) {
+                                    //saveOrUpdate to database
+                                    if (token != null) {
+                                        account.gcmToken = token;
+                                        mAccountModel.update(account);
+                                    }
+                                    return true;
                                 }
-                                return true;
-                            }
-                            return false;
-                        })
-                        .doOnNext(response -> mApiHeaders.removeApiCode()));
+                                return false;
+                            }));
+                }
             }
-        }
 
-        return observables;
+            return observables;
+        }
+        return Arrays.asList(Observable.empty());
     }
 
     public Observable<Boolean> enablePushNotification(Account account) {
-        mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+        buildSessionIfNeed(account);
         Account accountDb = mAccountModel.getAccountById(account.id);
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
@@ -144,15 +156,14 @@ public class DataManager {
                             return true;
                         }
                         return false;
-                    })
-                    .doOnNext(response -> mApiHeaders.removeApiCode());
+                    });
         } else {
             return Observable.just(Boolean.TRUE);
         }
     }
 
     public Observable<Boolean> disablePushNotification(Account account) {
-        mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+        buildSessionIfNeed(account);
         Account accountDb = mAccountModel.getAccountById(account.id);
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
@@ -168,8 +179,7 @@ public class DataManager {
                             return true;
                         }
                         return false;
-                    })
-                    .doOnNext(response -> mApiHeaders.removeApiCode());
+                    });
         } else {
             return Observable.just(Boolean.TRUE);
         }
@@ -177,44 +187,42 @@ public class DataManager {
 
     public Observable<Boolean> updateActiveAccount(Account account) {
         return Observable
-                .just(mAccountModel.updateActiveAccount(account))
-                .doOnNext(result -> mApiHeaders.removeApiCode());
+                .just(mAccountModel.updateActiveAccount(account));
     }
 
     public Observable<ErrorableResponse> updatePosted(String apiCode, String postId) {
+        Account account;
         if (apiCode != null) {
-            Account account = mAccountModel.getAccountByApiCode(apiCode);
-            mApiHeaders.withApiCode(apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+            account = mAccountModel.getAccountByApiCode(apiCode);
         } else {
-            Account account = mAccountModel.getCurrentAccount();
-            mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+            account = mAccountModel.getCurrentAccount();
         }
+        buildSessionIfNeed(account);
         return mPostService
-                .updateUserPosted(postId, 1)
+                .updateUserPosted(postId, 1, account.gcmToken, getAppVersion(), getOs())
                 .doOnNext(response ->
                         mApiHeaders.removeApiCode());
     }
 
     public Observable<LoginResponse> login(String email, String password, String gcmToken) {
-        mApiHeaders.setLoginHeaders(email, password, gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
         return mSessionService
-                .login()
+                .login(email, password, gcmToken, getAppVersion(), getOs())
                 .doOnNext(response -> {
                     if (response.isSuccess()) {
                         User user = response.user;
                         user.isActive = true;
                         mUserModel.save(user);
-                        mApiHeaders.buildSession(user.authToken, gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+                        mApiHeaders.withSession(user.authToken);
                     }
                 });
     }
 
     public Observable<AccountResponse> fetchAccounts(User user, String gcmToken) {
         Account currentAccount = mAccountModel.getCurrentAccount();
+        if (user == null) {
+            user = mUserModel.getActiveUser();
+        }
         if (mApiHeaders.getAuthToken() == null) {
-            if (user == null) {
-                user = mUserModel.getActiveUser();
-            }
             if (gcmToken == null) {
                 if (currentAccount != null) {
                     gcmToken = currentAccount.gcmToken;
@@ -222,10 +230,13 @@ public class DataManager {
                     gcmToken = mConfig.getGcmToken();
                 }
             }
-            mApiHeaders.buildSession(user.authToken, gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
+            buildSessionIfNeed(currentAccount);
+            //reset user token
+            mApiHeaders.withSession(user.authToken);
         }
+        User finalUser = user;
         return mSessionService
-                .fetchAccounts()
+                .fetchAccounts(gcmToken, getAppVersion(), getOs())
                 .doOnNext(response -> {
                     if (response.isSuccess()) {
                         //if no active account, use the first account
@@ -234,36 +245,43 @@ public class DataManager {
                             if (!response.accounts.isEmpty()) {
                                 response.accounts.get(0).current = true;
                             }
-                        } else {
+                        } else if (currentAccount.userEmail.equals(finalUser.email)) {
                             for (Account account : response.accounts) {
                                 if (currentAccount.id.equals(account.id)) {
                                     account.current = true;
                                     break;
                                 }
                             }
+                        } else {
+                            if (!response.accounts.isEmpty()) {
+                                response.accounts.get(0).current = true;
+                                currentAccount.current = false;
+                                currentAccount.save();
+                            }
                         }
 
-                        for (Account account : response.accounts) {
-                            Account accountInDb = mAccountModel.getAccountById(account.id);
-                            if (accountInDb != null) {
-                                accountInDb.apiCode = account.apiCode;
-                                accountInDb.active = account.active;
-                                accountInDb.name = account.name;
+                        List<Account> accountsInDb = mAccountModel.loadAllByUser(finalUser.email);
+                        mAccountModel.deleteAllByUser(finalUser.email);
 
-                                accountInDb.update();
-                            } else {
-                                account.save();
+                        for (Account account : response.accounts) {
+                            if (accountsInDb.contains(account)) {
+                                for (Account accountInDb : accountsInDb) {
+                                    if (accountInDb.equals(account)) {
+                                        account.gcmToken = accountInDb.gcmToken;
+                                        account.enableNotification = accountInDb.enableNotification;
+                                        break;
+                                    }
+                                }
                             }
+                            account.userEmail = finalUser.email;
+                            account.save();
                         }
                     }
                 });
     }
 
     public Observable<ErrorableResponse> logout() {
-        Account currentAccount = mAccountModel.getCurrentAccount();
-        if (mApiHeaders.getAuthToken() == null) {
-            mApiHeaders.buildSession(mUserModel.getActiveUser().authToken, currentAccount.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
-        }
+        buildSessionIfNeed(null);
         return mSessionService
                 .logout()
                 .doOnNext(response -> {
@@ -283,13 +301,25 @@ public class DataManager {
         mConfig.saveGcmToken(token);
     }
 
-    public Observable<ErrorableResponse> deleteAccount(Post item) {
-        Account account = mAccountModel.getCurrentAccount();
-        mApiHeaders.withApiCode(account.apiCode, account.gcmToken, String.valueOf(BuildConfig.VERSION_CODE));
-        mApiHeaders.addPostId(item.getId());
+    public Observable<ErrorableResponse> deletePost(Post item) {
+        Account currentAccount = mAccountModel.getCurrentAccount();
+        buildSessionIfNeed(currentAccount);
         return mPostService
-                .deletePost()
-                .doOnNext(response -> mApiHeaders.removePostId());
+                .deletePost(currentAccount.gcmToken, getAppVersion(), getOs(), item.getId());
+    }
+
+    private void buildSessionIfNeed(Account account) {
+        if (mApiHeaders.getAuthToken() == null) {
+            User activeUser = mUserModel.getActiveUser();
+            if (activeUser != null) {
+                mApiHeaders.withSession(activeUser.authToken);
+            }
+        }
+        if (account != null) {
+            mApiHeaders.withApiCode(account.apiCode);
+        } else {
+            mApiHeaders.removeApiCode();
+        }
     }
 
     public Observable<ErrorableResponse> uploadPost(int uploadMode, Account account, String path, String caption, String uploadTime) {
@@ -301,19 +331,25 @@ public class DataManager {
         MultipartBody.Part body =
                 MultipartBody.Part.createFormData("uploadFile", file.getName(), requestFile);
 
-        User user = mUserModel.getActiveUser();
+        buildSessionIfNeed(null);
         switch (uploadMode) {
             case UploadPostService.REQUEST_ADD_TO_LIBRARY:
-                mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
-                return mPostService.addPostToLibrary(body).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostToLibrary(account.id, account.gcmToken, getAppVersion(), getOs(), caption, body);
             case UploadPostService.REQUEST_SELECT_EXACT_TIME:
-                mApiHeaders.addToLibrary(user.authToken, account.gcmToken, account.id, caption, uploadTime);
-                return mPostService.addPostOnExactTime(body).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostOnExactTime(account.id, account.gcmToken, getAppVersion(), getOs(), caption, uploadTime, body);
             case UploadPostService.REQUEST_ADD_TO_SCHEDULE:
-                mApiHeaders.addToSchedule(user.authToken, account.gcmToken, account.id, caption);
-                return mPostService.addPostToSchedule(body).doOnNext(response -> mApiHeaders.removeSchedule());
+                return mPostService.addPostToSchedule(account.id, account.gcmToken, getAppVersion(), getOs(), caption, body);
 
         }
         return Observable.empty();
+    }
+
+    private String getOs() {
+        return ApiHeaders.OS.ANDROID.getName();
+    }
+
+    @NonNull
+    private String getAppVersion() {
+        return String.valueOf(BuildConfig.VERSION_CODE);
     }
 }

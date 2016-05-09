@@ -140,7 +140,7 @@ class PostPresenter extends BasePresenter<PostView> {
         checkViewAttached();
         mSubscription.add(
                 mDataManager
-                        .deleteAccount(item)
+                        .deletePost(item)
                         .subscribeOn(Schedulers.io())
                         .unsubscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())

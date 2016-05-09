@@ -17,6 +17,7 @@ import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.di.component.ApplicationComponent;
 import com.avectris.curatapp.view.main.MainActivity;
+import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
 import rx.Observable;
 import rx.Subscription;
@@ -92,7 +93,12 @@ public class UploadPostService extends IntentService {
     }
 
     private void sendNotification(int total, int numberOfSuccess) {
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent;
+        if (mDataManager.getActiveUser() != null) {
+            intent = new Intent(this, MainActivity.class);
+        } else {
+            intent = new Intent(this, VerifyActivity.class);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);

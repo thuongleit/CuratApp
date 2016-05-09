@@ -2,9 +2,7 @@ package com.avectris.curatapp.config;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
 import com.avectris.curatapp.di.scope.ApplicationScope;
-import com.avectris.curatapp.vo.Account;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,6 +14,7 @@ import javax.inject.Singleton;
 public class Config {
     private final SharedPreferences mSharedPreferences;
     private static final String KEY_GCM_TOKEN = "gcm_token";
+    private static final String KEY_USE_BETA = "use_beta_url";
 
     @Inject
     public Config(@ApplicationScope Context context) {
@@ -28,5 +27,17 @@ public class Config {
 
     public String getGcmToken() {
         return mSharedPreferences.getString(KEY_GCM_TOKEN, "");
+    }
+
+    public boolean isUseBeta() {
+        return mSharedPreferences.getBoolean(KEY_USE_BETA, false);
+    }
+
+    public void useBetaUrl() {
+        mSharedPreferences.edit().putBoolean(KEY_USE_BETA, true).apply();
+    }
+
+    public void useProductionUrl() {
+        mSharedPreferences.edit().putBoolean(KEY_USE_BETA, false).apply();
     }
 }
