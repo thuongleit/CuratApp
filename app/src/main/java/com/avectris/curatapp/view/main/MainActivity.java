@@ -29,10 +29,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
@@ -48,12 +44,15 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
-import timber.log.Timber;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
-import java.util.ArrayList;
-import java.util.List;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import timber.log.Timber;
 
 
 public class MainActivity extends ToolbarActivity implements NavigationView.OnNavigationItemSelectedListener, AccountView {
@@ -401,6 +400,9 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
                         .findFirstCompletelyVisibleItemPosition() == 0);
             }
         });
+
+        TextView textVersion = (TextView) headerView.findViewById(R.id.text_version);
+        textVersion.setText(String.format("Version %s", AppUtils.getAppVersion(mContext)));
     }
 
     /**

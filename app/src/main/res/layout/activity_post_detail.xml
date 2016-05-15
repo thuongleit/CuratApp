@@ -116,7 +116,7 @@
                     android:lines="1"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
-                     />
+                    android:visibility="gone" />
             </LinearLayout>
 
         </LinearLayout>
