@@ -1,5 +1,6 @@
 package com.avectris.curatapp.view.main;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
@@ -27,9 +28,11 @@ import android.view.ViewGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.data.DataManager;
@@ -43,9 +46,12 @@ import com.avectris.curatapp.view.verify.VerifyActivity;
 import com.avectris.curatapp.vo.Account;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.tbruyelle.rxpermissions.RxPermissions;
+
 import timber.log.Timber;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -270,20 +276,33 @@ public class MainActivity extends ToolbarActivity implements NavigationView.OnNa
 
     @OnClick(R.id.fab)
     void onFabClick() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            Intent intent = new Intent();
-            intent.setType("image/* video/mp4");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(Intent.createChooser(intent, "Select Media"), REQUEST_GALLERY_INTENT);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/* video/mp4");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/mp4"});
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            startActivityForResult(intent, REQUEST_GALLERY_KITKAT_INTENT);
-        }
+        //fix for request permission in Android M
+        RxPermissions.getInstance(this)
+                .request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(granted -> {
+                    if (granted) { // Always true pre-M
+                        // I can control this permission now
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+                            Intent intent = new Intent();
+                            intent.setType("image/* video/mp4");
+                            intent.setAction(Intent.ACTION_GET_CONTENT);
+                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                            startActivityForResult(Intent.createChooser(intent, "Select Media"), REQUEST_GALLERY_INTENT);
+                        } else {
+                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("image/* video/mp4");
+                            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/mp4"});
+                            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                            startActivityForResult(intent, REQUEST_GALLERY_KITKAT_INTENT);
+                        }
+                    } else {
+                        // Oups permission denied
+                        DialogFactory.createGenericErrorDialog(mContext,
+                                R.string.error_message_ignore_permission).show();
+                    }
+                });
+
     }
 
     private void setupSpinnerAccount(List<Account> accounts) {

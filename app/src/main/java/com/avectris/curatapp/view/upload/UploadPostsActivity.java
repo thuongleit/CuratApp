@@ -4,36 +4,45 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
-import android.widget.*;
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.data.DataManager;
+import com.avectris.curatapp.util.AppUtils;
 import com.avectris.curatapp.view.base.ToolbarActivity;
 import com.avectris.curatapp.view.main.SpinnerArrayAdapter;
 import com.avectris.curatapp.view.widget.MuliEmojiEditText;
 import com.avectris.curatapp.vo.Account;
 import com.vanniktech.emoji.EmojiPopup;
-import icepick.Icepick;
-import icepick.State;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import timber.log.Timber;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import icepick.Icepick;
+import icepick.State;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import timber.log.Timber;
+
 /**
  * Created by thuongle on 4/29/16.
  */
 public class UploadPostsActivity extends ToolbarActivity {
     public static final String EXTRA_FILE_PATHS = "exFilePaths";
+    public static final String EXTRA_CAPTION = "exCaption";
 
     @Bind(R.id.text_description)
     TextView mTextDescription;
@@ -54,6 +63,9 @@ public class UploadPostsActivity extends ToolbarActivity {
 
     @State
     ArrayList<String> mFilePaths;
+    @State
+    String mCaptionText;
+
     private DataManager mDataManager;
     private Account mSelectedAccount;
     private Context mContext;
@@ -72,34 +84,80 @@ public class UploadPostsActivity extends ToolbarActivity {
 
         mDataManager = getApp().getAppComponent().dataManager();
         mContext = this;
+
         if (savedInstanceState == null) {
             mFilePaths = getIntent().getStringArrayListExtra(EXTRA_FILE_PATHS);
+            mCaptionText = getIntent().getStringExtra(EXTRA_CAPTION);
         } else {
             Icepick.restoreInstanceState(this, savedInstanceState);
+        }
+
+        // Get intent, action and MIME type from sharing intent if have
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (type != null) {
+            mFilePaths = new ArrayList<>();
+            if (type.startsWith("image/") || type.startsWith("video/mp4")) {
+                if ((Intent.ACTION_SEND.equals(action))) {
+                    handleSendImage(intent); // Handle single image being sent
+                } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+                    handleSendMultipleImages(intent); // Handle multiple images being sent
+                }
+            }
+        }
+        if (mCaptionText != null) {
+            mInputCaption.setText(mCaptionText);
         }
 
         if (mFilePaths == null || mFilePaths.isEmpty()) {
             Toast.makeText(this, "You haven't chosen any files", Toast.LENGTH_SHORT).show();
             finish();
+        } else {
+            mTextDescription.setText(String.format(mTextDescription.getText().toString(), mFilePaths.size()));
+
+            mDataManager
+                    .loadAccounts()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(accounts -> {
+                                setupSpinner(accounts);
+                                mButtonAddToSchedule.setEnabled(true);
+                                mButtonSelectTime.setEnabled(true);
+                                mButtonUploadLibrary.setEnabled(true);
+                            },
+                            e -> {
+                                Toast.makeText(UploadPostsActivity.this, "Cannot get account list", Toast.LENGTH_SHORT).show();
+                                finish();
+                            });
+
+            mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootLayout).build(mInputCaption);
         }
-        mTextDescription.setText(String.format(mTextDescription.getText().toString(), mFilePaths.size()));
+    }
 
-        mDataManager
-                .loadAccounts()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(accounts -> {
-                            setupSpinner(accounts);
-                            mButtonAddToSchedule.setEnabled(true);
-                            mButtonSelectTime.setEnabled(true);
-                            mButtonUploadLibrary.setEnabled(true);
-                        },
-                        e -> {
-                            Toast.makeText(UploadPostsActivity.this, "Cannot get account list", Toast.LENGTH_SHORT).show();
-                            finish();
-                        });
+    void handleSendImage(Intent intent) {
+        Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (uri != null) {
+            // Update UI to reflect image being shared
+            String pathFromURI = AppUtils.getPathFromURI(mContext, uri);
+            mFilePaths.add(pathFromURI);
+        } else {
+            Toast.makeText(mContext, "Something went wrong. Please try again later", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
 
-        mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootLayout).build(mInputCaption);
+    void handleSendMultipleImages(Intent intent) {
+        ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (uris != null) {
+            // Update UI to reflect multiple images being shared
+            for (Uri uri : uris) {
+                mFilePaths.add(AppUtils.getPathFromURI(mContext, uri));
+            }
+        } else {
+            Toast.makeText(mContext, "Something went wrong. Please try again later", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override

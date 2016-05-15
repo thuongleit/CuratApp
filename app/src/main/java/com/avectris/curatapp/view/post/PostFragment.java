@@ -26,8 +26,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
+
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.di.scope.ActivityScope;
@@ -37,6 +39,7 @@ import com.avectris.curatapp.vo.Post;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -481,7 +484,8 @@ public class PostFragment extends BaseFragment implements PostView, SwipeRefresh
     }
 
     private void setupNewRecyclerView() {
-        PostRecyclerAdapter adapter = new PostRecyclerAdapter(mApplication, mContext, mRecyclerView, mPosts);
+        PostRecyclerAdapter adapter = new PostRecyclerAdapter(mApplication, mContext, mRecyclerView, mPosts,
+                (mContentMode == Constant.POSTED_CONTENT_MODE));
 
         //no need to add load more listener when items < 10 (1 page in UI)
         adapter.setOnLoadMoreListener(() -> {
