@@ -59,6 +59,18 @@
             android:name=".view.upload.UploadPostsActivity"
             android:parentActivityName=".view.main.MainActivity"
             android:label="Upload Media">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/mp4"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/mp4"/>
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />
@@ -105,7 +117,7 @@
 
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="22d4614fff80c524f8d3b07d3501fedd20385f40" />
+            android:value="941653f470059c94119aec7a06a7bd36cbb3ddd3" />
     </application>
 
 </manifest>

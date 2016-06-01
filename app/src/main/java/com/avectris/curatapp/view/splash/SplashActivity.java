@@ -8,6 +8,8 @@ import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
 import com.avectris.curatapp.view.verify.VerifyActivity;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import javax.inject.Inject;
 
 
@@ -19,6 +21,7 @@ public class SplashActivity extends BaseActivity implements SplashView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
 
         getComponent().inject(this);
         mSplashPresenter.attachView(this);

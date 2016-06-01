@@ -42,8 +42,10 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private int visibleThreshold = 5;
     private boolean canLoad;
     private OnLoadMoreListener onLoadMoreListener;
+    private boolean mIsPosted;
 
-    public PostRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts) {
+    public PostRecyclerAdapter(Application application, Context context, RecyclerView recyclerView, List<Post> posts, boolean isPosted) {
+        mIsPosted = isPosted;
         mDisplayImageOptions = ((CuratApp) application).getAppComponent().displayImageOptions();
 
         this.mContext = context;
@@ -189,6 +191,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             this.setItemClickListener(() -> {
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+                intent.putExtra(PostDetailActivity.EXTRA_IS_POSTED, mIsPosted);
                 mContext.startActivity(intent);
             });
         }

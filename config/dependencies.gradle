@@ -1,7 +1,7 @@
 ext.app = [
         applicationId: 'com.avectris.curatapp',
-        code         : 14,
-        name         : '1.1.2',
+        code         : 16,
+        name         : '1.1.3',
 
         minSdk       : 15,
         targetSdk    : 23,
@@ -38,7 +38,7 @@ ext.versions = [
         eventbus               : '3.0.0',
         parseCore              : '1.3.0',
         parseBolts             : '1.11.0',
-        crashlytics            : '2.5.2@aar',
+        crashlytics            : '2.5.5@aar',
         rxBinding              : '0.4.0',
         materialishProgress    : '1.7',
 
