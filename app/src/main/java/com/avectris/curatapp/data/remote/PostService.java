@@ -2,8 +2,14 @@ package com.avectris.curatapp.data.remote;
 
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
+import com.avectris.curatapp.data.remote.post.TrackPostResponse;
+
 import okhttp3.MultipartBody;
-import retrofit2.http.*;
+import retrofit2.http.GET;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.Query;
 import rx.Observable;
 
 /**
@@ -53,4 +59,10 @@ public interface PostService {
                                                     @Query("os") String os,
                                                     @Query("caption") String caption,
                                                     @Part MultipartBody.Part file);
+
+    @POST("trackpost")
+    Observable<TrackPostResponse> trackPost(@Query("deviceid") String deviceId,
+                                            @Query("version") String version,
+                                            @Query("os") String os,
+                                            @Query("post_id") String postId);
 }

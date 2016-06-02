@@ -16,4 +16,10 @@ interface PostDetailView extends ErrorView {
     void setButtonEnable(boolean enabled);
 
     void onUpdatePostSuccess(Intent shareIntent);
+
+    void onTrackPostSuccess(String message);
+
+    void showProgress(boolean show);
+
+    void onTrackPostFailed(String message);
 }

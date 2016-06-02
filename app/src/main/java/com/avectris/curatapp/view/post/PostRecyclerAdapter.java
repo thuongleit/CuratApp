@@ -10,8 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.util.OnLoadMoreListener;
@@ -24,6 +23,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by thuongle on 2/13/16.
@@ -96,7 +98,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof PostViewHolder) {
-            ((PostViewHolder) holder).bind(mPosts.get(position));
+            ((PostViewHolder) holder).bind(position, mPosts.get(position));
         } else {
             ((ProgressViewHolder) holder).progressBar.spin();
         }
@@ -173,7 +175,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             this.mItemClickListener = itemClickListener;
         }
 
-        public void bind(Post post) {
+        public void bind(int position, Post post) {
             Media media = post.getMedia();
             if (post.isPosted()) {
                 mTextPosted.setVisibility(View.VISIBLE);
@@ -192,6 +194,7 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Intent intent = new Intent(mContext, PostDetailActivity.class);
                 intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
                 intent.putExtra(PostDetailActivity.EXTRA_IS_POSTED, mIsPosted);
+                intent.putExtra(PostDetailActivity.EXTRA_POST_POSITION, position);
                 mContext.startActivity(intent);
             });
         }

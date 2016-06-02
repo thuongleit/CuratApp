@@ -1,2 +1,299 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
+
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/design/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="72961d8b453b46e277702f18de9d210bc019e36e">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-design-23.2.1_64001aaea39e6882ae89307bca97ff301549ad20.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.2.1/support-annotations-23.2.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="ccb693bc0774fcb637246f7360de25b4af7df318">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/support-annotations-23.2.1_5d4d40d2511900aea8a009a009eb6a35a5496eb4.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/javax.inject/javax.inject/1/6975da39a7040257bd51d21a231b76c915872d38/javax.inject-1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="6975da39a7040257bd51d21a231b76c915872d38">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/javax.inject-1_9144b5552ee515fcfd143ea1367daf28e705cf62.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/converter-jackson/2.0.0/9506825ddc5a43b38a3d104db913ff0f4cb2e323/converter-jackson-2.0.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="9506825ddc5a43b38a3d104db913ff0f4cb2e323">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/converter-jackson-2.0.0_0550f662f7cccd44b4f82aeb65e835869d6a9885.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="3be474b1b21b31cf2fa93fe6bd641ae108d96452">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-support-v4-23.2.1_1f1806f1ed439a02e7b9570a3558ae55947c1699.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.google.dagger/dagger/2.0.2/de8416eda7b2fd7c25836b140c39e1cbf10542f6/dagger-2.0.2.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="de8416eda7b2fd7c25836b140c39e1cbf10542f6">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/dagger-2.0.2_bbd455ca631af869c94e32690849554fbaf681b4.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-basement/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8e673cdfadd8f2d98fdb2fda2285c30f6e449782">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-basement-8.4.0_c33d40feaf55ecfaf2edccdfc711e6d36aafe491.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="cb86970df0f0f25f766d320b279c7858c1ca0003">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-cardview-v7-23.2.1_6421bfe18317e4b802666bc1e179b693c43aca48.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.jakewharton.rxbinding/rxbinding/0.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="ffc09f4e5bdebe068e5101f587dadc42b60fbfe4">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.jakewharton.rxbinding-rxbinding-0.4.0_b75aef22af22dbb0611f1cf3e49485d759b28a49.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/io.reactivex/rxjava/1.1.1/b494968f6050d494de55dc3ce005e59c7eb40012/rxjava-1.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="b494968f6050d494de55dc3ce005e59c7eb40012">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/rxjava-1.1.1_5414b98875b10f8342e262e452c86e8a09d16434.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.2.1/jars/libs/internal_impl-23.2.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="607a3d0b8013b4ccbfeb0b7cb293351994e021fb">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/internal_impl-23.2.1_d16a9bb482ad64ad2536e6741d19b57d363d21e0.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/retrofit/2.0.0/5c06d197fb7fa875ad452f562e3310dd9949d066/retrofit-2.0.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="5c06d197fb7fa875ad452f562e3310dd9949d066">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/retrofit-2.0.0_61e57a490f94d904858952ac05ef0e8c164916f8.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="3469cb457f10f74c28cbc05f069b6c894f6cbdd0">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-animated-vector-drawable-23.2.1_0add85ea652fa6059c48af135a82bd8f8b2b308a.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.6.0/98476622f10715998eacf9240d6b479f12c66143/okio-1.6.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="98476622f10715998eacf9240d6b479f12c66143">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/okio-1.6.0_2318dc8bc0301f7c3acea630776d2c0fadaf97f9.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/io.fabric.sdk.android/fabric/1.3.10/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="a5db9a2dd46d84285ef737f65030b74b6e8ee2a4">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/io.fabric.sdk.android-fabric-1.3.10_aa7132de3db0dfd1e5a0bfb4e147afcf4d0b010b.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.github.Raizlabs.DBFlow/dbflow-core/3.0.0-beta5/25f731527e77fec5e8ddcefda575d32656922a7d/dbflow-core-3.0.0-beta5.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="25f731527e77fec5e8ddcefda575d32656922a7d">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/dbflow-core-3.0.0-beta5_819eb4c7fb0525bdadca55d5580b36aeb64efc46.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.crashlytics.sdk.android/crashlytics/2.5.5/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="611605b6b640c1558f9bdea41de8ff837ab68ca8">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.crashlytics.sdk.android-crashlytics-2.5.5_7c63010ab499fa6cfeade8ed14e49a3d7f8c5ac5.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core/2.7.2/8b8310381b690e317f5f0574e9b2dd7034778b4c/jackson-core-2.7.2.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8b8310381b690e317f5f0574e9b2dd7034778b4c">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/jackson-core-2.7.2_2d11edaf6409c0b65920d24953265680b5039de3.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.2.0/f7873a2ebde246a45c2a8d6f3247108b4c88a879/okhttp-3.2.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="f7873a2ebde246a45c2a8d6f3247108b4c88a879">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/okhttp-3.2.0_65b67abf3c2f38d91ca9d3e7c49d44b27c2a7385.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.jakewharton.timber/timber/4.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="630b29f983afc36ec2c99bc8b4cae38b328119b4">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.jakewharton.timber-timber-4.1.1_37af0ee63f9efb7c23a0b0062805cc3de9fb3689.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.vanniktech/emoji/0.2.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="fbdcfbec0a51be591d7849a1be2708d31afbc701">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.vanniktech-emoji-0.2.0_6def9288e1700616ed5e5391cb439ce58d1d5557.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.crashlytics.sdk.android/answers/1.3.6/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="9af3b9b8114e685291aa00e6572b0a9131244956">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.crashlytics.sdk.android-answers-1.3.6_602fa0b0778ffe4e2c37eeeecf209672a949565c.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-base/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="fef2b3e4b6b1b0e5fe7b69fa137a5fa55a3182ab">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-base-8.4.0_fcb3db0232725028937cef13d9814fa9f85ea118.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-measurement/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="613298b7aa012f121ce542881c0a599ebd8078f2">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-measurement-8.4.0_4d714003ec2c2ffec540ffe50cc831948fdbee91.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.squareup.retrofit2/adapter-rxjava/2.0.0/bf61256d9868ea053e24d77669c55c80db375c15/adapter-rxjava-2.0.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="bf61256d9868ea053e24d77669c55c80db375c15">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/adapter-rxjava-2.0.0_ec0b372cf227840d73cc978432b767bb0a43b20b.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-analytics/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="1c9f35e952b212c843f7bd2c7eec8e82ad95602e">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-analytics-8.4.0_e628c72234aa526ccc4e9978d9e5a4efa0393bc5.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.github.Raizlabs.DBFlow/dbflow/3.0.0-beta5/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="1c22a78d3134f31a72ab20f24f1736906f1da611">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.github.Raizlabs.DBFlow-dbflow-3.0.0-beta5_f68b802bc77efa89b04e55167fc257d5b3fa8c2b.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations/2.7.0/19f42c154ffc689f40a77613bc32caeb17d744e3/jackson-annotations-2.7.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="19f42c154ffc689f40a77613bc32caeb17d744e3">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/jackson-annotations-2.7.0_42d2968b9933b33fe7ca658601a550db63c8c815.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife/7.0.1/d5d13ea991eab0252e3710e5df3d6a9d4b21d461/butterknife-7.0.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d5d13ea991eab0252e3710e5df3d6a9d4b21d461">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/butterknife-7.0.1_15382ed839d1dc969936375c11710beb044003bc.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.google.android.gms/play-services-gcm/8.4.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="2d7fe76982677315c4dc4edfb459c8ca718a9d4c">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.google.android.gms-play-services-gcm-8.4.0_db5773c6962fa101e2cb6a607c15a18806964cb7.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="673d77a5bbddd766037f088e775df525c46407f0">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-support-vector-drawable-23.2.1_30a1b8887c6b3487505f1f499f7dca45385a7130.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="e4d0cbb0b999604b349062f0214a0a228a7fd151">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-appcompat-v7-23.2.1_1d4957f7b668eb436e4fb51de9c01b5adf0cb903.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/io.reactivex/rxandroid/1.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d4c4b83de2f6412072d2a29b1b7a5b03edaad5ff">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/io.reactivex-rxandroid-1.1.0_f746f1b48df88b4dbee163518ec728cd4747c42e.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.nostra13.universalimageloader/universal-image-loader/1.9.5/442dbfb517b9ab5cb5c6da7ebf8cc28ec5bd0375/universal-image-loader-1.9.5.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="442dbfb517b9ab5cb5c6da7ebf8cc28ec5bd0375">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/universal-image-loader-1.9.5_75e2d27a9c3fef64e58d3d590074a52b44a990b0.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind/2.7.2/84ffa765dd258dbab8695963c41308b054f3a1cb/jackson-databind-2.7.2.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="84ffa765dd258dbab8695963c41308b054f3a1cb">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/jackson-databind-2.7.2_c7534706975a1fcfa45b47a8d3243c43e3055ee6.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.2.1/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="e3885783ff8926ed9e2fdcd16816c2e1e73e7aee">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.android.support-recyclerview-v7-23.2.1_d470d920c5b8c781a447cf17d58de435a475d48d.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.pnikosis/materialish-progress/1.7/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="41a4edf3c43fdbce6eba27da50b17ff9933987f1">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.pnikosis-materialish-progress-1.7_1c3d415d695422f4bf3bc637d3902e25ceba0407.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.tbruyelle.rxpermissions/rxpermissions/0.7.0/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="50fd38504119ea609c269abf98af75fb14e82f2c">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.tbruyelle.rxpermissions-rxpermissions-0.7.0_2fcceb4a84ce7059475abb3d0cfd1ada0d6b660b.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/frankiesardo/icepick/3.1.0/5e1b3b33bafbff690ae8292f3ee021438fa1f7ef/icepick-3.1.0.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="5e1b3b33bafbff690ae8292f3ee021438fa1f7ef">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/icepick-3.1.0_20a4813dcfac8e59f0731b87869bcf61c354c2f3.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.crashlytics.sdk.android/crashlytics-core/2.3.8/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="c9ef45dcbd082cd63aac09a5e2cd443adb5df837">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.crashlytics.sdk.android-crashlytics-core-2.3.8_0382b9a81fe6d5a2082ae7e15a344236781a615c.jar" />
+    </item>
+    <item
+        jar="/Users/thuongle/.gradle/caches/modules-2/files-2.1/com.danikula/videocache/2.3.4/253408a3d1294663b0acdb3f697527ee913eb0a3/videocache-2.3.4.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="253408a3d1294663b0acdb3f697527ee913eb0a3">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/videocache-2.3.4_0008ae74824630fdc4c9772b439ef09818ffb9df.jar" />
+    </item>
+    <item
+        jar="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/exploded-aar/com.crashlytics.sdk.android/beta/1.1.4/jars/classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="ad5bb101ced4d3939225c9b57e5a3d81547c1fbb">
+        <dex dex="/Volumes/Work/android/work/CuraTapp/app/build/intermediates/pre-dexed/release/com.crashlytics.sdk.android-beta-1.1.4_abbfd0110c901ad6ccceb272ecbf34e9eec9f38e.jar" />
+    </item>
+
+</items>

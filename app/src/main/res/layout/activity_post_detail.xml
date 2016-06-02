@@ -70,9 +70,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp">
+                android:layout_marginRight="30dp"
+                android:orientation="vertical">
 
                 <com.avectris.curatapp.view.widget.MuliAppCompatButton
                     android:id="@+id/button_post_now"
@@ -85,11 +85,11 @@
                     android:enabled="false"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center"
+                    android:lines="1"
+                    android:maxLines="1"
                     android:paddingBottom="10dp"
                     android:paddingLeft="40dp"
                     android:paddingRight="40dp"
-                    android:maxLines="1"
-                    android:lines="1"
                     android:paddingTop="10dp"
                     android:text="Post Now"
                     android:textColor="@android:color/white"
@@ -106,17 +106,39 @@
                     android:enabled="false"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:gravity="center"
+                    android:lines="1"
+                    android:maxLines="1"
                     android:paddingBottom="10dp"
                     android:paddingLeft="40dp"
                     android:paddingRight="40dp"
                     android:paddingTop="10dp"
                     android:text="Reschedule"
                     android:textAllCaps="true"
-                    android:maxLines="1"
-                    android:lines="1"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
                     android:visibility="gone" />
+
+                <com.avectris.curatapp.view.widget.MuliAppCompatButton
+                    android:id="@+id/button_track_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/button_post_now"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:clickable="true"
+                    android:elevation="2dp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:paddingBottom="10dp"
+                    android:paddingLeft="40dp"
+                    android:paddingRight="40dp"
+                    android:paddingTop="10dp"
+                    android:text="Track Post"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp" />
             </LinearLayout>
 
         </LinearLayout>

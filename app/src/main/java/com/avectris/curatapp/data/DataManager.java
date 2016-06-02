@@ -2,6 +2,7 @@ package com.avectris.curatapp.data;
 
 import android.app.Application;
 import android.support.annotation.NonNull;
+
 import com.avectris.curatapp.BuildConfig;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
@@ -14,23 +15,26 @@ import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
+import com.avectris.curatapp.data.remote.post.TrackPostResponse;
 import com.avectris.curatapp.data.remote.verify.AccountResponse;
 import com.avectris.curatapp.data.remote.verify.LoginResponse;
 import com.avectris.curatapp.view.upload.UploadPostService;
 import com.avectris.curatapp.vo.Account;
 import com.avectris.curatapp.vo.Post;
 import com.avectris.curatapp.vo.User;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import rx.Observable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import rx.Observable;
 
 /**
  * Created by thuongle on 1/14/16.
@@ -57,7 +61,7 @@ public class DataManager {
         ((CuratApp) app).getAppComponent().inject(this);
     }
 
-    public User getActiveUser(){
+    public User getActiveUser() {
         return mUserModel.getActiveUser();
     }
 
@@ -306,6 +310,12 @@ public class DataManager {
         buildSessionIfNeed(currentAccount);
         return mPostService
                 .deletePost(currentAccount.gcmToken, getAppVersion(), getOs(), item.getId());
+    }
+
+    public Observable<TrackPostResponse> trackPost(Post post) {
+        Account currentAccount = mAccountModel.getCurrentAccount();
+        buildSessionIfNeed(currentAccount);
+        return mPostService.trackPost(currentAccount.gcmToken, getAppVersion(), getOs(), post.getId());
     }
 
     private void buildSessionIfNeed(Account account) {

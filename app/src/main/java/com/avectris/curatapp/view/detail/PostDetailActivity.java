@@ -1,6 +1,7 @@
 package com.avectris.curatapp.view.detail;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,11 +11,12 @@ import android.support.v7.widget.AppCompatButton;
 import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.*;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.MediaController;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.data.DataManager;
@@ -32,15 +34,16 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.utils.DiskCacheUtils;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
-import icepick.Icepick;
-import icepick.State;
-import timber.log.Timber;
+import java.io.File;
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import icepick.State;
+import timber.log.Timber;
 
 
 /**
@@ -51,6 +54,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     public static final String EXTRA_API_CODE = "EXTRA_API_CODE";
     private static final String VIDEO_PATTERN = ".mp4";
     public static final String EXTRA_IS_POSTED = "exIssPosted";
+    public static final String EXTRA_POST_POSITION = "exPostPosition";
 
     @Bind(R.id.text_caption)
     TextView mTextCaption;
@@ -64,6 +68,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     SquareVideoView mVideoView;
     @Bind(R.id.progress_bar)
     ProgressBar mProgressWheel;
+    @Bind(R.id.button_track_post)
+    Button mButtonTrack;
 
     @Inject
     PostDetailPresenter mPostDetailPresenter;
@@ -82,6 +88,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     private boolean isPermissionApproved;
     @State
     boolean mIsPostedPost;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected int getLayoutId() {
@@ -122,6 +129,15 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             mPostId = getIntent().getStringExtra(EXTRA_POST_ID);
             mApiCode = getIntent().getStringExtra(EXTRA_API_CODE);
             mIsPostedPost = getIntent().getBooleanExtra(EXTRA_IS_POSTED, false);
+            int position = getIntent().getIntExtra(EXTRA_POST_POSITION, -1);
+            if (position == -1) {
+                Timber.d("Something went wrong when parse intent");
+                finish();
+            } else {
+                if (mIsPostedPost && position != 0) {//need to hide track button when it is not the first post of scheduled posts
+                    mButtonTrack.setVisibility(View.GONE);
+                }
+            }
         } else {
             mPostId = savedInstanceState.getString(EXTRA_POST_ID);
             mApiCode = savedInstanceState.getString(EXTRA_API_CODE);
@@ -219,7 +235,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     public void setButtonEnable(boolean enabled) {
         mButtonPostNow.setEnabled(enabled);
-        if(mIsPostedPost) {
+        if (mIsPostedPost) {
             mButtonReschedule.setVisibility(View.VISIBLE);
             mButtonReschedule.setEnabled(enabled);
         }
@@ -228,6 +244,29 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
     @Override
     public void onUpdatePostSuccess(Intent shareIntent) {
         startActivity(shareIntent);
+    }
+
+    @Override
+    public void onTrackPostSuccess(String message) {
+        DialogFactory.createGenericErrorDialog(this, message).show();
+        mButtonTrack.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showProgress(boolean show) {
+        if (mProgressDialog == null) {
+            mProgressDialog = DialogFactory.createProgressDialog(this, "Processing...");
+        }
+        if (show) {
+            mProgressDialog.show();
+        } else {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onTrackPostFailed(String message) {
+        DialogFactory.createGenericErrorDialog(this, message).show();
     }
 
     @OnClick(R.id.button_post_now)
@@ -269,6 +308,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
                     } else {
                         mPostDetailPresenter.updatePost(mApiCode, mPostId, shareIntent);
                     }
+                    //change the post from scheduled post to posted post instantly (to enable track button)
+                    mIsPostedPost = true;
                 } catch (Exception e) {
                     Timber.d(e, "Cannot perform post now");
                     DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
@@ -324,6 +365,22 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
         } catch (Exception e) {
             Timber.d(e, "Cannot perform post now");
             DialogFactory.createGenericErrorDialog(this, "Your media is still downloading...").show();
+        }
+    }
+
+    @OnClick(R.id.button_track_post)
+    public void trackPost() {
+        if (!mIsPostedPost) { //it is always scheduled post
+            DialogFactory.createSimpleOkErrorDialog(this, "Tracking Post", "After clicking this button," +
+                    " CuraTapp server will fetch latest post from Instagram, link it with the post here, and track it." +
+                    "\n\nSo, please post to Instagram first, then return to CuraTapp and click 'Track' button again.").show();
+        } else {//it is the first post of posted post (recent post)
+            if (mPost.isPosted()) {//if it is a posted post, already post to IG
+                //this button is always enabled in position != 0
+                mPostDetailPresenter.trackPost(mPost);
+            } else {
+                DialogFactory.createSimpleOkErrorDialog(this, "Tracking Post", "You have't posted this post to IG yet!").show();
+            }
         }
     }
 
