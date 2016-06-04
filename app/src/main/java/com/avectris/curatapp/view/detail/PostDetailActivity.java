@@ -215,14 +215,35 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
                 mHttpProxyCacheServer.registerCacheListener(this, originMedia);
                 mVideoView.setVideoPath(proxyUrl);
                 mVideoView.start();
-
             } else {
                 mTextCaption.setText(media.getCaptionText());
                 ImageLoader.getInstance().displayImage(originMedia, mImagePicture, mDisplayImageOptions);
                 mImagePicture.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
         } else {
-            mImagePicture.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+            //if it is an ig post
+            mTextCaption.setText(post.getIgCaptionText());
+            if ("image".equals(mPost.getIgMediaType())) {
+                ImageLoader.getInstance().displayImage(post.getIgImageStandard(), mImagePicture, mDisplayImageOptions);
+                mImagePicture.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            } else {
+                setButtonEnable(false);
+                mVideoMode = true;
+                mVideoView.setVisibility(View.VISIBLE);
+                mProgressWheel.setVisibility(View.VISIBLE);
+                mProgressWheel.setProgress(0);
+                mImagePicture.setVisibility(View.GONE);
+
+                MediaController vidControl = new MediaController(this);
+                vidControl.setAnchorView(mVideoView);
+                mVideoView.setMediaController(vidControl);
+                mVideoView.requestFocus();
+
+                String proxyUrl = mHttpProxyCacheServer.getProxyUrl(mPost.getIgVideoStandardResolution());
+                mHttpProxyCacheServer.registerCacheListener(this, mPost.getIgVideoStandardResolution());
+                mVideoView.setVideoPath(proxyUrl);
+                mVideoView.start();
+            }
         }
     }
 
@@ -293,12 +314,20 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
                         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(mCacheVideo));
                         shareIntent.setType("video/mp4");
                     } else {
+                        String imageUrl;
+                        String captionText;
+                        if (mPost.getMedia() == null) {
+                            imageUrl = mPost.getMedia().getOriginMedia();
+                            captionText = mPost.getMedia().getCaptionText();
+                        } else {
+                            imageUrl = mPost.getIgImageStandard();
+                            captionText = mPost.getIgCaptionText();
+                        }
                         shareIntent.putExtra(Intent.EXTRA_STREAM,
                                 Uri.parse(MediaStore.Images.Media.insertImage(
-
-                                        getContentResolver(), DiskCacheUtils.findInCache(mPost.getMedia().getOriginMedia(),
+                                        getContentResolver(), DiskCacheUtils.findInCache(imageUrl,
                                                 ImageLoader.getInstance().getDiscCache()).getAbsolutePath(),
-                                        mPost.getMedia().getCaptionText(), mPost.getMedia().getCaptionText())));
+                                        captionText, captionText)));
                         shareIntent.setType("image/*");
                     }
                     copyTextToClipboard();

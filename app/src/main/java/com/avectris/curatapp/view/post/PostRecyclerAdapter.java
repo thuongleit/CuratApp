@@ -185,8 +185,10 @@ class PostRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
                 mTextCaption.setText(media.getCaptionText());
             } else {
-                mImagePicture.setBackgroundColor(mContext.getResources().getColor(R.color.colorPrimary));
-                mTextCaption.setText("");
+                //if it is a ig post
+                ImageLoader.getInstance().displayImage(post.getIgImageThumbnail(), mImagePicture, mDisplayImageOptions);
+                mImagePicture.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
+                mTextCaption.setText(post.getIgCaptionText());
             }
             mTextDueTime.setText("Due " + post.getExecDate());
 

@@ -6,7 +6,7 @@ package com.avectris.curatapp.config;
 public interface Constant {
 
     //    String BETA_API_END_POINT = "https://app.curatapp.com/api/v1/";
-    String BETA_API_END_POINT = "http://curatapp.master.stickyviral.com/public/api/v3/";
+    String BETA_API_END_POINT = "http://beta.curatapp.com/api/v3/";
     String API_END_POINT = "https://app.curatapp.com/api/v3/";
 
     String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
