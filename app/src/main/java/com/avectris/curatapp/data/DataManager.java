@@ -272,7 +272,6 @@ public class DataManager {
                                 for (Account accountInDb : accountsInDb) {
                                     if (accountInDb.equals(account)) {
                                         account.gcmToken = accountInDb.gcmToken;
-                                        account.enableNotification = accountInDb.enableNotification;
                                         break;
                                     }
                                 }

@@ -138,7 +138,8 @@
                     android:text="Track Post"
                     android:textAllCaps="true"
                     android:textColor="@android:color/white"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:visibility="gone"/>
             </LinearLayout>
 
         </LinearLayout>
