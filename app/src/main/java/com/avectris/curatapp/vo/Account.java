@@ -40,8 +40,9 @@ public class Account extends BaseModel implements Parcelable {
     @Column(name = "gcm_token")
     public String gcmToken;
 
-    @Column(name = "enable_notification", defaultValue = "true")
-    public boolean enableNotification;
+    @JsonProperty("push_notification")
+    @Column(name = "enable_notification", defaultValue = "0")
+    public int enableNotification;
 
     @Column
     @JsonIgnore
@@ -68,7 +69,7 @@ public class Account extends BaseModel implements Parcelable {
         dest.writeInt(this.active);
         dest.writeByte(current ? (byte) 1 : (byte) 0);
         dest.writeString(this.gcmToken);
-        dest.writeByte(enableNotification ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.enableNotification);
         dest.writeString(this.userEmail);
     }
 
@@ -79,7 +80,7 @@ public class Account extends BaseModel implements Parcelable {
         this.active = in.readInt();
         this.current = in.readByte() != 0;
         this.gcmToken = in.readString();
-        this.enableNotification = in.readByte() != 0;
+        this.enableNotification = in.readInt();
         this.userEmail = in.readString();
     }
 
@@ -109,5 +110,9 @@ public class Account extends BaseModel implements Parcelable {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public boolean isEnableNotification() {
+        return enableNotification == 1;
     }
 }

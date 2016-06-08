@@ -122,7 +122,7 @@ public class DataManager {
                 account.gcmToken = token;
                 account.update();
                 buildSessionIfNeed(account);
-                if (account.enableNotification) {
+                if (account.isEnableNotification()) {
                     observables.add(mSessionService
                             .enablePushNotification(token == null ? account.gcmToken : token, String.valueOf(account.id))
                             .map(response -> {
@@ -150,12 +150,12 @@ public class DataManager {
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
         }
-        if (!accountDb.enableNotification) {
+        if (!accountDb.isEnableNotification()) {
             return mSessionService
                     .enablePushNotification(accountDb.gcmToken, account.id)
                     .map(response -> {
                         if (response.isSuccess()) {
-                            accountDb.enableNotification = true;
+                            accountDb.enableNotification = 1;
                             accountDb.update();
                             return true;
                         }
@@ -172,12 +172,12 @@ public class DataManager {
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
         }
-        if (accountDb.enableNotification) {
+        if (accountDb.isEnableNotification()) {
             return mSessionService
                     .disablePushNotification(accountDb.gcmToken, String.valueOf(account.id))
                     .map(response -> {
                         if (response.isSuccess()) {
-                            accountDb.enableNotification = false;
+                            accountDb.enableNotification = 0;
                             accountDb.update();
                             //saveOrUpdate to database
                             return true;
@@ -237,6 +237,14 @@ public class DataManager {
             buildSessionIfNeed(currentAccount);
             //reset user token
             mApiHeaders.withSession(user.authToken);
+        } else {
+            if (gcmToken == null) {
+                if (currentAccount != null) {
+                    gcmToken = currentAccount.gcmToken;
+                } else {
+                    gcmToken = mConfig.getGcmToken();
+                }
+            }
         }
         User finalUser = user;
         return mSessionService
