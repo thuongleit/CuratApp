@@ -90,7 +90,7 @@ android {
 
 dependencies {
     //google service
-    compile libraries.googleGcm
+    compile "com.google.firebase:firebase-messaging:9.0.2"
     compile libraries.googleAnalytics
 
     // Reactive

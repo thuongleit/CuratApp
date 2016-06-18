@@ -1,39 +1,39 @@
 {
   "project_info": {
-    "project_number": "659668128378",
-    "project_id": "curatapp-b704"
+    "project_number": "74484644131",
+    "firebase_url": "https://curatapp-android.firebaseio.com",
+    "project_id": "curatapp-android",
+    "storage_bucket": "curatapp-android.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:659668128378:android:5ccee788ec3fad41",
+        "mobilesdk_app_id": "1:74484644131:android:5ccee788ec3fad41",
         "android_client_info": {
           "package_name": "com.avectris.curatapp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "74484644131-5v5oe34mkvrke89emlqvhlajf2t77nmg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyAI0JkGa1QraKR0ukoB2lm9zL-QdjjndNg"
+          "current_key": "AIzaSyBbhP7pWQ89KCILSZdU4SgH00W3mhOdzdE"
         }
       ],
       "services": {
         "analytics_service": {
-          "status": 2,
-          "analytics_property": {
-            "tracking_id": "UA-77250233-2"
-          }
-        },
-        "cloud_messaging_service": {
-          "status": 2,
-          "apns_config": []
+          "status": 1
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

@@ -50,8 +50,8 @@ import timber.log.Timber;
  * Created by thuongle on 2/15/16.
  */
 public class PostDetailActivity extends ToolbarActivity implements PostDetailView, CacheListener {
-    public static final String EXTRA_POST_ID = "EXTRA_POST_ID";
-    public static final String EXTRA_API_CODE = "EXTRA_API_CODE";
+    public static final String EXTRA_POST_ID = "post_id";
+    public static final String EXTRA_API_CODE = "api_code";
     private static final String VIDEO_PATTERN = ".mp4";
     public static final String EXTRA_IS_POSTED = "exIssPosted";
     public static final String EXTRA_POST_POSITION = "exPostPosition";
@@ -130,13 +130,8 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
             mApiCode = getIntent().getStringExtra(EXTRA_API_CODE);
             mIsPostedPost = getIntent().getBooleanExtra(EXTRA_IS_POSTED, false);
             int position = getIntent().getIntExtra(EXTRA_POST_POSITION, -1);
-            if (position == -1) {
-                Timber.d("Something went wrong when parse intent");
-                finish();
-            } else {
-                if (mIsPostedPost && position != 0) {//need to hide track button when it is not the first post of scheduled posts
-                    mButtonTrack.setVisibility(View.GONE);
-                }
+            if (mIsPostedPost && position != 0) {//need to hide track button when it is not the first post of scheduled posts
+                mButtonTrack.setVisibility(View.GONE);
             }
         } else {
             mPostId = savedInstanceState.getString(EXTRA_POST_ID);
@@ -316,7 +311,7 @@ public class PostDetailActivity extends ToolbarActivity implements PostDetailVie
                     } else {
                         String imageUrl;
                         String captionText;
-                        if (mPost.getMedia() == null) {
+                        if (mPost.getMedia() != null) {
                             imageUrl = mPost.getMedia().getOriginMedia();
                             captionText = mPost.getMedia().getCaptionText();
                         } else {
