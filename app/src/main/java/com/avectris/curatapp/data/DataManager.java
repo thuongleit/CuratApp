@@ -2,6 +2,7 @@ package com.avectris.curatapp.data;
 
 import android.app.Application;
 import android.support.annotation.NonNull;
+
 import com.avectris.curatapp.BuildConfig;
 import com.avectris.curatapp.CuratApp;
 import com.avectris.curatapp.config.Config;
@@ -14,23 +15,26 @@ import com.avectris.curatapp.data.remote.PostService;
 import com.avectris.curatapp.data.remote.SessionService;
 import com.avectris.curatapp.data.remote.post.PostDetailResponse;
 import com.avectris.curatapp.data.remote.post.PostResponse;
+import com.avectris.curatapp.data.remote.post.TrackPostResponse;
 import com.avectris.curatapp.data.remote.verify.AccountResponse;
 import com.avectris.curatapp.data.remote.verify.LoginResponse;
 import com.avectris.curatapp.view.upload.UploadPostService;
 import com.avectris.curatapp.vo.Account;
 import com.avectris.curatapp.vo.Post;
 import com.avectris.curatapp.vo.User;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import rx.Observable;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import rx.Observable;
 
 /**
  * Created by thuongle on 1/14/16.
@@ -57,7 +61,7 @@ public class DataManager {
         ((CuratApp) app).getAppComponent().inject(this);
     }
 
-    public User getActiveUser(){
+    public User getActiveUser() {
         return mUserModel.getActiveUser();
     }
 
@@ -118,7 +122,7 @@ public class DataManager {
                 account.gcmToken = token;
                 account.update();
                 buildSessionIfNeed(account);
-                if (account.enableNotification) {
+                if (account.isEnableNotification()) {
                     observables.add(mSessionService
                             .enablePushNotification(token == null ? account.gcmToken : token, String.valueOf(account.id))
                             .map(response -> {
@@ -146,12 +150,12 @@ public class DataManager {
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
         }
-        if (!accountDb.enableNotification) {
+        if (!accountDb.isEnableNotification()) {
             return mSessionService
                     .enablePushNotification(accountDb.gcmToken, account.id)
                     .map(response -> {
                         if (response.isSuccess()) {
-                            accountDb.enableNotification = true;
+                            accountDb.enableNotification = 1;
                             accountDb.update();
                             return true;
                         }
@@ -168,12 +172,12 @@ public class DataManager {
         if (accountDb != null && accountDb.gcmToken == null) {
             accountDb.gcmToken = mConfig.getGcmToken();
         }
-        if (accountDb.enableNotification) {
+        if (accountDb.isEnableNotification()) {
             return mSessionService
                     .disablePushNotification(accountDb.gcmToken, String.valueOf(account.id))
                     .map(response -> {
                         if (response.isSuccess()) {
-                            accountDb.enableNotification = false;
+                            accountDb.enableNotification = 0;
                             accountDb.update();
                             //saveOrUpdate to database
                             return true;
@@ -233,6 +237,14 @@ public class DataManager {
             buildSessionIfNeed(currentAccount);
             //reset user token
             mApiHeaders.withSession(user.authToken);
+        } else {
+            if (gcmToken == null) {
+                if (currentAccount != null) {
+                    gcmToken = currentAccount.gcmToken;
+                } else {
+                    gcmToken = mConfig.getGcmToken();
+                }
+            }
         }
         User finalUser = user;
         return mSessionService
@@ -268,7 +280,6 @@ public class DataManager {
                                 for (Account accountInDb : accountsInDb) {
                                     if (accountInDb.equals(account)) {
                                         account.gcmToken = accountInDb.gcmToken;
-                                        account.enableNotification = accountInDb.enableNotification;
                                         break;
                                     }
                                 }
@@ -306,6 +317,12 @@ public class DataManager {
         buildSessionIfNeed(currentAccount);
         return mPostService
                 .deletePost(currentAccount.gcmToken, getAppVersion(), getOs(), item.getId());
+    }
+
+    public Observable<TrackPostResponse> trackPost(Post post) {
+        Account currentAccount = mAccountModel.getCurrentAccount();
+        buildSessionIfNeed(currentAccount);
+        return mPostService.trackPost(currentAccount.gcmToken, getAppVersion(), getOs(), post.getId());
     }
 
     private void buildSessionIfNeed(Account account) {

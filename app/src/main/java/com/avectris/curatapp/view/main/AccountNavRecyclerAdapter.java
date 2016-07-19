@@ -88,7 +88,7 @@ class AccountNavRecyclerAdapter extends RecyclerView.Adapter<AccountNavRecyclerA
                 mTextAccountStatus.setText("Inactive");
             }
 
-            if (account.enableNotification) {
+            if (account.isEnableNotification()) {
                 mSwitchNotification.setChecked(true);
             } else {
                 mSwitchNotification.setChecked(false);

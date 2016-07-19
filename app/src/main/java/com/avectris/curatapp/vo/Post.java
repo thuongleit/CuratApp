@@ -21,10 +21,42 @@ public class Post implements Parcelable {
     @JsonProperty("user_posted")
     int mPosted;
 
+    @JsonProperty("ig_media_id")
+    String mIgMediaId;
+
+    @JsonProperty("ig_media_type")
+    String mIgMediaType;
+
+    @JsonProperty("ig_caption_text")
+    String mIgCaptionText;
+
+    @JsonProperty("ig_image_low")
+    String mIgImageLow;
+
+    @JsonProperty("ig_image_thumbnail")
+    String mIgImageThumbnail;
+
+    @JsonProperty("ig_image_standard")
+    String mIgImageStandard;
+
+    @JsonProperty("ig_video_low_resolution")
+    String mIgVideoLowResolution;
+
+    @JsonProperty("ig_video_standard_resolution")
+    String mIgVideoStandardResolution;
+
     @JsonProperty("media")
     Media mMedia;
 
     public Post() {
+    }
+
+    public Media getMedia() {
+        return mMedia;
+    }
+
+    public void setMedia(Media mMedia) {
+        this.mMedia = mMedia;
     }
 
     public String getId() {
@@ -35,7 +67,6 @@ public class Post implements Parcelable {
         this.mId = id;
     }
 
-
     public String getExecDate() {
         return mExecDate;
     }
@@ -43,7 +74,6 @@ public class Post implements Parcelable {
     public void setExecDate(String execDate) {
         this.mExecDate = execDate;
     }
-
 
     public int getStatus() {
         return mStatus;
@@ -57,20 +87,76 @@ public class Post implements Parcelable {
         return mPosted;
     }
 
-    public boolean isPosted(){
-        return mPosted == 1;
-    }
-
     public void setPosted(int posted) {
         this.mPosted = posted;
     }
 
-    public Media getMedia() {
-        return mMedia;
+    public String getIgMediaId() {
+        return mIgMediaId;
     }
 
-    public void setMedia(Media media) {
-        this.mMedia = media;
+    public void setIgMediaId(String igMediaId) {
+        this.mIgMediaId = igMediaId;
+    }
+
+    public String getIgMediaType() {
+        return mIgMediaType;
+    }
+
+    public void setIgMediaType(String igMediaType) {
+        this.mIgMediaType = igMediaType;
+    }
+
+    public String getIgCaptionText() {
+        return mIgCaptionText;
+    }
+
+    public void setIgCaptionText(String igCaptionText) {
+        this.mIgCaptionText = igCaptionText;
+    }
+
+    public String getIgImageLow() {
+        return mIgImageLow;
+    }
+
+    public void setIgImageLow(String igImageLow) {
+        this.mIgImageLow = igImageLow;
+    }
+
+    public String getIgImageThumbnail() {
+        return mIgImageThumbnail;
+    }
+
+    public void setIgImageThumbnail(String igImageThumbnail) {
+        this.mIgImageThumbnail = igImageThumbnail;
+    }
+
+    public String getIgImageStandard() {
+        return mIgImageStandard;
+    }
+
+    public void setIgImageStandard(String igImageStandard) {
+        this.mIgImageStandard = igImageStandard;
+    }
+
+    public String getIgVideoLowResolution() {
+        return mIgVideoLowResolution;
+    }
+
+    public void setIgVideoLowResolution(String igVideoLowResolution) {
+        this.mIgVideoLowResolution = igVideoLowResolution;
+    }
+
+    public String getIgVideoStandardResolution() {
+        return mIgVideoStandardResolution;
+    }
+
+    public void setIgVideoStandardResolution(String igVideoStandardResolution) {
+        this.mIgVideoStandardResolution = igVideoStandardResolution;
+    }
+
+    public boolean isPosted(){
+        return mPosted == 1;
     }
 
     @Override
@@ -99,6 +185,14 @@ public class Post implements Parcelable {
         dest.writeString(this.mExecDate);
         dest.writeInt(this.mStatus);
         dest.writeInt(this.mPosted);
+        dest.writeString(this.mIgMediaId);
+        dest.writeString(this.mIgMediaType);
+        dest.writeString(this.mIgCaptionText);
+        dest.writeString(this.mIgImageLow);
+        dest.writeString(this.mIgImageThumbnail);
+        dest.writeString(this.mIgImageStandard);
+        dest.writeString(this.mIgVideoLowResolution);
+        dest.writeString(this.mIgVideoStandardResolution);
         dest.writeParcelable(this.mMedia, flags);
     }
 
@@ -107,6 +201,14 @@ public class Post implements Parcelable {
         this.mExecDate = in.readString();
         this.mStatus = in.readInt();
         this.mPosted = in.readInt();
+        this.mIgMediaId = in.readString();
+        this.mIgMediaType = in.readString();
+        this.mIgCaptionText = in.readString();
+        this.mIgImageLow = in.readString();
+        this.mIgImageThumbnail = in.readString();
+        this.mIgImageStandard = in.readString();
+        this.mIgVideoLowResolution = in.readString();
+        this.mIgVideoStandardResolution = in.readString();
         this.mMedia = in.readParcelable(Media.class.getClassLoader());
     }
 

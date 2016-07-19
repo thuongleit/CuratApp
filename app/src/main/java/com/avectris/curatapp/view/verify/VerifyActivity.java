@@ -16,13 +16,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
+
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Config;
 import com.avectris.curatapp.config.Constant;
-import com.avectris.curatapp.service.RegistrationIntentService;
+import com.avectris.curatapp.service.MyInstanceIDListenerService;
 import com.avectris.curatapp.util.DialogFactory;
 import com.avectris.curatapp.view.base.BaseActivity;
 import com.avectris.curatapp.view.main.MainActivity;
@@ -31,13 +29,18 @@ import com.avectris.curatapp.vo.User;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.jakewharton.rxbinding.widget.RxTextView;
+
+import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import timber.log.Timber;
-
-import javax.inject.Inject;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by thuongle on 1/13/16.
@@ -67,7 +70,7 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
         @Override
         public void onReceive(Context context, Intent intent) {
             mReceiverToken = true;
-            mGcmToken = intent.getStringExtra(RegistrationIntentService.EXTRA_TOKEN);
+            mGcmToken = intent.getStringExtra(MyInstanceIDListenerService.EXTRA_TOKEN);
         }
     };
 
@@ -110,11 +113,7 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
                     setButtonVerifyEnable(result);
                 });
 
-        if (checkPlayServices()) {
-            // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-            startService(intent);
-        }
+        checkPlayServices();
     }
 
     @Override
@@ -187,6 +186,10 @@ public class VerifyActivity extends BaseActivity implements VerifyView {
     @OnClick(R.id.button_verify)
     public void verify() {
         String email = mInputEmail.getText().toString().trim();
+
+        if (mGcmToken == null) {
+            mGcmToken = mConfig.getGcmToken();
+        }
         if (mGcmToken != null) {
             String password = mInputPassword.getText().toString();
             if (validate(email, password)) {

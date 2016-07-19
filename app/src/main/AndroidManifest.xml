@@ -3,17 +3,8 @@
     package="com.avectris.curatapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- [START gcm_permission] -->
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <permission
-        android:name="com.avectris.curatapp.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="com.avectris.curatapp.permission.C2D_MESSAGE" />
-    <!-- [END gcm_permission] -->
 
     <application
         android:name=".CuratApp"
@@ -39,17 +30,25 @@
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="OPEN_MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity
             android:name=".view.verify.VerifyActivity"
             android:label="Splash"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".view.detail.PostDetailActivity"
             android:parentActivityName=".view.main.MainActivity">
+            <intent-filter>
+                <action android:name="OPEN_POST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />
@@ -57,63 +56,43 @@
 
         <activity
             android:name=".view.upload.UploadPostsActivity"
-            android:parentActivityName=".view.main.MainActivity"
-            android:label="Upload Media">
+            android:label="Upload Media"
+            android:parentActivityName=".view.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
-                <data android:mimeType="video/mp4"/>
+                <data android:mimeType="video/mp4" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
-                <data android:mimeType="video/mp4"/>
+                <data android:mimeType="video/mp4" />
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".view.main.MainActivity" />
         </activity>
 
-        <!-- [START gcm_receiver] -->
-        <receiver
-            android:name="com.google.android.gms.gcm.GcmReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
-                <category android:name="com.avectris.curatapp" />
-            </intent-filter>
-        </receiver>
-        <!-- [END gcm_receiver] -->
-
         <!-- [START gcm_listener] -->
-        <service
-            android:name=".service.MyGcmListenerService"
-            android:exported="false">
+        <service android:name=".service.MyGcmListenerService">
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <!-- [END gcm_listener] -->
-        <!-- [START instanceId_listener] -->
         <service
-            android:name=".service.MyInstanceIDListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID" />
-            </intent-filter>
-        </service>
-        <!-- [END instanceId_listener] -->
-        <service
-            android:name=".service.RegistrationIntentService"
+            android:name=".view.upload.UploadPostService"
             android:exported="false" />
 
-        <service android:name=".view.upload.UploadPostService"
-            android:exported="false"/>
+        <service android:name=".service.MyInstanceIDListenerService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="io.fabric.ApiKey"

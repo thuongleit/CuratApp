@@ -3,13 +3,15 @@ package com.avectris.curatapp.view.splash;
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.di.scope.PerActivity;
 import com.avectris.curatapp.view.base.BasePresenter;
+
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
-
-import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * Created by thuongle on 2/13/16.
@@ -42,6 +44,7 @@ class SplashPresenter extends BasePresenter<SplashView> {
                         mView.onNoSessionAvailable();
                     }
                 })
+                .filter(user -> user != null)
                 .flatMap(user -> mDataManager.fetchAccounts(user, null))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

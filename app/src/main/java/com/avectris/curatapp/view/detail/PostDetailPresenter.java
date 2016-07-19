@@ -1,14 +1,18 @@
 package com.avectris.curatapp.view.detail;
 
 import android.content.Intent;
+
 import com.avectris.curatapp.data.DataManager;
 import com.avectris.curatapp.view.base.BasePresenter;
+import com.avectris.curatapp.vo.Post;
+
+import java.io.IOException;
+
+import javax.inject.Inject;
+
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
-
-import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * Created by thuongle on 2/15/16.
@@ -78,6 +82,33 @@ class PostDetailPresenter extends BasePresenter<PostDetailView> {
                         },
                         e -> {
                             mView.setButtonEnable(true);
+                            if (e instanceof IOException) {
+                                mView.onNetworkError();
+                            } else {
+                                mView.onGeneralError();
+                            }
+                        }));
+    }
+
+    public void trackPost(Post post) {
+        checkViewAttached();
+        mView.showProgress(true);
+
+        mSubscriptions.add(mDataManager
+                .trackPost(post)
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .unsubscribeOn(Schedulers.io())
+                .subscribe(response -> {
+                            if (response.isSuccess()) {
+                                mView.onTrackPostSuccess(response.getMessage());
+                            } else {
+                                mView.onTrackPostFailed(response.getMessage());
+                            }
+                            mView.showProgress(false);
+                        },
+                        e -> {
+                            mView.showProgress(false);
                             if (e instanceof IOException) {
                                 mView.onNetworkError();
                             } else {

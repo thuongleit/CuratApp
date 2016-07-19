@@ -23,38 +23,36 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+
 import com.avectris.curatapp.R;
 import com.avectris.curatapp.config.Constant;
 import com.avectris.curatapp.view.detail.PostDetailActivity;
 import com.avectris.curatapp.view.main.MainActivity;
-import com.google.android.gms.gcm.GcmListenerService;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
-public class MyGcmListenerService extends GcmListenerService {
+import java.util.Map;
 
-    private static final String TAG = "MyGcmListenerService";
+public class MyGcmListenerService extends FirebaseMessagingService {
 
-    /**
-     * Called when message is received.
-     *
-     * @param from SenderID of the sender.
-     * @param data Data bundle containing message data as key/value pairs.
-     *             For Set of keys use data.keySet().
-     */
     // [START receive_message]
     @Override
-    public void onMessageReceived(String from, Bundle data) {
-        String notificationTypeStr = data.getString("notification_type");
+    public void onMessageReceived(RemoteMessage message) {
+        super.onMessageReceived(message);
+        String from = message.getFrom();
+        Map data = message.getData();
+
+        String notificationTypeStr = (String) data.get("notification_type");
         int notificationType = 0;
         if (notificationTypeStr != null) {
             notificationType = Integer.parseInt(notificationTypeStr);
         }
-        String postId = data.getString("post_id");
-        String body = data.getString("body");
-        String title = data.getString("title");
-        String apiCode = data.getString("api_code");
+        String postId = (String) data.get("post_id");
+        String body = (String) data.get("body");
+        String title = (String) data.get("title");
+        String apiCode = (String) data.get("api_code");
 
         if (from.startsWith("/topics/")) {
             // message received from some topic.
